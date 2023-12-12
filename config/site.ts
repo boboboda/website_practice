@@ -1,7 +1,7 @@
 export type SiteConfig = typeof siteConfig;
 
 export const siteConfig = {
-	name: "Next.js + NextUI",
+	name: "코딩천재 부영실",
 	description: "Make beautiful websites regardless of your design experience.",
 	navItems: [
 		{
@@ -14,11 +14,11 @@ export const siteConfig = {
     },
     {
       label: "제작의뢰",
-      href: "/makerder",
+      href: "/makeorder",
     },
     {
       label: "연락하기",
-      href: "/isCall",
+      href: "https://open.kakao.com/o/ss0BBmVb",
     }
 	],
 	navMenuItems: [

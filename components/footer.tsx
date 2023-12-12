@@ -1,14 +1,18 @@
 import "@/styles/globals.css";
+import NextLink from "next/link";
 
 export default function Footer() {
     return (
         <>
-        <footer className="text-gray-600 body-font">
-  <div className="bg-gray-100">
+        <footer className="container mx-auto max-w-7xl pt-16 px-6 flex-grow ">
+  <div className="">
     <div className="container px-5 py-6 mx-auto flex items-center sm:flex-row flex-col">
-      <a className="flex title-font font-medium items-center md:justify-start justify-center text-gray-900">
-        <span className="ml-3 text-xl">코딩천재 부영실</span>
-      </a>
+      <NextLink href="/" className="flex title-font font-medium items-center md:justify-start justify-center">
+    
+        <span className="ml-3 text-[1.1rem]">코딩천재 부영실</span>
+    
+      </NextLink>
+      
       <p className="text-sm text-gray-500 sm:ml-6 sm:mt-0 mt-4">© 2020 Tailblocks —
         <a href="https://twitter.com/knyttneve" rel="noopener noreferrer" className="text-gray-600 ml-1" target="_blank">@knyttneve</a>
       </p>
