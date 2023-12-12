@@ -1,9 +1,12 @@
 import { title } from "@/components/primitives";
+import Head from "next/head"
+import Hero from "../../components/home/hero"
+
 
 export default function ReleaseAppPage() {
 	return (
 		<div>
-			<h1 className={title()}>출시 앱</h1>
+			출시 어플
 		</div>
 	);
 }

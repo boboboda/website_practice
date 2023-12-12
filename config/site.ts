@@ -5,24 +5,20 @@ export const siteConfig = {
 	description: "Make beautiful websites regardless of your design experience.",
 	navItems: [
 		{
-			label: "Home",
+			label: "홈",
 			href: "/",
 		},
     {
-      label: "Docs",
-      href: "/docs",
+      label: "출시어플",
+      href: "/release",
     },
     {
-      label: "Pricing",
-      href: "/pricing",
+      label: "제작의뢰",
+      href: "/makerder",
     },
     {
-      label: "Blog",
-      href: "/blog",
-    },
-    {
-      label: "About",
-      href: "/about",
+      label: "연락하기",
+      href: "/isCall",
     }
 	],
 	navMenuItems: [

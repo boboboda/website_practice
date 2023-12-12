@@ -9,18 +9,16 @@ export default function RootLayout({
 }) {
 	return (
 
-		<>
-		
-		<Header/>
-		{children}
-		<Footer/>
-		</>
-		
-		
-		
-		
-
-					
+		<html lang="en" suppressHydrationWarning>
+			<body>
+			<Header/>
+				<div>
+				{children}
+				</div>
+				<Footer/>
+			</body>
+			
+		</html>				
 		// {// 배경색
 		// /* <Providers themeProps={{ attribute: "class", defaultTheme: "dark" }}>
 					
