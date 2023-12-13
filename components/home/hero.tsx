@@ -19,7 +19,7 @@ export default function Hero() {
 
                 <div className="flex justify-center">
                     <NextLink href="/release">
-                    <button className="inline-flex text-white bg-indigo-500 border-0 py-2 px-6 focus:outline-none hover:bg-indigo-600 rounded text-lg">
+                    <button className="btn-project">
                         어플 보러가기
                     </button>
                     </NextLink>

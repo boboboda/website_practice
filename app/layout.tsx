@@ -41,7 +41,7 @@ export default function RootLayout({
 
 		<html lang="en" suppressHydrationWarning>
 			<body
-			className="bg-primary"
+			// className="bg-primary"
 			>
 			<Providers themeProps={{ attribute: "class", defaultTheme: "dark" }}>
 			<div className="relative flex flex-col h-screen">
