@@ -18,11 +18,12 @@ async function fetchNotionAilCall() {
 			'content-type': 'application/json',
 			Authorization: `${TOKEN}`
 		},
-		body: JSON.stringify({ 
+		body: 
+		JSON.stringify({ 
 			sorts: [
 				{
-					"property": "출시일",
-					"direction": "ascending"
+					"property": "Name",
+					"direction": "descending"
 				}
 			],
 			page_size: 100 })
@@ -42,8 +43,8 @@ export default async function ReleaseAppPage() {
 	
 	const response = await fetchNotionAilCall()
 
-	const projects = response.results.map((aProject: any) =>(
-		aProject.properties.이름.title[0]?.plain_text
+	const projects = response.results?.map((aProject: any) =>(
+		aProject.properties.Name.title[0]?.plain_text
 		))
 
 	let count = 0
@@ -55,13 +56,16 @@ export default async function ReleaseAppPage() {
 	
 	
 	return (
-		<div>
-			<h1>총 출시 어플: {count}</h1>
-			{response.results.map((aApp: any) => (
+		<>
+		<h1>총 출시 어플: {count}</h1>
+		<div className="grid lg:grid-cols-1 md:grid-cos-2 gap-8 lg:w-full">
+			{response.results?.map((aApp: any) => (
 			<ReleaseItem key={aApp.id} data={aApp}/>
 			))}
 		
 		</div>
+		</>
+		
 	);
 }
 
