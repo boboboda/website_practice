@@ -4,8 +4,10 @@ export default function PricingLayout({
 	children: React.ReactNode;
 }) {
 	return (
+
 		
-			<div className="inline-block text-center justify-center">
+		
+			<div className="inline-block space-y-6 text-center justify-center">
 				{children}
 			</div>
 		

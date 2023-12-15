@@ -10,7 +10,8 @@ import ReleaseItem from "@/components/release/releaseItem";
 // 빌더 타임에 호출
 async function fetchNotionAilCall() {
 
-	const options = {
+	const res = await fetch(`https://api.notion.com/v1/databases/${DATABASE_ID}/query`, {
+		cache: 'no-store',
 		method: 'POST',
 		headers: {
 			Accept: 'application/json',
@@ -26,10 +27,8 @@ async function fetchNotionAilCall() {
 					"direction": "descending"
 				}
 			],
-			page_size: 100 })
-	};
-
-	const res = await fetch(`https://api.notion.com/v1/databases/${DATABASE_ID}/query`, options)
+			page_size: 100 }),
+	} )
 
 	const projects = await res.json()
 
@@ -57,13 +56,17 @@ export default async function ReleaseAppPage() {
 	
 	return (
 		<>
-		<h1>총 출시 어플: {count}</h1>
-		<div className="grid lg:grid-cols-1 md:grid-cos-2 gap-8 lg:w-full">
-			{response.results?.map((aApp: any) => (
+		<h1 className={title()}>출시 어플: 
+		{
+		<span className="pl-4 text-blue-500">{count}</span>
+		}</h1>
+		<div className="md:gap-8 grid grid-cols-1 md:grid-cols-2">
+		{response.results?.map((aApp: any) => (
 			<ReleaseItem key={aApp.id} data={aApp}/>
 			))}
-		
 		</div>
+
+		
 		</>
 		
 	);
