@@ -58,7 +58,7 @@ export default function Header() {
 
             <ul className="hidden lg:flex gap-4 justify-start items-center">
               {siteConfig.navItems.map((item:any)=>(
-                <li className="text-medium whitespace-nowrap box-border list-none">
+                <li key={item.id} className="text-medium whitespace-nowrap box-border list-none">
                   <a className="relative inline-flex items-center tap-highlight-transparent outline-none 
                   text-xl text-slate-500 font-semibold
                   data-[focus-visible=true]:z-10 
