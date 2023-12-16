@@ -25,12 +25,7 @@ import { Image} from "@nextui-org/react";
 
 export default function Header() {
 
-   const [currentPagePath, setCurrentPagePath] = useState("");
-
   const pathname = usePathname();
-
-  console.log(pathname)
-
   return (
         <Navbar className="mt-2" maxWidth="xl" position="sticky">
           <NavbarContent className="basis-1/5 sm:basis-full" justify="start">
@@ -45,8 +40,6 @@ export default function Header() {
                 alt="NextUI hero Image"
               className="w-full object-contain h-[40px] w-[40px]"
             />
-
-
                 <Image
               height="10%"
               width="50%"
@@ -92,11 +85,3 @@ export default function Header() {
         </Navbar>
   )
 }
-
-{/* <li className="text-medium whitespace-nowrap box-border list-none data-[active=true]:font-semibold">
-                  <a className="relative inline-flex items-center tap-highlight-transparent outline-none data-[focus-visible=true]:z-10 data-[focus-visible=true]:outline-2 data-[focus-visible=true]:outline-focus data-[focus-visible=true]:outline-offset-2 text-medium text-foreground no-underline hover:opacity-80 active:opacity-disabled transition-opacity data-[active=true]:text-primary" color="foreground" data-active="false" href="/release">출시어플</a></li><li className="text-medium whitespace-nowrap box-border list-none data-[active=true]:font-semibold">
-                  <a className="relative inline-flex items-center tap-highlight-transparent outline-none data-[focus-visible=true]:z-10 data-[focus-visible=true]:outline-2 data-[focus-visible=true]:outline-focus data-[focus-visible=true]:outline-offset-2 text-medium text-foreground no-underline hover:opacity-80 active:opacity-disabled transition-opacity data-[active=true]:text-primary" color="foreground" data-active="false" href="/blog">Blog</a>
-                  </li>
-                  <li className="text-medium whitespace-nowrap box-border list-none data-[active=true]:font-semibold">
-                    <a className="relative inline-flex items-center tap-highlight-transparent outline-none data-[focus-visible=true]:z-10 data-[focus-visible=true]:outline-2 data-[focus-visible=true]:outline-focus data-[focus-visible=true]:outline-offset-2 text-medium text-foreground no-underline hover:opacity-80 active:opacity-disabled transition-opacity data-[active=true]:text-primary" color="foreground" data-active="false" href="/figma">Figma</a>
-                  </li> */}
