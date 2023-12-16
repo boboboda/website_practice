@@ -9,6 +9,7 @@ import clsx from "clsx";
 
 
 
+
 export const metadata: Metadata = {
 	title: {
 		default: siteConfig.name,

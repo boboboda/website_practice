@@ -65,8 +65,6 @@ export default async function ReleaseAppPage() {
 			<ReleaseItem key={aApp.id} data={aApp}/>
 			))}
 		</div>
-
-		
 		</>
 		
 	);

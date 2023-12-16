@@ -1,7 +1,12 @@
+"use client"
+
 import React from "react";
-import { Image, Card, CardFooter, CardBody, Tooltip, Chip} from "@nextui-org/react";
+import { Image, Card, CardFooter, CardBody, Tooltip, Chip, Button, Link,
+  Dropdown, DropdownTrigger, DropdownMenu, DropdownItem,
+} from "@nextui-org/react";
 import { title, subtitle } from "../primitives";
 import { TagCustom } from "../primitives";
+import {Divider} from "@nextui-org/react";
 // import Image from 'next/image';
 
 
@@ -18,7 +23,7 @@ export default function ReleaseItem({ data }: {data: any }) {
     const appTags = data.properties.Tags.multi_select
 
 
-    const lines = appTitle.split("\n");
+    const lines = appTitle.split(".");
     const lineNumber = lines.length;
 
     console.log(lineNumber);
@@ -28,7 +33,7 @@ export default function ReleaseItem({ data }: {data: any }) {
     return (
  <div>
            {
-        <Card className=" bg-slate-500">
+        <Card className="card-modifier">
           <CardBody className="overflow-visible space-y-6 item-center">
             <Image
               shadow="sm"
@@ -55,25 +60,41 @@ export default function ReleaseItem({ data }: {data: any }) {
                     ))
                     
                 }
-                
-           
-           
+                </div>
+            </div>
 
-            </div>
-            <a href={appLink}>앱 바로가기</a>
-            </div>
+            <Divider className="my-2 text-black" />
+                
+                <div className=" flex flex-direction-row ml-auto gap-4 items-center">
+                <Button>
+                  <Link color="foreground" href={appLink}>
+                  앱 바로가기
+                  </Link>
+                </Button>
+                
+                <Dropdown>
+              <DropdownTrigger>
+                <Button>
+                  메뉴
+                </Button>
+              </DropdownTrigger>
+              <DropdownMenu onAction={() =>{
+                // console.log(`aTodo.id: ${aTodo.id}  key: ${key}}`)
+
+                // setCurrentModalData({focusedTodo: aTodo, modalType: key as CustomModalType})
+                // onOpen();
+              }}>
+                <DropdownItem href="">문의게시판</DropdownItem>
+                <DropdownItem href="">개인정보처리지침</DropdownItem>
+                <DropdownItem href="">개발노트</DropdownItem>
+              </DropdownMenu>
+            </Dropdown>
+                </div>
           </CardBody>
+          
         </Card>
      }
 
    </div>
     )
 }
-
-
-
- {/* {
-                    
-
-
-                } */}

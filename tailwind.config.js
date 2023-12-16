@@ -39,7 +39,7 @@ module.exports = {
       themes: {
         light: {
           colors: {
-            background: '#99C7FB'
+            background: '#bae6fd'
           }
         },
         dark: {

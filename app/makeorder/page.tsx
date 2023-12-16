@@ -6,7 +6,7 @@ import Hero from "../../components/home/hero"
 export default function ReleaseAppPage() {
 	return (
 		<div>
-			제작 의뢰
+			추후 공개 예정
 		</div>
 	);
 }
