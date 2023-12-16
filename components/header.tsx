@@ -60,7 +60,7 @@ export default function Header() {
 
             <ul className="hidden lg:flex gap-4 justify-start items-center">
               {siteConfig.navItems.map((item:any)=>(
-                <li className="text-medium whitespace-nowrap box-border list-none">
+                <li key={item.id} className="text-medium whitespace-nowrap box-border list-none">
                   <a className="relative inline-flex items-center tap-highlight-transparent outline-none 
                   text-xl text-slate-500 font-semibold
                   data-[focus-visible=true]:z-10 
@@ -91,7 +91,7 @@ export default function Header() {
 
             <ul className="flex lg:hidden gap-4 justify-start items-center">
               {siteConfig.navItems.map((item:any)=>(
-                <li className="text-medium whitespace-nowrap box-border list-none">
+                <li key={item.id} className="text-medium whitespace-nowrap box-border list-none">
                   <a className="relative inline-flex items-center tap-highlight-transparent outline-none 
                   text-xl text-slate-500 font-semibold
                   data-[focus-visible=true]:z-10 
@@ -119,11 +119,3 @@ export default function Header() {
         
   )
 }
-
-{/* <li className="text-medium whitespace-nowrap box-border list-none data-[active=true]:font-semibold">
-                  <a className="relative inline-flex items-center tap-highlight-transparent outline-none data-[focus-visible=true]:z-10 data-[focus-visible=true]:outline-2 data-[focus-visible=true]:outline-focus data-[focus-visible=true]:outline-offset-2 text-medium text-foreground no-underline hover:opacity-80 active:opacity-disabled transition-opacity data-[active=true]:text-primary" color="foreground" data-active="false" href="/release">출시어플</a></li><li className="text-medium whitespace-nowrap box-border list-none data-[active=true]:font-semibold">
-                  <a className="relative inline-flex items-center tap-highlight-transparent outline-none data-[focus-visible=true]:z-10 data-[focus-visible=true]:outline-2 data-[focus-visible=true]:outline-focus data-[focus-visible=true]:outline-offset-2 text-medium text-foreground no-underline hover:opacity-80 active:opacity-disabled transition-opacity data-[active=true]:text-primary" color="foreground" data-active="false" href="/blog">Blog</a>
-                  </li>
-                  <li className="text-medium whitespace-nowrap box-border list-none data-[active=true]:font-semibold">
-                    <a className="relative inline-flex items-center tap-highlight-transparent outline-none data-[focus-visible=true]:z-10 data-[focus-visible=true]:outline-2 data-[focus-visible=true]:outline-focus data-[focus-visible=true]:outline-offset-2 text-medium text-foreground no-underline hover:opacity-80 active:opacity-disabled transition-opacity data-[active=true]:text-primary" color="foreground" data-active="false" href="/figma">Figma</a>
-                  </li> */}
