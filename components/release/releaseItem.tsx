@@ -4,7 +4,7 @@ import React from "react";
 import { Image, Card, CardFooter, CardBody, Tooltip, Chip, Button, Link,
   Dropdown, DropdownTrigger, DropdownMenu, DropdownItem,
 } from "@nextui-org/react";
-import { title, subtitle } from "../primitives";
+import { title, subtitle, ButtnCustom } from "../primitives";
 import { TagCustom } from "../primitives";
 import {Divider} from "@nextui-org/react";
 // import Image from 'next/image';
@@ -49,24 +49,29 @@ export default function ReleaseItem({ data }: {data: any }) {
             <li className= {title({ size:"sm", position: "center" })}>
             {appTitle}</li>
             <h3>{description}</h3>
-            <div className="flex items-start mt-2">
-               
+            <div className="items-start mt-2 w-full "
+            style={{display: "inline"}}>
                 {
                     appTags.map((aTag:any)=> (
-                        <h1 
+                        <Chip
+                        style={{
+                          display: "inline-block",
+                          overflow: "hidden",
+                          textOverflow: "ellipsis",
+                          whiteSpace: "nowrap",
+                        }}
                         key={aTag.id} 
                         className={TagCustom({color: aTag.color})}>
-                            {aTag.name}</h1>
-                    ))
-                    
-                }
+                            {aTag.name}</Chip>
+                            ))
+                 }
                 </div>
             </div>
 
             <Divider className="my-2 text-black" />
                 
                 <div className=" flex flex-direction-row ml-auto gap-4 items-center">
-                <Button>
+                <Button className={ButtnCustom()}>
                   <Link color="foreground" href={appLink}>
                   앱 바로가기
                   </Link>
@@ -74,7 +79,7 @@ export default function ReleaseItem({ data }: {data: any }) {
                 
                 <Dropdown>
               <DropdownTrigger>
-                <Button>
+                <Button className={ButtnCustom()}>
                   메뉴
                 </Button>
               </DropdownTrigger>
