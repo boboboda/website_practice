@@ -1,121 +1,58 @@
 
-"use client"
-
 import "@/styles/globals.css";
-import {Navbar, 
-  NavbarBrand, 
-  NavbarContent, 
-  NavbarItem, 
-  Link} from "@nextui-org/react";
+import {
+  Navbar as NextUINavbar,
+  NavbarContent,
+  NavbarMenu,
+  NavbarMenuToggle,
+  NavbarBrand,
+  NavbarItem,
+  NavbarMenuItem,
+} from "@nextui-org/navbar";
+import { link as linkStyles } from "@nextui-org/theme";
 import { ThemeSwitch } from "@/components/theme-switch";
 
 import { siteConfig } from "@/config/site";
-import { useState, useEffect } from "react";
-
-
-// import { useRouter } from 'next/navigation'
-import { usePathname, useSearchParams } from 'next/navigation'
-import { Image} from "@nextui-org/react";
-
-
-
-
-
-
+import NextLink from "next/link";
+import clsx from "clsx";
 
 export default function Header() {
-
-  const pathname = usePathname();
-
   return (
-    <>
-    <Navbar className="mt-2" maxWidth="xl" position="sticky">
+        <NextUINavbar maxWidth="xl" position="sticky">
           <NavbarContent className="basis-1/5 sm:basis-full" justify="start">
             <NavbarBrand as="li" className="gap-3 max-w-fit">
-              <Link className="flex justify-start items-center gap-1" color="foreground" href="/">
-                
-              <Image
-              height="10%"
-              width="50%"
-              src={"https://firebasestorage.googleapis.com/v0/b/cobusil-site-db.appspot.com/o/ImageFoder%2Fbranding.png?alt=media&token=119a1af2-9a61-47c4-a32b-17af769a97f6"}
-              fallbackSrc="https://via.placeholder.com/300x200"
-                alt="NextUI hero Image"
-              className="w-full object-contain h-[40px] w-[40px]"
-            />
-                <Image
-              height="10%"
-              width="50%"
-              src={"https://firebasestorage.googleapis.com/v0/b/cobusil-site-db.appspot.com/o/ImageFoder%2F3d%20font.png?alt=media&token=e4a39e74-ed15-4f71-93e6-53b87050f296"}
-              fallbackSrc="https://via.placeholder.com/300x200"
-                alt="NextUI hero Image"
-              className="mr-5 w-full object-contain h-[40px] w-[400px]"
-            />
-                
-              </Link>
+              <NextLink className="flex justify-start items-center gap-1" href="/">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" className="w-10 h-10 text-white p-2 bg-indigo-500 rounded-full" viewBox="0 0 24 24">
+                  <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"></path>
+                </svg>
+                <span className="ml-3 text-xl">코딩천재 부영실</span>
+              </NextLink>
             </NavbarBrand>
           </NavbarContent>
 
           <NavbarContent className="hidden sm:flex basis-1/5 sm:basis-full"
             justify="end">
 
-            <ul className="hidden lg:flex gap-4 justify-start items-center">
-              {siteConfig.navItems.map((item:any)=>(
-                <li key={item.id} className="text-medium whitespace-nowrap box-border list-none">
-                  <a className="relative inline-flex items-center tap-highlight-transparent outline-none 
-                  text-xl text-slate-500 font-semibold
-                  data-[focus-visible=true]:z-10 
-                  data-[focus-visible=true]:outline-2 
-                  data-[focus-visible=true]:outline-focus 
-                  data-[focus-visible=true]:outline-offset-2
-                  hover:opacity-80
-                  hover:text-slate-100
-                  active:opacity-disabled transition-opacity 
-                  data-[active=true]:text-[#0072F5]
-                  data-[active=true]:dark:text-[#0072F5]
-                  data-[active=true]:text-xl
-                  data-[active=true]: "
-                  color="foreground" 
-                  data-active={pathname === item.href ? true : false}
-                  href={item.href}>{item.label}</a>
-                  </li>
+            <ul className="hidden lg:flex gap-4 justify-start ml-2">
+              {siteConfig.navItems.map((item) => (
+                <NavbarItem key={item.href}>
+                  <NextLink
+                    className={clsx(
+                      linkStyles({ color: "foreground" }),
+                      "data-[active=true]:text-primary data-[active=true]:font-medium"
+                    )}
+                    color="foreground"
+                    href={item.href}
+                  >
+                    {item.label}
+                  </NextLink>
+                </NavbarItem>
               ))}
-              </ul>
+            </ul>
+
+            <ThemeSwitch />
 
           </NavbarContent>
-          <ThemeSwitch />
-        </Navbar>
-
-        <Navbar className="lg:hidden" maxWidth="xl" position="sticky">
-        <NavbarContent className=" basis-1/5 sm:basis-full"
-            justify="start">
-
-            <ul className="flex lg:hidden gap-4 justify-start items-center">
-              {siteConfig.navItems.map((item:any)=>(
-                <li key={item.id} className="text-medium whitespace-nowrap box-border list-none">
-                  <a className="relative inline-flex items-center tap-highlight-transparent outline-none 
-                  text-xl text-slate-500 font-semibold
-                  data-[focus-visible=true]:z-10 
-                  data-[focus-visible=true]:outline-2 
-                  data-[focus-visible=true]:outline-focus 
-                  data-[focus-visible=true]:outline-offset-2
-                  hover:opacity-80
-                  hover:text-slate-100
-                  active:opacity-disabled transition-opacity 
-                  data-[active=true]:text-[#0072F5]
-                  data-[active=true]:dark:text-[#0072F5]
-                  data-[active=true]:text-xl
-                  data-[active=true]: "
-                  color="foreground" 
-                  data-active={pathname === item.href ? true : false}
-                  href={item.href}>{item.label}</a>
-                  </li>
-              ))}
-              </ul>
-
-          </NavbarContent>
-
-        </Navbar>
-    </>
-        
+        </NextUINavbar>
   )
 }
