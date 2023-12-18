@@ -49,7 +49,7 @@ export default function ReleaseItem({ data }: {data: any }) {
             
               {
                 linesDescription.map((item:any)=>(
-                  <li className="list-none -indent-4 ml-5">
+                  <li key={item.id} className="list-none -indent-4 ml-5">
                     {item}
                   </li>
                 ))
