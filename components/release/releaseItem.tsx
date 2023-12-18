@@ -2,7 +2,7 @@
 
 import React from "react";
 import { Image, Card, CardFooter, CardBody, Tooltip, Chip, Button, Link,
-  Dropdown, DropdownTrigger, DropdownMenu, DropdownItem,
+  Dropdown, DropdownTrigger, DropdownMenu, DropdownItem, listboxSection,
 } from "@nextui-org/react";
 import { title, subtitle, ButtnCustom } from "../primitives";
 import { TagCustom } from "../primitives";
@@ -23,10 +23,7 @@ export default function ReleaseItem({ data }: {data: any }) {
     const appTags = data.properties.Tags.multi_select
 
 
-    const lines = appTitle.split(".");
-    const lineNumber = lines.length;
-
-    console.log(lineNumber);
+    const linesDescription = description.split("\n");
 
 
 
@@ -48,7 +45,18 @@ export default function ReleaseItem({ data }: {data: any }) {
             <div className="flex flex-col p-x-2 space-y-4 item-center">
             <li className= {title({ size:"sm", position: "center" })}>
             {appTitle}</li>
-            <h3>{description}</h3>
+            <div className="items-start mt-2 w-full ">
+            
+              {
+                linesDescription.map((item:any)=>(
+                  <li className="list-none -indent-4 ml-5">
+                    {item}
+                  </li>
+                ))
+              }
+            
+            </div>
+            
             <div className="items-start mt-2 w-full "
             style={{display: "inline"}}>
                 {

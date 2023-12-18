@@ -16,7 +16,8 @@ export default function Hero() {
             "나만의 홈페이지 또는 어플?", 
           "비전있는 아이템?", 
           "충족되지 않는 앱 서비스?", 
-          "그 꿈 부영실이 이루어드리겠습니다."], // Strings to display
+          "그 꿈 부영실이",
+          "이루어드리겠습니다."], // Strings to display
           // Speed settings, try diffrent values untill you get good results
           startDelay: 300,
           typeSpeed: 100,
@@ -37,13 +38,13 @@ export default function Hero() {
                 <h1 className={title()}>
                     안녕하세요!!&nbsp;  
                 </h1>
-                <h1 className={title({ size:"sm" })}>
+                <li className={title({ size:"sm" })}>
                 저는 코딩천재 부영실입니다.&nbsp; 
-				</h1>
+				</li>
 
-                <h1 className={title({ size:"xs" })}>
+                <li className={title({ size:"xs" })}>
                 여러분은 꿈을 꾸십니까? 
-				</h1>
+				</li>
 
                 <h1 className={title({ size:"xs", color:"pink"})}>
                 <span ref={el}></span>
