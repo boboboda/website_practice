@@ -97,9 +97,9 @@ export default function ReleaseItem({ data }: {data: any }) {
                 // setCurrentModalData({focusedTodo: aTodo, modalType: key as CustomModalType})
                 // onOpen();
               }}>
-                <DropdownItem href="">문의게시판</DropdownItem>
-                <DropdownItem href="">개인정보처리지침</DropdownItem>
-                <DropdownItem href="">개발노트</DropdownItem>
+                <DropdownItem href="">공지사항</DropdownItem>
+                <DropdownItem href="/release/bulletin">문의게시판</DropdownItem>
+                <DropdownItem href="">개인정보처리방침</DropdownItem>
               </DropdownMenu>
             </Dropdown>
                 </div>
