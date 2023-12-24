@@ -18,7 +18,7 @@ export default function ReleaseItem({ data }: {data: any }) {
     // 다른 표현
     const imgSrc = data.cover.file?.url || data.cover.external.url
 
-   
+    const databaseName = data.properties.database.rich_text[0]?.plain_text
 
     const appTags = data.properties.Tags.multi_select
 
@@ -98,7 +98,7 @@ export default function ReleaseItem({ data }: {data: any }) {
                 // onOpen();
               }}>
                 <DropdownItem href="">공지사항</DropdownItem>
-                <DropdownItem href="/release/bulletin">문의게시판</DropdownItem>
+                <DropdownItem href={`/release/postBoard/${databaseName}`}>문의게시판</DropdownItem>
                 <DropdownItem href="">개인정보처리방침</DropdownItem>
               </DropdownMenu>
             </Dropdown>
