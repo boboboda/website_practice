@@ -2,13 +2,21 @@ import { NextRequest, NextResponse } from "next/server";
 import  { fetchPosts, deleteATodo, editATodo} from "@/data/firestore";
 
 
-// 할일 단일 조회
+// 모든 할일 가져오기
 export async function GET(request: NextRequest,
      { params }: { params: { database: string  } }) {
 
 
 
-    return NextResponse.json(params.database, {status: 200});
+      const fetchedPosts = await fetchPosts(params.database);
+
+      const response = {
+          message: `posts 몽땅 가져오기`,
+          data: fetchedPosts
+      }
+  
+  
+      return NextResponse.json(response, {status: 200});
   }
 
 
