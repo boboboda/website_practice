@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
-import  { fetchPosts, deleteATodo, editATodo} from "@/data/firestore";
+import  { fetchPosts, deleteATodo, editATodo, addAPost} from "@/data/firestore";
+import { Content } from "next/font/google";
 
-
-// 모든 할일 가져오기
+// 모든 글 가져오기
 export async function GET(request: NextRequest,
      { params }: { params: { database: string  } }) {
 
@@ -20,53 +20,76 @@ export async function GET(request: NextRequest,
   }
 
 
-//   // 할일 단일 삭제: id
-// export async function DELETE(request: NextRequest,
-//     { params }: { params: { slug: string } }) {
 
-//  // URL -> `/dashboard?search=my-project`
-//  // `search` -> 'my-project'
-
-//  const deletedTodo = await deleteATodo(params.slug)
- 
-//  if(deletedTodo === null) {
-//     return new Response(null, {status : 204});
-//  }
-
-//    const response = {
-//        message: `단일 할일 삭제 성공`,
-//        data: deletedTodo
-//        }
-
-
-//    return NextResponse.json(response, {status: 200});
-//  }
-
-
-//  // 할일 단일 수정
-// export async function POST(request: NextRequest,
-//     { params }: { params: { slug: string } }) {
-
-
-//  // URL -> `/dashboard?search=my-project`
-//  // `search` -> 'my-project'
-
-//  const { title, is_done } = await request.json();
-
-//  const editedTodo = await editATodo(params.slug, {title, is_done})
-
-//  if(editedTodo === null) {
-//     return new Response(null, {status : 204});
-//  }
-
-
-
+  // 게시글 추가
+  export async function POST(request: NextRequest,
+    { params }: { params: { database: string  } }) {
+    
   
-//    const response = {
-//        message: `단일 할일 수정 성공`,
-//        data: editedTodo
-//    }
+    const data = await request.json();
+
+    const post = {
+        collectionName: params.database,
+        title: data.title,
+        passward: data.passward,
+        writer: data.writer,
+        content: data.content
+    }
+
+    console.log(`모달에서 들어온 값 writer${data.writer}, passward: ${data.passward}, title:${data.title}, content${data.content}`)
+
+    if(post.title === undefined) {
+
+        const errMessage = {
+            message : '제목을 입력해주세요'
+        } 
+
+        return NextResponse.json(errMessage, {status: 422});
+    }
+
+    if(post.passward === undefined) {
+
+        const errMessage = {
+            message : '비밀번호을 입력해주세요'
+        } 
+
+        return NextResponse.json(errMessage, {status: 422});
+    }
+
+    if(post.writer === undefined) {
+
+        const errMessage = {
+            message : '이름을 입력해주세요'
+        } 
+
+        return NextResponse.json(errMessage, {status: 422});
+    }
+
+    if(post.content === undefined) {
+
+        const errMessage = {
+            message : '내용을 입력해주세요'
+        } 
+
+        return NextResponse.json(errMessage, {status: 422});
+    }
 
 
-//    return NextResponse.json(response, {status: 200});
-//  }
+    const addedPost = await addAPost({
+        collectionName: params.database,
+        passward: data.passward,
+        writer: data.writer,
+        title: data.title,
+        content: data.content
+    });
+
+    console.log(`res${addedPost}`)
+
+    const response = {
+        message: `할일 추가 성공`,
+        data: addedPost
+    }
+
+   
+    return NextResponse.json(response, {status: 201});
+  }

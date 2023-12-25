@@ -7,7 +7,7 @@ export default function ReleaseLayout({
 
 		
 		
-			<div className="inline-block space-y-6 text-center justify-center">
+			<div>
 				{children}
 			</div>
 		

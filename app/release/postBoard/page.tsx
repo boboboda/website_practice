@@ -8,7 +8,7 @@ import { Post } from "@/types";
 
 async function fetchPostsApiCall() {
     console.log("fetchPostsApiCall called");
-    const res = await fetch(`${process.env.BASE_URL}/api/posts`, {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/posts`, {
         cache: 'no-store'
     });
 
@@ -34,8 +34,8 @@ export default async function BulletinPage() {
 
 	return (
         <div className="flex flex-col space-y-8">
-            <h1 className={title()}>Todos</h1>
-            <PostsTable posts={fetchedPosts} />
+            {/* <h1 className={title()}>Todos</h1>
+            <PostsTable posts={fetchedPosts} /> */}
         </div>
     );
 }

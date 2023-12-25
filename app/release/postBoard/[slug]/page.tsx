@@ -3,13 +3,14 @@ import Head from "next/head"
 // import PostsTable from "@/components/release/postboard-table";
 import { Post } from "@/types";
 import { useRouter, useParams, usePathname, useSearchParams } from "next/navigation"
+import PostsTable from "@/components/release/postBoard-table";
 
 
 
 
 async function fetchPostsApiCall(databaseName: string) {
     console.log("fetchPostsApiCall called");
-    const res = await fetch(`${process.env.BASE_URL}/api/posts/${databaseName}`, {
+    const res = await fetch(`http://localhost:3000/api/posts/${databaseName}`, {
         cache: 'no-store'
     });
 
@@ -31,10 +32,15 @@ export default async function postBoardPage({ params }: { params: { slug: string
 
     const fetchedPosts = response?.data ?? [];
 
-    console.log(`postBoardPage ${JSON.stringify(fetchedPosts)}`)
+    // console.log(`postBoardPage ${JSON.stringify(fetchedPosts)}`)
 
     const data = response
 
-    return (<></>)
+    return (<>
+    <div className="container mx-auto flex px-5 py-24 md:flex flex-col items-center">
+        <h1 className={title()}>문의게시판</h1>
+        <PostsTable posts={fetchedPosts} appName={params.slug} />
+    </div>
+    </>)
 }
 

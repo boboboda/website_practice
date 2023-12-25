@@ -31,6 +31,7 @@
     "dotenv": "^16.3.1",
     "eslint": "8.48.0",
     "eslint-config-next": "14.0.2",
+    "firebase": "^10.7.1",
     "framer-motion": "^10.16.16",
     "intl-messageformat": "^10.5.0",
     "next": "14.0.2",

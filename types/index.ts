@@ -12,13 +12,26 @@ export type Post = {
   passward: string;
   title: string;
   contents: string;
-  created_at: Date;
-  updated_at: Date;
+  created_at: string;
+  updated_at: string;
 }
 
-export type CustomModalType = 'detail' | 'edit' | 'delete'
+
+const columns = [
+  {name: "번호", uid: "listNumber", sortable: true},
+  {name: "글쓴이", uid: "writer"},
+  {name: "제목", uid: "title"},
+  {name: "내용", uid: "content"},
+  {name: "생성일자", uid: "created_at", sortable: true},
+  {name: "액션", uid: "actions"},
+];
+
+export type CustomModalType = 'detail' | 'edit' | 'delete' | 'add'
 
 export type FocusedPostType = {
   focusedPost: Post | null,
   modalType: CustomModalType,
 }
+
+
+export default columns

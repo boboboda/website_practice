@@ -2,7 +2,7 @@
 import { initializeApp } from "firebase/app";
 import { 
     getFirestore, collection, getDocs, getDoc, setDoc, doc, Timestamp,
-    deleteDoc, updateDoc, query, orderBy,
+    deleteDoc, updateDoc, query, orderBy, limit,
 } from "firebase/firestore";
 // TODO: Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
@@ -26,10 +26,10 @@ const db = getFirestore(app);
 // 모든 할일 가져오기
 // 컬랙션 네임 컬렉션 아이디 수집
 
-export async function fetchPosts(collection) {
+export async function fetchPosts(collectionName) {
 
     
-    const postsRef = collection(db, `${collection}`)
+    const postsRef = collection(db, `${collectionName}`)
     
     const descQuery = await query(postsRef, orderBy("created_at", "desc"));
 
@@ -60,32 +60,59 @@ export async function fetchPosts(collection) {
 }
 
 //할일 추가하기
-export async function addAposts({
-    collection,
+export async function addAPost({
+    collectionName,
     passward,
     title, 
-    listNumber,
     writer,
-    contents}) {
+    content}) {
 
-// Add a new document with a generated id
-const newPostsRef = doc(collection(db, `${collection}`));
+    console.log(`파이어베이스 add 실행됨 콜랙션 ${collectionName}`)
 
-const createdAtTimestamp = Timestamp.fromDate(new Date())
+    const postsRef = collection(db, `${collectionName}`)
+    
+    const descQuery = await query(postsRef, orderBy("listNumber", "desc"), limit(1))
 
-const newPostData = {
-    id: newPostsRef.id,
-    title,
-    passward: passward,
-    listNumber: listNumber,
-    writer: writer,
-    contents: contents,
-    created_at: createdAtTimestamp.toDate()
-}
-// later...
-await setDoc(newPostsRef, newPostData);
+    const querySnapshot = await getDocs(descQuery, {
+        cache: 'no-store'
+    });
 
-return newPostData;
+    const listNumber = await querySnapshot.docs[0].data()["listNumber"];
+
+    
+    console.log(`listNumber ${listNumber}`);
+
+    
+
+    if (listNumber !== null) {
+
+        const addListNumber = Number(listNumber) + 1
+
+        console.log(`addListNumber ${addListNumber}`);
+               
+        const newPostsRef = doc(collection(db, `${collectionName}`));
+        
+        const createdAtTimestamp = Timestamp.fromDate(new Date())
+
+        const newPostData = {
+            id: newPostsRef.id,
+            title: title,
+            passward: passward,
+            listNumber: addListNumber,
+            writer: writer,
+            contents: content,
+            created_at: createdAtTimestamp.toDate()
+        }
+
+        await setDoc(newPostsRef, newPostData);
+        
+        return newPostData;
+
+    } else {
+
+        return null;
+    }
+
 }
 
 
@@ -165,6 +192,6 @@ export async function editATodo(id, { title, is_done }) {
   }
 
 
-module.exports = { fetchPosts, deleteATodo , editATodo }
+module.exports = { fetchPosts, addAPost,  deleteATodo , editATodo }
 
 

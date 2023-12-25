@@ -5,7 +5,7 @@ export default function BulletinLayout({
 }) {
 	return (
 		
-			<div className="inline-block max-w-lg text-center justify-center">
+			<div>
 				{children}
 			</div>
 		
