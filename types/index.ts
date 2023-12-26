@@ -9,7 +9,7 @@ export type Post = {
   id: string;
   listNumber: String;
   writer: string;
-  passward: string;
+  password: string;
   title: string;
   content: string;
   created_at: string;

@@ -1,20 +1,24 @@
 "use client"
 
 import {
-    ModalHeader, ModalBody,
-    ModalFooter, Button, Input, checkbox, Switch, CircularProgress, Textarea
+    ModalHeader, ModalBody, Modal, ModalContent,
+    ModalFooter, Button, Input, checkbox, Switch, CircularProgress, Textarea, useDisclosure
 } from "@nextui-org/react";
 import React from 'react';
 import { Post, FocusedPostType, CustomModalType } from "@/types";
-import { useState,  useRef } from "react";
+import { useState, useRef } from "react";
 import { create } from "domain";
 import { EyeSlashFilledIcon, EyeFilledIcon } from "../icons";
 
 
 
-const CustomModal = ({ focusedPost, modalType, onClose, onEdit, onDelete, onAdd }: {
+
+
+
+const CustomModal = ({ focusedPost, modalType, onClose, onOpen, onEdit, onDelete, onAdd }: {
     focusedPost?: Post,
     modalType: CustomModalType,
+    onOpen: () => void,
     onClose: () => void,
     onEdit?: (id: string, title: string) => void
     onDelete?: (id: string) => void
@@ -37,14 +41,19 @@ const CustomModal = ({ focusedPost, modalType, onClose, onEdit, onDelete, onAdd 
 
         const DetailModal = () => {
             return <>
-                <ModalHeader className="flex flex-col gap-1">할일 상세</ModalHeader>
+                <ModalHeader className="flex flex-col gap-1">게시글 상세보기</ModalHeader>
                 <ModalBody>
-                    <p><span className="font-bold">id : </span>{focusedPost.id}</p>
-                    <p><span className="font-bold">할일 내용 : </span>{focusedPost.title}</p>
-
-                    <div className="flex py-1 space-x-4">
-                        {/* <span className="font-bold">완료 여부 : </span> {focusedPost.is_done ? '완료' : '미완료'} */}
-                    </div>
+                    <p><span className="font-bold">글쓴이 : </span>{focusedPost.writer}</p>
+                    <p className="font-bold text-[1rem]"><span className="font-bold text-[1rem]">제목 : </span>{focusedPost.title}</p>
+                    <Textarea
+                        isReadOnly
+                        label="내용"
+                        variant="bordered"
+                        labelPlacement="outside"
+                        placeholder="Enter your description"
+                        defaultValue={focusedPost.content}
+                        className="max-w-xs text-[1rem]"
+                    />
                     <div className="flex py-1 space-x-4">
                         <span className="font-bold">작성일 : </span>
                         <p>{`${focusedPost.created_at}`}</p>
@@ -96,36 +105,78 @@ const CustomModal = ({ focusedPost, modalType, onClose, onEdit, onDelete, onAdd 
         }
 
         const DeleteModal = () => {
-            return <>
-                <ModalHeader className="flex flex-col gap-1">할일을 삭제하시겠습니까?</ModalHeader>
-                <ModalBody>
-                    <p><span className="font-bold">id : </span>{focusedPost.id}</p>
-                    <p><span className="font-bold">할일 내용 : </span>{focusedPost.title}</p>
 
-                    <div className="flex py-1 space-x-4">
+            const [password, setPassword] = useState<string>("");
 
-                    </div>
-                    <div className="flex py-1 space-x-4">
-                        <span className="font-bold">작성일 : </span>
-                        <p>{`${focusedPost.created_at}`}</p>
-                    </div>
+            const handleSubmit = () => {
+                if (password === focusedPost.password) {<>
+                 <ModalHeader className="flex flex-col gap-1">게시글을 삭제하시겠습니까?</ModalHeader>
+                    <ModalBody>
+                        <p><span className="font-bold">글쓴이 : </span>{focusedPost.writer}</p>
+                        <p className="font-bold text-[1rem]"><span className="font-bold text-[1rem]">제목 : </span>{focusedPost.title}</p>
+                        <Textarea
+                            isReadOnly
+                            label="내용"
+                            variant="bordered"
+                            labelPlacement="outside"
+                            placeholder="Enter your description"
+                            defaultValue={focusedPost.content}
+                            className="max-w-xs text-[1rem]"
+                        />
+                        <div className="flex py-1 space-x-4">
+                            <span className="font-bold">작성일 : </span>
+                            <p>{`${focusedPost.created_at}`}</p>
+                        </div>
+                    </ModalBody>
+                    <ModalFooter>
+                        <Button color="danger" variant="flat" onPress={() => {
+                            setIsLoading(true);
+                            onDelete?.(focusedPost.id);
+                        }}>
+                            {isLoading ? <CircularProgress
+                                size="sm"
+                                color="danger"
+                                aria-label="Loading..." /> : '삭제'}
+                        </Button>
+                        <Button color="default" onPress={onClose}>
+                            닫기
+                        </Button>
+                    </ModalFooter></>
+                     onOpen();
+                    } else {
+                    alert(`비밀번호가 틀렸습니다. 입력패스워드 ${password} 기존 패스워드${focusedPost.password}`);
+                }
+            };
 
-                </ModalBody>
-                <ModalFooter>
-                    <Button color="danger" variant="flat" onPress={() => {
-                        setIsLoading(true);
-                        onDelete?.(focusedPost.id);
-                    }}>
-                        {isLoading ? <CircularProgress
-                            size="sm"
-                            color="danger"
-                            aria-label="Loading..." /> : '삭제'}
-                    </Button>
-                    <Button color="default" onPress={onClose}>
-                        닫기
-                    </Button>
-                </ModalFooter>
-            </>
+            return (
+                <>
+                    <ModalHeader className="flex flex-col gap-1">비밀번호를 입력하세요</ModalHeader>
+                    <ModalBody>
+                        <Input
+                            isRequired
+                            autoFocus
+                            label="비밀번호"
+                            placeholder="비밀번호을 입력해주세요"
+                            variant="bordered"
+                            type="password"
+                            value={password}
+                            onValueChange={setPassword}
+                        />
+                    </ModalBody>
+                    <ModalFooter>
+                        <Button color="danger" variant="flat" onPress={
+                            handleSubmit}>
+                            확인
+                        </Button>
+                        <Button color="default" onPress={onClose}>
+                            닫기
+                        </Button>
+                    </ModalFooter>
+                </>
+
+            );
+
+
         }
 
         const getModal = (type: CustomModalType) => {
@@ -159,7 +210,7 @@ const CustomModal = ({ focusedPost, modalType, onClose, onEdit, onDelete, onAdd 
         const [addedPostContentInput, setAddedPostContentInput] = useState<string>("");
 
         const [isVisible, setIsVisible] = React.useState(false);
-        
+
         const toggleVisibility = () => setIsVisible(!isVisible);
 
 
@@ -181,18 +232,19 @@ const CustomModal = ({ focusedPost, modalType, onClose, onEdit, onDelete, onAdd 
                         />
                         <Input
                             isRequired
+                            autoFocus
                             label="비밀번호"
                             placeholder="비밀번호을 입력해주세요"
                             variant="bordered"
                             endContent={
                                 <button className="focus:outline-none" type="button" onClick={toggleVisibility}>
-                                  {isVisible ? (
-                                    <EyeSlashFilledIcon className="text-2xl text-default-400 pointer-events-none" />
-                                  ) : (
-                                    <EyeFilledIcon className="text-2xl text-default-400 pointer-events-none" />
-                                  )}
+                                    {isVisible ? (
+                                        <EyeSlashFilledIcon className="text-2xl text-default-400 pointer-events-none" />
+                                    ) : (
+                                        <EyeFilledIcon className="text-2xl text-default-400 pointer-events-none" />
+                                    )}
                                 </button>
-                              }
+                            }
                             type={isVisible ? "text" : "password"}
                             value={addedPostPasswordInput}
                             onValueChange={setAddedPostPasswordInput}
@@ -229,7 +281,7 @@ const CustomModal = ({ focusedPost, modalType, onClose, onEdit, onDelete, onAdd 
                             content: addedPostContentInput,
                             password: addedPostPasswordInput
                         })
-                        if(onAdd) {
+                        if (onAdd) {
                             console.log(addedPostWriterInput)
                         }
                     }}>
@@ -262,7 +314,11 @@ const CustomModal = ({ focusedPost, modalType, onClose, onEdit, onDelete, onAdd 
         )
 
     }
+
+
 }
+
+
 
 export default CustomModal;
 

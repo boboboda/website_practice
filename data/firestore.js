@@ -46,6 +46,7 @@ export async function fetchPosts(collectionName) {
         const aPosts = {
             id: doc.id,
             listNumber: doc.data()["listNumber"],
+            password: doc.data()["password"],
             writer: doc.data()["writer"],
             title: doc.data()["title"],
             content: doc.data()["content"],
@@ -86,7 +87,7 @@ export async function addAPost({
         const newPostData = {
             id: newPostsRef.id,
             title: title,
-            passward: passward,
+            password: passward,
             listNumber: 1,
             writer: writer,
             content: content,
@@ -121,7 +122,7 @@ export async function addAPost({
     const newPostData = {
         id: newPostsRef.id,
         title: title,
-        passward: passward,
+        password: password,
         listNumber: addListNumber,
         writer: writer,
         content: content,

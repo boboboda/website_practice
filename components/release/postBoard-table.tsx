@@ -16,7 +16,7 @@ import {
   Modal, ModalContent,
   ModalHeader, ModalBody,
   ModalFooter, useDisclosure,
-  Selection, SortDescriptor, Pagination, 
+  Selection, SortDescriptor, Pagination,
   User, Chip, Tooltip, ChipProps, getKeyValue
 } from "@nextui-org/react";
 import { Post, FocusedPostType, CustomModalType } from "@/types";
@@ -28,7 +28,7 @@ import { VerticalDotsIcon } from "../icons";
 import CustomModal from "./custom-modal";
 import { capitalize } from "@/utils";
 import columns from "@/types";
-import { SearchIcon, ChevronDownIcon, PlusIcon,EyeIcon, EditIcon, DeleteIcon } from "../icons";
+import { SearchIcon, ChevronDownIcon, PlusIcon, EyeIcon, EditIcon, DeleteIcon } from "../icons";
 
 
 
@@ -44,7 +44,7 @@ const PostsTable = ({ posts, appName }: { posts: Post[], appName: string }) => {
   }, [posts]);
 
 
-  
+
   const [filterValue, setFilterValue] = React.useState("");
 
   const [selectedKeys, setSelectedKeys] = React.useState<Selection>(new Set([]));
@@ -132,67 +132,65 @@ const PostsTable = ({ posts, appName }: { posts: Post[], appName: string }) => {
     switch (columnKey) {
       case "listNumber":
         return (
-          <h1 key={post.id}>
+          <h1 className="flex justify-center" key={post.id}>
             {post.listNumber}
           </h1>
         );
       case "writer":
         return (
-          <h1 key={post.id}>
+          <h1 className="flex justify-center" key={post.id}>
             {post.writer}
           </h1>
         );
       case "title":
         return (
-          <h1 key={post.id}>
+          <h1 className="flex justify-center" key={post.id}>
             {post.title}
           </h1>
         );
 
       case "create_at":
         return (
-          <h1 key={post.id}>
+          <h1 className="flex justify-center" key={post.id}>
             {`${post.created_at}`}
           </h1>
         );
       case "actions":
         return (
-          <div className="justify-center items-center space-x-4">
+          <div className="relative flex justify-center space-x-3">
             <Tooltip content="Details">
-              <span className="text-lg text-default-400 cursor-pointer active:opacity-50">
+              <span className="text-lg text-default-400 cursor-pointer active:opacity-50" 
+              onClick={(event) => {
+                setCurrentModalData({ focusedPost: post, modalType: "detail" });
+                onOpen();
+              }}>
                 <EyeIcon />
               </span>
             </Tooltip>
             <Tooltip content="Edit user">
-              <span className="text-lg text-default-400 cursor-pointer active:opacity-50">
+              <span className="text-lg text-default-400 cursor-pointer active:opacity-50"
+              onClick={(event) => {
+                setCurrentModalData({ focusedPost: post, modalType: "edit" });
+                onOpen();
+              }}
+              >
                 <EditIcon />
               </span>
             </Tooltip>
             <Tooltip color="danger" content="Delete user">
-              <span className="text-lg text-danger cursor-pointer active:opacity-50">
+              <span className="text-lg text-danger cursor-pointer active:opacity-50"
+              onClick={(event) => {
+                setCurrentModalData({ focusedPost: post, modalType: "delete" });
+                onOpen();
+              }}
+              >
                 <DeleteIcon />
               </span>
             </Tooltip>
-
-
-            {/* <Dropdown>
-              <DropdownTrigger>
-                <Button isIconOnly size="sm" variant="light">
-                  <VerticalDotsIcon className="text-default-300" />
-                </Button>
-              </DropdownTrigger>
-              <DropdownMenu onAction={(key) => {
-                console.log(`apost.id: ${post.id}  key: ${key}}`)
-
-                setCurrentModalData({ focusedPost: post, modalType: key as CustomModalType })
-                onOpen();
-              }}>
-                <DropdownItem key="detail">상세보기</DropdownItem>
-                <DropdownItem key="edit">수정</DropdownItem>
-                <DropdownItem key="delete">삭제</DropdownItem>
-              </DropdownMenu>
-            </Dropdown> */}
           </div>
+
+
+
         );
       default:
         return cellValue;
@@ -273,10 +271,10 @@ const PostsTable = ({ posts, appName }: { posts: Post[], appName: string }) => {
                 focusedPost: null,
                 modalType: "add"
               })
-  onOpen();
-}}>
-  글쓰기
-</Button>
+              onOpen();
+            }}>
+              글쓰기
+            </Button>
           </div>
         </div>
         <div className="flex justify-between items-center">
@@ -339,28 +337,28 @@ const PostsTable = ({ posts, appName }: { posts: Post[], appName: string }) => {
   const addApostHandler = async (
     title: string,
     writer: string,
-    passward: string,
+    password: string,
     content: string) => {
 
     setIsLoading(true);
 
     await new Promise(f => setTimeout(f, 600));
-    
+
     try {
       const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/posts/${appName}`, {
         method: 'post',
         body: JSON.stringify({
           title: title,
           writer: writer,
-          passward: passward,
+          password: password,
           content: content
         }),
         cache: 'no-store'
       });
-    } catch(res) {
+    } catch (res) {
       console.log(res);
     }
-    
+
     router.refresh();
 
     setIsLoading(false);
@@ -419,7 +417,7 @@ const PostsTable = ({ posts, appName }: { posts: Post[], appName: string }) => {
     notifySuccessEvent("할일 삭제 완료!");
   };
 
-  
+
 
   const ModalComponent = () => {
     return <div>
@@ -437,6 +435,7 @@ const PostsTable = ({ posts, appName }: { posts: Post[], appName: string }) => {
               <CustomModal
                 focusedPost={currentModalData.focusedPost}
                 modalType={currentModalData.modalType}
+                onOpen={onOpen}
                 onClose={onClose}
                 onEdit={async (id, title) => {
                   await editApostHandler(id, title);
@@ -450,13 +449,14 @@ const PostsTable = ({ posts, appName }: { posts: Post[], appName: string }) => {
             ) : (
               <CustomModal
                 modalType={currentModalData.modalType}
+                onOpen={onOpen}
                 onClose={onClose}
                 onAdd={async (value) => {
 
                   await addApostHandler(
                     value.title,
-                    value.writer, 
-                    value.password,  
+                    value.writer,
+                    value.password,
                     value.content);
                   onClose();
                 }}
@@ -489,7 +489,6 @@ const PostsTable = ({ posts, appName }: { posts: Post[], appName: string }) => {
 
 
       <Table
-        aria-label="Example table with custom cells, pagination and sorting"
         isHeaderSticky
         bottomContent={bottomContent}
         bottomContentPlacement="outside"
@@ -503,18 +502,18 @@ const PostsTable = ({ posts, appName }: { posts: Post[], appName: string }) => {
       >
         <TableHeader columns={headerColumns}>
           {(column) => (
-            <TableColumn
+            <TableColumn className="text-center"
+            
               key={column.uid}
-              align={column.uid === "actions" ? "center" : "end"}
-              allowsSorting={column.sortable}
-            >
+              // align={column.uid === "action" ? "end" : "center"}
+              allowsSorting={column.sortable}>
               {column.name}
             </TableColumn>
           )}
         </TableHeader>
         <TableBody emptyContent={"보여줄 게시글이 없습니다"} items={sortedItems}>
           {(item) => (
-            
+
             item &&
 
             <TableRow key={item.id}>
