@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Table,
   Input,
@@ -16,10 +16,11 @@ import {
   Modal, ModalContent,
   ModalHeader, ModalBody,
   ModalFooter, useDisclosure,
-  Selection, SortDescriptor, Pagination
+  Selection, SortDescriptor, Pagination, 
+  User, Chip, Tooltip, ChipProps, getKeyValue
 } from "@nextui-org/react";
 import { Post, FocusedPostType, CustomModalType } from "@/types";
-import { useRouter } from "next/navigation"
+import { useRouter, usePathname } from "next/navigation"
 import React from 'react';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -27,7 +28,7 @@ import { VerticalDotsIcon } from "../icons";
 import CustomModal from "./custom-modal";
 import { capitalize } from "@/utils";
 import columns from "@/types";
-import { SearchIcon, ChevronDownIcon, PlusIcon } from "../icons";
+import { SearchIcon, ChevronDownIcon, PlusIcon,EyeIcon, EditIcon, DeleteIcon } from "../icons";
 
 
 
@@ -36,22 +37,28 @@ const INITIAL_VISIBLE_COLUMNS = ["listNumber", "title", "writer", "actions"];
 const PostsTable = ({ posts, appName }: { posts: Post[], appName: string }) => {
 
 
+  const [myPosts, setMyPosts] = useState<Post[]>([]); // 초기값 설정
+
+  useEffect(() => {
+    setMyPosts(posts); // 외부에서 전달받은 posts 값을 상태에 저장
+  }, [posts]);
+
+
+  
   const [filterValue, setFilterValue] = React.useState("");
+
   const [selectedKeys, setSelectedKeys] = React.useState<Selection>(new Set([]));
+
   const [visibleColumns, setVisibleColumns] = React.useState<Selection>(new Set(INITIAL_VISIBLE_COLUMNS));
+
   const [rowsPerPage, setRowsPerPage] = React.useState(5);
+
   const [sortDescriptor, setSortDescriptor] = React.useState<SortDescriptor>({
     column: "create_at",
     direction: "ascending",
   });
 
-  // 할일 추가 가능 여부 
-
-  const [postAddEnable, setPostAddEnable] = useState(false);
-
-
   // 로딩 상태
-
   const [isLoading, setIsLoading] = useState<Boolean>(false);
 
   // 띄우는 모달 상태
@@ -69,6 +76,10 @@ const PostsTable = ({ posts, appName }: { posts: Post[], appName: string }) => {
 
   //검색
   const hasSearchFilter = Boolean(filterValue);
+
+  const { isOpen, onOpen, onOpenChange } = useDisclosure();
+
+  const notifySuccessEvent = (msg: string) => toast.success(msg);
 
   //해더 컬럼
   const headerColumns = React.useMemo(() => {
@@ -121,33 +132,50 @@ const PostsTable = ({ posts, appName }: { posts: Post[], appName: string }) => {
     switch (columnKey) {
       case "listNumber":
         return (
-          <h1>
+          <h1 key={post.id}>
             {post.listNumber}
           </h1>
         );
       case "writer":
         return (
-          <h1>
+          <h1 key={post.id}>
             {post.writer}
           </h1>
         );
       case "title":
         return (
-          <h1>
+          <h1 key={post.id}>
             {post.title}
           </h1>
         );
 
       case "create_at":
         return (
-          <h1>
+          <h1 key={post.id}>
             {`${post.created_at}`}
           </h1>
         );
       case "actions":
         return (
-          <div className="relative flex justify-end items-center gap-2">
-            <Dropdown>
+          <div className="justify-center items-center space-x-4">
+            <Tooltip content="Details">
+              <span className="text-lg text-default-400 cursor-pointer active:opacity-50">
+                <EyeIcon />
+              </span>
+            </Tooltip>
+            <Tooltip content="Edit user">
+              <span className="text-lg text-default-400 cursor-pointer active:opacity-50">
+                <EditIcon />
+              </span>
+            </Tooltip>
+            <Tooltip color="danger" content="Delete user">
+              <span className="text-lg text-danger cursor-pointer active:opacity-50">
+                <DeleteIcon />
+              </span>
+            </Tooltip>
+
+
+            {/* <Dropdown>
               <DropdownTrigger>
                 <Button isIconOnly size="sm" variant="light">
                   <VerticalDotsIcon className="text-default-300" />
@@ -163,13 +191,13 @@ const PostsTable = ({ posts, appName }: { posts: Post[], appName: string }) => {
                 <DropdownItem key="edit">수정</DropdownItem>
                 <DropdownItem key="delete">삭제</DropdownItem>
               </DropdownMenu>
-            </Dropdown>
+            </Dropdown> */}
           </div>
         );
       default:
         return cellValue;
     }
-  }, []);
+  }, [posts]);
 
   const onNextPage = React.useCallback(() => {
     if (page < pages) {
@@ -316,8 +344,6 @@ const PostsTable = ({ posts, appName }: { posts: Post[], appName: string }) => {
 
     setIsLoading(true);
 
-    console.log(`appName${appName}`)
-
     await new Promise(f => setTimeout(f, 600));
     
     try {
@@ -344,9 +370,6 @@ const PostsTable = ({ posts, appName }: { posts: Post[], appName: string }) => {
     console.log(`게시글 추가완료`)
 
   };
-
-
-
 
   const editApostHandler = async (
     id: string,
@@ -396,9 +419,7 @@ const PostsTable = ({ posts, appName }: { posts: Post[], appName: string }) => {
     notifySuccessEvent("할일 삭제 완료!");
   };
 
-  const { isOpen, onOpen, onOpenChange } = useDisclosure();
-
-  const notifySuccessEvent = (msg: string) => toast.success(msg);
+  
 
   const ModalComponent = () => {
     return <div>
@@ -430,9 +451,13 @@ const PostsTable = ({ posts, appName }: { posts: Post[], appName: string }) => {
               <CustomModal
                 modalType={currentModalData.modalType}
                 onClose={onClose}
-                onAdd={async (writer, passward, title, content) => {
+                onAdd={async (value) => {
 
-                  await addApostHandler(writer, passward, title, content);
+                  await addApostHandler(
+                    value.title,
+                    value.writer, 
+                    value.password,  
+                    value.content);
                   onClose();
                 }}
               />
@@ -444,10 +469,6 @@ const PostsTable = ({ posts, appName }: { posts: Post[], appName: string }) => {
   }
 
   return (
-
-
-
-
     <>
       {ModalComponent()}
       <ToastContainer
@@ -475,27 +496,27 @@ const PostsTable = ({ posts, appName }: { posts: Post[], appName: string }) => {
         classNames={{
           wrapper: "max-h-[382px]",
         }}
-        selectedKeys={selectedKeys}
-        selectionMode="multiple"
         sortDescriptor={sortDescriptor}
         topContent={topContent}
         topContentPlacement="outside"
-        onSelectionChange={setSelectedKeys}
         onSortChange={setSortDescriptor}
       >
         <TableHeader columns={headerColumns}>
           {(column) => (
             <TableColumn
               key={column.uid}
-              align={column.uid === "actions" ? "center" : "start"}
+              align={column.uid === "actions" ? "center" : "end"}
               allowsSorting={column.sortable}
             >
               {column.name}
             </TableColumn>
           )}
         </TableHeader>
-        <TableBody emptyContent={"No users found"} items={sortedItems}>
+        <TableBody emptyContent={"보여줄 게시글이 없습니다"} items={sortedItems}>
           {(item) => (
+            
+            item &&
+
             <TableRow key={item.id}>
               {(columnKey) => <TableCell>{renderCell(item, columnKey)}</TableCell>}
             </TableRow>

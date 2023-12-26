@@ -7,6 +7,7 @@ import { Image, Card, CardFooter, CardBody, Tooltip, Chip, Button, Link,
 import { title, subtitle, ButtnCustom } from "../primitives";
 import { TagCustom } from "../primitives";
 import {Divider} from "@nextui-org/react";
+import { useState, useMemo } from "react";
 // import Image from 'next/image';
 
 
@@ -15,10 +16,26 @@ export default function ReleaseItem({ data }: {data: any }) {
     const appLink = data.properties.AppLink.url
     const description = data.properties.AppDescription.rich_text[0]?.plain_text
     // const imgSrc = data.cover.file? data.cover.file.url : data.cover.external.url
+
+
+    const [linkData, setLinkData] = useState({});
+
+    const handleClick = () => {
+      // `href` 값을 미리 렌더링
+      const href = useMemo(() => {
+        const databaseName = data.properties.database.rich_text[0]?.plain_text;
+        return `/release/postBoard/${databaseName}`;
+      }, [linkData]);
+  
+      // `href` 값을 사용하여 DropdownItem 컴포넌트를 렌더링
+      return (
+        <DropdownItem href={href}>문의게시판</DropdownItem>
+      );
+    };
     // 다른 표현
     const imgSrc = data.cover.file?.url || data.cover.external.url
 
-    const databaseName = data.properties.database.rich_text[0]?.plain_text
+    // const databaseName = notionData.properties.database.rich_text[0]?.plain_text
 
     const appTags = data.properties.Tags.multi_select
 
@@ -44,7 +61,9 @@ export default function ReleaseItem({ data }: {data: any }) {
             />
             <div className="flex flex-col p-x-2 space-y-4 item-center">
             <li className= {title({ size:"sm", position: "center" })}>
-            {appTitle}</li>
+            {appTitle}
+            </li>
+            
             <div className="items-start mt-2 w-full ">
             
               {
@@ -98,7 +117,7 @@ export default function ReleaseItem({ data }: {data: any }) {
                 // onOpen();
               }}>
                 <DropdownItem href="">공지사항</DropdownItem>
-                <DropdownItem href={`/release/postBoard/${databaseName}`}>문의게시판</DropdownItem>
+                {handleClick()}
                 <DropdownItem href="">개인정보처리방침</DropdownItem>
               </DropdownMenu>
             </Dropdown>

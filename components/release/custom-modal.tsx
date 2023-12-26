@@ -6,8 +6,9 @@ import {
 } from "@nextui-org/react";
 import React from 'react';
 import { Post, FocusedPostType, CustomModalType } from "@/types";
-import { useState } from "react";
+import { useState,  useRef } from "react";
 import { create } from "domain";
+import { EyeSlashFilledIcon, EyeFilledIcon } from "../icons";
 
 
 
@@ -17,7 +18,12 @@ const CustomModal = ({ focusedPost, modalType, onClose, onEdit, onDelete, onAdd 
     onClose: () => void,
     onEdit?: (id: string, title: string) => void
     onDelete?: (id: string) => void
-    onAdd?: (writer: string, passward: string, title: string, content: string) => void
+    onAdd?: (values: {
+        writer: string;
+        title: string;
+        content: string;
+        password: string;
+    }) => void
 }) => {
 
     //로딩 상태
@@ -146,11 +152,16 @@ const CustomModal = ({ focusedPost, modalType, onClose, onEdit, onDelete, onAdd 
 
         const [addedPostWriterInput, setAddedPostWriterInput] = useState<string>("");
 
-        const [addedPostPasswardInput, setAddedPostPasswardInput] = useState<string>("");
+        const [addedPostPasswordInput, setAddedPostPasswordInput] = useState<string>("");
 
         const [addedPostTitleInput, setAddedPostTitleInput] = useState<string>("");
 
         const [addedPostContentInput, setAddedPostContentInput] = useState<string>("");
+
+        const [isVisible, setIsVisible] = React.useState(false);
+        
+        const toggleVisibility = () => setIsVisible(!isVisible);
+
 
         const AddModal = () => {
             return <>
@@ -160,26 +171,37 @@ const CustomModal = ({ focusedPost, modalType, onClose, onEdit, onDelete, onAdd 
                         <Input
                             isRequired
                             autoFocus
+                            type="text"
                             label="닉네임"
                             placeholder="닉네임을 입력해주세요"
                             variant="bordered"
+                            defaultValue=""
                             value={addedPostWriterInput}
                             onValueChange={setAddedPostWriterInput}
                         />
                         <Input
                             isRequired
-                            autoFocus
                             label="비밀번호"
                             placeholder="비밀번호을 입력해주세요"
                             variant="bordered"
-                            value={addedPostPasswardInput}
-                            onValueChange={setAddedPostPasswardInput}
+                            endContent={
+                                <button className="focus:outline-none" type="button" onClick={toggleVisibility}>
+                                  {isVisible ? (
+                                    <EyeSlashFilledIcon className="text-2xl text-default-400 pointer-events-none" />
+                                  ) : (
+                                    <EyeFilledIcon className="text-2xl text-default-400 pointer-events-none" />
+                                  )}
+                                </button>
+                              }
+                            type={isVisible ? "text" : "password"}
+                            value={addedPostPasswordInput}
+                            onValueChange={setAddedPostPasswordInput}
                         />
                     </div>
 
                     <Input className="pt-5 max-w-sm"
                         isRequired
-                        autoFocus
+                        type="text"
                         label="제목"
                         placeholder="제목을 입력해주세요"
                         variant="bordered"
@@ -189,6 +211,7 @@ const CustomModal = ({ focusedPost, modalType, onClose, onEdit, onDelete, onAdd 
 
                     <Textarea
                         label="내용"
+                        type="text"
                         placeholder="내용을 입력해주세요"
                         className=""
                         variant="bordered"
@@ -200,7 +223,12 @@ const CustomModal = ({ focusedPost, modalType, onClose, onEdit, onDelete, onAdd 
                 <ModalFooter>
                     <Button color="warning" variant="flat" onPress={() => {
                         setIsLoading(true);
-                        onAdd?.(addedPostWriterInput, addedPostPasswardInput, addedPostTitleInput, addedPostContentInput)
+                        onAdd?.({
+                            writer: addedPostWriterInput,
+                            title: addedPostTitleInput,
+                            content: addedPostContentInput,
+                            password: addedPostPasswordInput
+                        })
                         if(onAdd) {
                             console.log(addedPostWriterInput)
                         }

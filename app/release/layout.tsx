@@ -1,15 +1,13 @@
-export default function ReleaseLayout({
-	children,
-}: {
-	children: React.ReactNode;
-}) {
-	return (
+import { Providers } from "../providers";
 
-		
-		
-			<div>
-				{children}
-			</div>
-		
-	);
+export default function ReleaseLayout({
+    children,
+}: {
+    children: React.ReactNode;
+}) {
+    return (
+                <div>
+                    {children}
+                </div>
+    );
 }

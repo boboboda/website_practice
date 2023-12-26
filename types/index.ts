@@ -11,7 +11,7 @@ export type Post = {
   writer: string;
   passward: string;
   title: string;
-  contents: string;
+  content: string;
   created_at: string;
   updated_at: string;
 }

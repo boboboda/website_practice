@@ -36,8 +36,6 @@ export async function GET(request: NextRequest,
         content: data.content
     }
 
-    console.log(`모달에서 들어온 값 writer${data.writer}, passward: ${data.passward}, title:${data.title}, content${data.content}`)
-
     if(post.title === undefined) {
 
         const errMessage = {

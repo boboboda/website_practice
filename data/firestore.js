@@ -1,6 +1,6 @@
 // Import the functions you need from the SDKs you need
 import { initializeApp } from "firebase/app";
-import { 
+import {
     getFirestore, collection, getDocs, getDoc, setDoc, doc, Timestamp,
     deleteDoc, updateDoc, query, orderBy, limit,
 } from "firebase/firestore";
@@ -9,12 +9,12 @@ import {
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
-  apiKey: process.env.API_KEY,
-  authDomain: process.env.AUTH_DOMAIN,
-  projectId: process.env.PROJECT_ID,
-  storageBucket: process.env.STORAGE_BUCKET,
-  messagingSenderId: process.env.MESSAGING_SENDER_ID,
-  appId: process.env.APP_ID
+    apiKey: process.env.API_KEY,
+    authDomain: process.env.AUTH_DOMAIN,
+    projectId: process.env.PROJECT_ID,
+    storageBucket: process.env.STORAGE_BUCKET,
+    messagingSenderId: process.env.MESSAGING_SENDER_ID,
+    appId: process.env.APP_ID
 };
 
 
@@ -28,33 +28,33 @@ const db = getFirestore(app);
 
 export async function fetchPosts(collectionName) {
 
-    
+
     const postsRef = collection(db, `${collectionName}`)
-    
+
     const descQuery = await query(postsRef, orderBy("created_at", "desc"));
 
 
     const querySnapshot = await getDocs(descQuery);
-    
-        if(querySnapshot.empty) {
-            return [];
-        }
 
-        const fetchedPosts = [];
+    if (querySnapshot.empty) {
+        return [];
+    }
 
-        querySnapshot.forEach((doc) => {
+    const fetchedPosts = [];
+
+    querySnapshot.forEach((doc) => {
         const aPosts = {
             id: doc.id,
             listNumber: doc.data()["listNumber"],
             writer: doc.data()["writer"],
             title: doc.data()["title"],
-            contents: doc.data()["contents"],
+            content: doc.data()["content"],
             created_at: doc.data()["created_at"].toDate()
         }
         // .toLocaleTimeString('ko')
 
         fetchedPosts.push(aPosts);
- 
+
     });
     return fetchedPosts;
 }
@@ -63,14 +63,42 @@ export async function fetchPosts(collectionName) {
 export async function addAPost({
     collectionName,
     passward,
-    title, 
+    title,
     writer,
-    content}) {
+    content }) {
+
+
 
     console.log(`파이어베이스 add 실행됨 콜랙션 ${collectionName}`)
 
     const postsRef = collection(db, `${collectionName}`)
-    
+
+    const checkQuery = await query(postsRef, orderBy("created_at", "desc"));
+
+    const checkQuerySnapshot = await getDocs(checkQuery);
+
+    if (checkQuerySnapshot.docs.length === 0) {
+
+        const newPostsRef = doc(collection(db, `${collectionName}`));
+
+        const createdAtTimestamp = Timestamp.fromDate(new Date())
+
+        const newPostData = {
+            id: newPostsRef.id,
+            title: title,
+            passward: passward,
+            listNumber: 1,
+            writer: writer,
+            content: content,
+            created_at: createdAtTimestamp.toDate()
+        }
+
+        await setDoc(newPostsRef, newPostData);
+
+        return newPostData;
+        
+    } else {
+
     const descQuery = await query(postsRef, orderBy("listNumber", "desc"), limit(1))
 
     const querySnapshot = await getDocs(descQuery, {
@@ -79,39 +107,36 @@ export async function addAPost({
 
     const listNumber = await querySnapshot.docs[0].data()["listNumber"];
 
-    
+
     console.log(`listNumber ${listNumber}`);
 
-    
+    const addListNumber = Number(listNumber) + 1
 
-    if (listNumber !== null) {
+    console.log(`addListNumber ${addListNumber}`);
 
-        const addListNumber = Number(listNumber) + 1
+    const newPostsRef = doc(collection(db, `${collectionName}`));
 
-        console.log(`addListNumber ${addListNumber}`);
-               
-        const newPostsRef = doc(collection(db, `${collectionName}`));
-        
-        const createdAtTimestamp = Timestamp.fromDate(new Date())
+    const createdAtTimestamp = Timestamp.fromDate(new Date())
 
-        const newPostData = {
-            id: newPostsRef.id,
-            title: title,
-            passward: passward,
-            listNumber: addListNumber,
-            writer: writer,
-            contents: content,
-            created_at: createdAtTimestamp.toDate()
-        }
-
-        await setDoc(newPostsRef, newPostData);
-        
-        return newPostData;
-
-    } else {
-
-        return null;
+    const newPostData = {
+        id: newPostsRef.id,
+        title: title,
+        passward: passward,
+        listNumber: addListNumber,
+        writer: writer,
+        content: content,
+        created_at: createdAtTimestamp.toDate()
     }
+
+    await setDoc(newPostsRef, newPostData);
+
+    return newPostData;
+
+    }
+
+
+
+    
 
 }
 
@@ -120,7 +145,7 @@ export async function addAPost({
 export async function fetchATodo(id) {
 
 
-    if(id === null ) {
+    if (id === null) {
         return null;
     }
 
@@ -129,69 +154,69 @@ export async function fetchATodo(id) {
     const todoDocSnap = await getDoc(todoDocRef);
 
     if (todoDocSnap.exists()) {
-       
+
         const fetchedTodo = {
             id: todoDocSnap.id,
             title: todoDocSnap.data()["title"],
             is_done: todoDocSnap.data()["is_done"],
             created_at: todoDocSnap.data()["created_at"].toDate()
         }
-         
+
         return fetchedTodo
     } else {
 
         return null;
-}
-    
-  
     }
 
 
+}
 
-    //단일 삭제
+
+
+//단일 삭제
 export async function deleteATodo(id) {
 
 
 
-   const fetchedTodo = await fetchATodo(id)
+    const fetchedTodo = await fetchATodo(id)
 
-   if(fetchedTodo === null) {
-    return null;
-   } else {
-    await deleteDoc(doc(db, "todos", id));
-    return fetchedTodo;
-   }
- }
+    if (fetchedTodo === null) {
+        return null;
+    } else {
+        await deleteDoc(doc(db, "todos", id));
+        return fetchedTodo;
+    }
+}
 
 
-     //단일 할일 수정
+//단일 할일 수정
 export async function editATodo(id, { title, is_done }) {
 
 
 
     const fetchedTodo = await fetchATodo(id)
- 
-    if(fetchedTodo === null) {
-     return null;
+
+    if (fetchedTodo === null) {
+        return null;
     } else {
-        
+
         const todoRef = doc(db, "todos", id);
-  
-       await updateDoc(todoRef, {
+
+        await updateDoc(todoRef, {
             title,
             is_done
         });
 
-     return {
-        id: id,
-        created_at: fetchedTodo.created_at,
-        title: title,
-        is_done: is_done
-     };
+        return {
+            id: id,
+            created_at: fetchedTodo.created_at,
+            title: title,
+            is_done: is_done
+        };
     }
-  }
+}
 
 
-module.exports = { fetchPosts, addAPost,  deleteATodo , editATodo }
+module.exports = { fetchPosts, addAPost, deleteATodo, editATodo }
 
 
