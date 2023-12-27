@@ -31,7 +31,7 @@ export async function GET(request: NextRequest,
     const post = {
         collectionName: params.database,
         title: data.title,
-        passward: data.passward,
+        password: data.password,
         writer: data.writer,
         content: data.content
     }
@@ -45,7 +45,7 @@ export async function GET(request: NextRequest,
         return NextResponse.json(errMessage, {status: 422});
     }
 
-    if(post.passward === undefined) {
+    if(post.password === undefined) {
 
         const errMessage = {
             message : '비밀번호을 입력해주세요'
@@ -75,7 +75,7 @@ export async function GET(request: NextRequest,
 
     const addedPost = await addAPost({
         collectionName: params.database,
-        passward: data.passward,
+        password: data.password,
         writer: data.writer,
         title: data.title,
         content: data.content

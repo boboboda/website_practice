@@ -180,7 +180,7 @@ const PostsTable = ({ posts, appName }: { posts: Post[], appName: string }) => {
             <Tooltip color="danger" content="Delete user">
               <span className="text-lg text-danger cursor-pointer active:opacity-50"
               onClick={(event) => {
-                setCurrentModalData({ focusedPost: post, modalType: "delete" });
+                setCurrentModalData({ focusedPost: post, modalType: "deleteAuth" });
                 onOpen();
               }}
               >
@@ -355,9 +355,6 @@ const PostsTable = ({ posts, appName }: { posts: Post[], appName: string }) => {
         }),
         cache: 'no-store'
       });
-    } catch (res) {
-      console.log(res);
-    }
 
     router.refresh();
 
@@ -366,6 +363,10 @@ const PostsTable = ({ posts, appName }: { posts: Post[], appName: string }) => {
     notifySuccessEvent("성공적으로 작성되었습니다!");
 
     console.log(`게시글 추가완료`)
+    } catch (res) {
+      console.log(res);
+    }
+
 
   };
 
@@ -405,7 +406,7 @@ const PostsTable = ({ posts, appName }: { posts: Post[], appName: string }) => {
     // }, 5000);
 
     await new Promise(f => setTimeout(f, 600));
-    await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/todos/${id}`, {
+    await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/posts/${appName}/${id}`, {
       method: 'delete',
       cache: 'no-store'
     });
@@ -435,8 +436,16 @@ const PostsTable = ({ posts, appName }: { posts: Post[], appName: string }) => {
               <CustomModal
                 focusedPost={currentModalData.focusedPost}
                 modalType={currentModalData.modalType}
-                onOpen={onOpen}
                 onClose={onClose}
+                onDeleteAuth={async (post) => {
+                  onClose()
+                  await new Promise(f => setTimeout(f, 600));
+                  setCurrentModalData({
+                    focusedPost: post,
+                    modalType: "delete"
+                  })
+                  onOpen()
+                }}
                 onEdit={async (id, title) => {
                   await editApostHandler(id, title);
                   onClose();
@@ -449,7 +458,6 @@ const PostsTable = ({ posts, appName }: { posts: Post[], appName: string }) => {
             ) : (
               <CustomModal
                 modalType={currentModalData.modalType}
-                onOpen={onOpen}
                 onClose={onClose}
                 onAdd={async (value) => {
 
@@ -489,6 +497,7 @@ const PostsTable = ({ posts, appName }: { posts: Post[], appName: string }) => {
 
 
       <Table
+      aria-label="Example table with custom cells, pagination and sorting"
         isHeaderSticky
         bottomContent={bottomContent}
         bottomContentPlacement="outside"

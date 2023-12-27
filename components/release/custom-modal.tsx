@@ -11,14 +11,10 @@ import { create } from "domain";
 import { EyeSlashFilledIcon, EyeFilledIcon } from "../icons";
 
 
-
-
-
-
-const CustomModal = ({ focusedPost, modalType, onClose, onOpen, onEdit, onDelete, onAdd }: {
+const CustomModal = ({ focusedPost, modalType, onDeleteAuth, onClose, onEdit, onDelete, onAdd }: {
     focusedPost?: Post,
     modalType: CustomModalType,
-    onOpen: () => void,
+    onDeleteAuth?: (post: Post) => void,
     onClose: () => void,
     onEdit?: (id: string, title: string) => void
     onDelete?: (id: string) => void
@@ -67,6 +63,46 @@ const CustomModal = ({ focusedPost, modalType, onClose, onOpen, onEdit, onDelete
             </>
         }
 
+        const PasswordModal = (modalType: string) => {
+            const [password, setPassword] = useState("");
+
+            const handlePasswordSubmit = async () => {
+
+                if (password === focusedPost.password) {
+                    onDeleteAuth?.(focusedPost)
+                } else {
+                    alert(`비밀번호가 틀렸습니다. 입력패스워드 ${password} 기존 패스워드${focusedPost.password}`);
+                }
+            };
+
+            return (
+                <>
+                    <ModalHeader className="flex flex-col gap-1">비밀번호를 입력하세요</ModalHeader>
+                    <ModalBody>
+                        <Input
+                            isRequired
+                            autoFocus
+                            label="비밀번호"
+                            placeholder="비밀번호을 입력해주세요"
+                            variant="bordered"
+                            type="password"
+                            value={password}
+                            onValueChange={setPassword}
+                        />
+                    </ModalBody>
+                    <ModalFooter>
+                        <Button color="danger" variant="flat" onPress={
+                            handlePasswordSubmit}>
+                            확인
+                        </Button>
+                        <Button color="default" onPress={onClose}>
+                            닫기
+                        </Button>
+                    </ModalFooter>
+                </>
+            );
+        };
+
         const EditModal = () => {
             return <>
                 <ModalHeader className="flex flex-col gap-1">할일 수정</ModalHeader>
@@ -105,12 +141,9 @@ const CustomModal = ({ focusedPost, modalType, onClose, onOpen, onEdit, onDelete
         }
 
         const DeleteModal = () => {
-
-            const [password, setPassword] = useState<string>("");
-
-            const handleSubmit = () => {
-                if (password === focusedPost.password) {<>
-                 <ModalHeader className="flex flex-col gap-1">게시글을 삭제하시겠습니까?</ModalHeader>
+            return (
+                <>
+                    <ModalHeader className="flex flex-col gap-1">게시글을 삭제하시겠습니까?</ModalHeader>
                     <ModalBody>
                         <p><span className="font-bold">글쓴이 : </span>{focusedPost.writer}</p>
                         <p className="font-bold text-[1rem]"><span className="font-bold text-[1rem]">제목 : </span>{focusedPost.title}</p>
@@ -142,41 +175,13 @@ const CustomModal = ({ focusedPost, modalType, onClose, onOpen, onEdit, onDelete
                             닫기
                         </Button>
                     </ModalFooter></>
-                     onOpen();
-                    } else {
-                    alert(`비밀번호가 틀렸습니다. 입력패스워드 ${password} 기존 패스워드${focusedPost.password}`);
-                }
-            };
-
-            return (
-                <>
-                    <ModalHeader className="flex flex-col gap-1">비밀번호를 입력하세요</ModalHeader>
-                    <ModalBody>
-                        <Input
-                            isRequired
-                            autoFocus
-                            label="비밀번호"
-                            placeholder="비밀번호을 입력해주세요"
-                            variant="bordered"
-                            type="password"
-                            value={password}
-                            onValueChange={setPassword}
-                        />
-                    </ModalBody>
-                    <ModalFooter>
-                        <Button color="danger" variant="flat" onPress={
-                            handleSubmit}>
-                            확인
-                        </Button>
-                        <Button color="default" onPress={onClose}>
-                            닫기
-                        </Button>
-                    </ModalFooter>
-                </>
-
             );
 
 
+        }
+
+        const handle = () => {
+            return DeleteModal()
         }
 
         const getModal = (type: CustomModalType) => {
@@ -186,8 +191,8 @@ const CustomModal = ({ focusedPost, modalType, onClose, onOpen, onEdit, onDelete
                     return DetailModal();
                 case 'delete':
                     return DeleteModal();
-                case 'edit':
-                    return EditModal();
+                case 'deleteAuth':
+                    return PasswordModal(type);
                 default: break;
 
             }

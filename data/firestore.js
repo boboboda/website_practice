@@ -52,7 +52,6 @@ export async function fetchPosts(collectionName) {
             content: doc.data()["content"],
             created_at: doc.data()["created_at"].toDate()
         }
-        // .toLocaleTimeString('ko')
 
         fetchedPosts.push(aPosts);
 
@@ -63,12 +62,10 @@ export async function fetchPosts(collectionName) {
 //할일 추가하기
 export async function addAPost({
     collectionName,
-    passward,
+    password,
     title,
     writer,
     content }) {
-
-
 
     console.log(`파이어베이스 add 실행됨 콜랙션 ${collectionName}`)
 

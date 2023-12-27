@@ -26,7 +26,7 @@ const columns = [
   {name: "액션", uid: "actions"},
 ];
 
-export type CustomModalType = 'detail' | 'edit' | 'delete' | 'add'
+export type CustomModalType = 'detail' | 'edit' | 'delete' | 'add' | 'deleteAuth' | 'editAuth'
 
 export type FocusedPostType = {
   focusedPost: Post | null,
