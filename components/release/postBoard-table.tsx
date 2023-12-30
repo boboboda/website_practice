@@ -13,7 +13,7 @@ import {
   Dropdown, DropdownTrigger, DropdownMenu, DropdownItem,
   Modal, ModalContent, useDisclosure,
   Selection, SortDescriptor, Pagination,
- Tooltip,
+  Tooltip,
 } from "@nextui-org/react";
 import { Post, FocusedPostType, CustomModalType } from "@/types";
 import { useRouter, usePathname } from "next/navigation"
@@ -155,30 +155,30 @@ const PostsTable = ({ posts, appName }: { posts: Post[], appName: string }) => {
         return (
           <div className="relative flex justify-center space-x-3">
             <Tooltip content="Details">
-              <span className="text-lg text-default-400 cursor-pointer active:opacity-50" 
-              onClick={(event) => {
-                setCurrentModalData({ focusedPost: post, modalType: "detail" });
-                onOpen();
-              }}>
+              <span className="text-lg text-default-400 cursor-pointer active:opacity-50"
+                onClick={(event) => {
+                  setCurrentModalData({ focusedPost: post, modalType: "detail" });
+                  onOpen();
+                }}>
                 <EyeIcon />
               </span>
             </Tooltip>
             <Tooltip content="Edit user">
               <span className="text-lg text-default-400 cursor-pointer active:opacity-50"
-              onClick={(event) => {
-                setCurrentModalData({ focusedPost: post, modalType: "edit" });
-                onOpen();
-              }}
+                onClick={(event) => {
+                  setCurrentModalData({ focusedPost: post, modalType: "edit" });
+                  onOpen();
+                }}
               >
                 <EditIcon />
               </span>
             </Tooltip>
             <Tooltip color="danger" content="Delete user">
               <span className="text-lg text-danger cursor-pointer active:opacity-50"
-              onClick={(event) => {
-                setCurrentModalData({ focusedPost: post, modalType: "deleteAuth" });
-                onOpen();
-              }}
+                onClick={(event) => {
+                  setCurrentModalData({ focusedPost: post, modalType: "deleteAuth" });
+                  onOpen();
+                }}
               >
                 <DeleteIcon />
               </span>
@@ -340,19 +340,17 @@ const PostsTable = ({ posts, appName }: { posts: Post[], appName: string }) => {
 
     console.log("추가핸들러")
 
-    await new Promise(f => setTimeout(f, 600));
-
-    try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/posts/${appName}`, {
-        method: 'post',
-        body: JSON.stringify({
-          title: title,
-          writer: writer,
-          password: password,
-          content: content
-        }),
-        cache: 'no-store'
-      });
+    // await new Promise(f => setTimeout(f, 600));
+    const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/posts/${appName}`, {
+      method: 'post',
+      body: JSON.stringify({
+        title: title,
+        writer: writer,
+        password: password,
+        content: content
+      }),
+      cache: 'no-store'
+    });
 
     router.refresh();
 
@@ -361,9 +359,7 @@ const PostsTable = ({ posts, appName }: { posts: Post[], appName: string }) => {
     notifySuccessEvent("성공적으로 작성되었습니다!");
 
     console.log(`게시글 추가완료`)
-    } catch (res) {
-      console.log(res);
-    }
+
 
 
   };
@@ -374,7 +370,7 @@ const PostsTable = ({ posts, appName }: { posts: Post[], appName: string }) => {
 
     setIsLoading(true);
 
-    await new Promise(f => setTimeout(f, 600));
+    // await new Promise(f => setTimeout(f, 600));
     await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/todos/${id}`, {
       method: 'post',
       body: JSON.stringify({
@@ -395,8 +391,8 @@ const PostsTable = ({ posts, appName }: { posts: Post[], appName: string }) => {
     id: string) => {
 
     setIsLoading(true);
-    
-    await new Promise(f => setTimeout(f, 600));
+
+    // await new Promise(f => setTimeout(f, 600));
     await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/posts/${appName}/${id}`, {
       method: 'delete',
       cache: 'no-store'
@@ -488,7 +484,7 @@ const PostsTable = ({ posts, appName }: { posts: Post[], appName: string }) => {
 
 
       <Table
-      aria-label="Example table with custom cells, pagination and sorting"
+        aria-label="Example table with custom cells, pagination and sorting"
         isHeaderSticky
         bottomContent={bottomContent}
         bottomContentPlacement="outside"
@@ -503,7 +499,7 @@ const PostsTable = ({ posts, appName }: { posts: Post[], appName: string }) => {
         <TableHeader columns={headerColumns}>
           {(column) => (
             <TableColumn className="text-center"
-            
+
               key={column.uid}
               // align={column.uid === "action" ? "end" : "center"}
               allowsSorting={column.sortable}>
