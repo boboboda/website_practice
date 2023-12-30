@@ -10,14 +10,10 @@ import {
   TableBody,
   TableRow,
   TableCell,
-  Popover, PopoverContent, PopoverTrigger,
-  Spinner,
   Dropdown, DropdownTrigger, DropdownMenu, DropdownItem,
-  Modal, ModalContent,
-  ModalHeader, ModalBody,
-  ModalFooter, useDisclosure,
+  Modal, ModalContent, useDisclosure,
   Selection, SortDescriptor, Pagination,
-  User, Chip, Tooltip, ChipProps, getKeyValue
+ Tooltip,
 } from "@nextui-org/react";
 import { Post, FocusedPostType, CustomModalType } from "@/types";
 import { useRouter, usePathname } from "next/navigation"
@@ -345,7 +341,7 @@ const PostsTable = ({ posts, appName }: { posts: Post[], appName: string }) => {
     await new Promise(f => setTimeout(f, 600));
 
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/posts/${appName}`, {
+      const res = await fetch(`${process.env.BASE_URL}/api/posts/${appName}`, {
         method: 'post',
         body: JSON.stringify({
           title: title,
@@ -381,7 +377,7 @@ const PostsTable = ({ posts, appName }: { posts: Post[], appName: string }) => {
     // }, 5000);
 
     await new Promise(f => setTimeout(f, 600));
-    await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/todos/${id}`, {
+    await fetch(`${process.env.BASE_URL}/api/todos/${id}`, {
       method: 'post',
       body: JSON.stringify({
         title: editedTitle,
@@ -402,7 +398,7 @@ const PostsTable = ({ posts, appName }: { posts: Post[], appName: string }) => {
     setIsLoading(true);
     
     await new Promise(f => setTimeout(f, 600));
-    await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/posts/${appName}/${id}`, {
+    await fetch(`${process.env.BASE_URL}/api/posts/${appName}/${id}`, {
       method: 'delete',
       cache: 'no-store'
     });
