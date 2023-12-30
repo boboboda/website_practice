@@ -336,32 +336,27 @@ const PostsTable = ({ posts, appName }: { posts: Post[], appName: string }) => {
     password: string,
     content: string) => {
 
-    setIsLoading(true);
+    // setIsLoading(true);
 
     await new Promise(f => setTimeout(f, 600));
-     const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/posts/${appName}`, {
-        method: 'post',
-        body: JSON.stringify({
-          title: title,
-          writer: writer,
-          password: password,
-          content: content
-        }),
-        headers: {
-          "Content-Type": "application/json",
-        },
-        cache: 'no-store'
-      });
+    await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/posts/${appName}`, {
+      method: 'post',
+      body: JSON.stringify({
+        title: title,
+        writer: writer,
+        password: password,
+        content: content
+      }),
+      cache: 'no-store'
+    });
 
-      const data = res.json()
+    router.refresh();
 
-      router.refresh();
+    setIsLoading(false);
 
-      setIsLoading(false);
+    notifySuccessEvent(`성공적으로 작성되었습니다!`);
 
-      notifySuccessEvent(`성공적으로 작성되었습니다!`);
-
-      console.log(`게시글 추가완료`)
+    console.log(`게시글 추가완료`)
   };
 
   const editApostHandler = async (
