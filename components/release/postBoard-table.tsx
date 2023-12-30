@@ -350,28 +350,27 @@ const PostsTable = ({ posts, appName }: { posts: Post[], appName: string }) => {
         content: content
       }),
       cache: 'no-store'
-    });
+    }).then(async (result) => {
+      if (result.status === 201) {
 
+        router.refresh();
 
-    if (res.status === 201) {
+        setIsLoading(false);
 
-      router.refresh();
+        notifySuccessEvent("성공적으로 작성되었습니다!");
 
-      setIsLoading(false);
+        console.log(`게시글 추가완료`)
+      } else {
 
-      notifySuccessEvent("성공적으로 작성되었습니다!");
+        router.refresh();
 
-      console.log(`게시글 추가완료`)
-    } else {
+        setIsLoading(false);
 
-      router.refresh();
+        notifySuccessEvent("게시글 추가가 실패되었습니다!");
 
-      setIsLoading(false);
-
-      notifySuccessEvent("게시글 추가가 실패되었습니다!");
-
-      console.log(`게시글 추가 실패`)
-    }
+        console.log(`게시글 추가 실패`)
+      }
+    })
   };
 
   const editApostHandler = async (

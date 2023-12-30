@@ -59,85 +59,6 @@ export async function fetchPosts(collectionName) {
     return fetchedPosts;
 }
 
-// //할일 추가하기
-// export async function addAPost({
-//     collectionName,
-//     password,
-//     title,
-//     writer,
-//     content }) {
-
-//     console.log(`파이어베이스 add 실행됨 콜랙션 ${collectionName}`)
-
-//     const postsRef = collection(db, `${collectionName}`)
-
-//     const checkQuery = await query(postsRef, orderBy("created_at", "desc"));
-
-//     const checkQuerySnapshot = await getDocs(checkQuery);
-
-//     if (checkQuerySnapshot.docs.length === 0) {
-
-//         const newPostsRef = doc(collection(db, `${collectionName}`));
-
-//         const createdAtTimestamp = Timestamp.fromDate(new Date())
-
-//         const newPostData = {
-//             id: newPostsRef.id,
-//             title: title,
-//             password: passward,
-//             listNumber: 1,
-//             writer: writer,
-//             content: content,
-//             created_at: createdAtTimestamp.toDate()
-//         }
-
-//         await setDoc(newPostsRef, newPostData);
-
-//         return newPostData;
-        
-//     } else {
-
-//     const descQuery = await query(postsRef, orderBy("listNumber", "desc"), limit(1))
-
-//     const querySnapshot = await getDocs(descQuery, {
-//         cache: 'no-store'
-//     });
-
-//     const listNumber = await querySnapshot.docs[0].data()["listNumber"];
-
-
-//     console.log(`listNumber ${listNumber}`);
-
-//     const addListNumber = Number(listNumber) + 1
-
-//     console.log(`addListNumber ${addListNumber}`);
-
-//     const newPostsRef = doc(collection(db, `${collectionName}`));
-
-//     const createdAtTimestamp = Timestamp.fromDate(new Date())
-
-//     const newPostData = {
-//         id: newPostsRef.id,
-//         title: title,
-//         password: password,
-//         listNumber: addListNumber,
-//         writer: writer,
-//         content: content,
-//         created_at: createdAtTimestamp.toDate()
-//     }
-
-//     await setDoc(newPostsRef, newPostData);
-
-//     return newPostData;
-
-//     }
-
-
-
-    
-
-// }
-
 //할일 추가하기
 export async function addAPost({
     collectionName,
@@ -148,13 +69,13 @@ export async function addAPost({
 
     console.log(`파이어베이스 add 실행됨 콜랙션 ${collectionName}`)
 
-    // const postsRef = collection(db, `${collectionName}`)
+    const postsRef = collection(db, `${collectionName}`)
 
-    // const checkQuery = await query(postsRef, orderBy("created_at", "desc"));
+    const checkQuery = await query(postsRef, orderBy("created_at", "desc"));
 
-    // const checkQuerySnapshot = await getDocs(checkQuery);
+    const checkQuerySnapshot = await getDocs(checkQuery);
 
-    
+    if (checkQuerySnapshot.docs.length === 0) {
 
         const newPostsRef = doc(collection(db, `${collectionName}`));
 
@@ -163,7 +84,7 @@ export async function addAPost({
         const newPostData = {
             id: newPostsRef.id,
             title: title,
-            password: password,
+            password: passward,
             listNumber: 1,
             writer: writer,
             content: content,
@@ -173,6 +94,48 @@ export async function addAPost({
         await setDoc(newPostsRef, newPostData);
 
         return newPostData;
+        
+    } else {
+
+    const descQuery = await query(postsRef, orderBy("listNumber", "desc"), limit(1))
+
+    const querySnapshot = await getDocs(descQuery, {
+        cache: 'no-store'
+    });
+
+    const listNumber = await querySnapshot.docs[0].data()["listNumber"];
+
+
+    console.log(`listNumber ${listNumber}`);
+
+    const addListNumber = Number(listNumber) + 1
+
+    console.log(`addListNumber ${addListNumber}`);
+
+    const newPostsRef = doc(collection(db, `${collectionName}`));
+
+    const createdAtTimestamp = Timestamp.fromDate(new Date())
+
+    const newPostData = {
+        id: newPostsRef.id,
+        title: title,
+        password: password,
+        listNumber: addListNumber,
+        writer: writer,
+        content: content,
+        created_at: createdAtTimestamp.toDate()
+    }
+
+    await setDoc(newPostsRef, newPostData);
+
+    return newPostData;
+
+    }
+
+
+
+    
+
 }
 
 
