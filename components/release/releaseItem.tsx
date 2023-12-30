@@ -22,14 +22,12 @@ export default function ReleaseItem({ data }: {data: any }) {
 
     const [linkData, setLinkData] = useState({});
 
+    const href = useMemo(() => {
+      const databaseName = data.properties.database.rich_text[0]?.plain_text;
+      return `/release/postBoard/${databaseName}`;
+    }, [linkData]);
+
     const handleClick = () => {
-      // `href` 값을 미리 렌더링
-      const href = useMemo(() => {
-        const databaseName = data.properties.database.rich_text[0]?.plain_text;
-        return `/release/postBoard/${databaseName}`;
-      }, [linkData]);
-  
-      // `href` 값을 사용하여 DropdownItem 컴포넌트를 렌더링
       return (
         <DropdownItem onPress={()=>(
           router.push(`${href}`)
