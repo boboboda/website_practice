@@ -340,7 +340,7 @@ const PostsTable = ({ posts, appName }: { posts: Post[], appName: string }) => {
 
     console.log("추가핸들러")
 
-    await new Promise(f => setTimeout(f, 5000));
+    // await new Promise(f => setTimeout(f, 600));
     const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/posts/${appName}`, {
       method: 'post',
       body: JSON.stringify({
@@ -352,16 +352,26 @@ const PostsTable = ({ posts, appName }: { posts: Post[], appName: string }) => {
       cache: 'no-store'
     });
 
-    router.refresh();
 
-    setIsLoading(false);
+    if (res.status === 201) {
 
-    notifySuccessEvent("성공적으로 작성되었습니다!");
+      router.refresh();
 
-    console.log(`게시글 추가완료`)
+      setIsLoading(false);
 
+      notifySuccessEvent("성공적으로 작성되었습니다!");
 
+      console.log(`게시글 추가완료`)
+    } else {
 
+      router.refresh();
+
+      setIsLoading(false);
+
+      notifySuccessEvent("게시글 추가가 실패되었습니다!");
+
+      console.log(`게시글 추가 실패`)
+    }
   };
 
   const editApostHandler = async (
