@@ -254,7 +254,6 @@ const CustomModal = ({ focusedPost, modalType, onDeleteAuth, onClose, onEdit, on
                         />
                         <Input
                             isRequired
-                            autoFocus
                             label="비밀번호"
                             placeholder="비밀번호을 입력해주세요"
                             variant="bordered"
