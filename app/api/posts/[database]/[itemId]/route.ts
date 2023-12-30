@@ -5,27 +5,11 @@ import  { fetchPosts, deleteAPost} from "@/data/firestore";
 // 할일 단일 조회
 export async function GET(request: NextRequest,
      { params }: { params: { database: string, itemId: string  } }) {
-
-     
-        // const query = searchParams.get('query')
-
-        // console.log(params.slug)
-//   URL -> `/dashboard?search=my-project`
-//   `search` -> 'my-project'
-
-  // const fetchedTodo = await fetchPosts(params.slug);
-
-  // if(fetchedTodo === null) {
-  //   return new Response(null, {status : 204})
-  //  }
    
   const res = {
     collection: params.database,
     id: params.itemId
 }
-
-
-// const query = searchParams.get('query')
 
 
 console.log(`api ${JSON.stringify(res)}`)
