@@ -26,51 +26,6 @@ export async function GET(request: NextRequest,
   
     const data = await request.json();
 
-    const post = {
-        collectionName: params.database,
-        title: data.title,
-        password: data.password,
-        writer: data.writer,
-        content: data.content
-    }
-
-    if(post.title === undefined) {
-
-        const errMessage = {
-            message : '제목을 입력해주세요'
-        } 
-
-        return NextResponse.json(errMessage, {status: 422});
-    }
-
-    if(post.password === undefined) {
-
-        const errMessage = {
-            message : '비밀번호을 입력해주세요'
-        } 
-
-        return NextResponse.json(errMessage, {status: 422});
-    }
-
-    if(post.writer === undefined) {
-
-        const errMessage = {
-            message : '이름을 입력해주세요'
-        } 
-
-        return NextResponse.json(errMessage, {status: 422});
-    }
-
-    if(post.content === undefined) {
-
-        const errMessage = {
-            message : '내용을 입력해주세요'
-        } 
-
-        return NextResponse.json(errMessage, {status: 422});
-    }
-
-
     const addedPost = await addAPost({
         collectionName: params.database,
         password: data.password,
