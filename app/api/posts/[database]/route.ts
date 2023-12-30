@@ -34,13 +34,10 @@ export async function GET(request: NextRequest,
         content: data.content
     });
 
-    console.log(`res${addedPost}`)
-
     const response = {
         message: `할일 추가 성공`,
         data: addedPost
     }
-
    
-    return NextResponse.json(response, {status: 201});
+    return Response.json(response, {status: 201});
   }
