@@ -340,7 +340,7 @@ const PostsTable = ({ posts, appName }: { posts: Post[], appName: string }) => {
 
     console.log("추가핸들러")
 
-    await new Promise(f => setTimeout(f, 600));
+    await new Promise(f => setTimeout(f, 5000));
     const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/posts/${appName}`, {
       method: 'post',
       body: JSON.stringify({
