@@ -330,6 +330,47 @@ const PostsTable = ({ posts, appName }: { posts: Post[], appName: string }) => {
   }, [selectedKeys, items.length, page, pages, hasSearchFilter]);
 
 
+  // const addApostHandler = async (
+  //   title: string,
+  //   writer: string,
+  //   password: string,
+  //   content: string) => {
+
+  //   setIsLoading(true);
+
+  //   await new Promise(f => setTimeout(f, 600));
+  //   try {
+
+  //     await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/posts/${appName}`, {
+  //       method: 'post',
+  //       body: JSON.stringify({
+  //         title: title,
+  //         writer: writer,
+  //         password: password,
+  //         content: content
+  //       }),
+  //       cache: 'no-store'
+  //     });
+
+  //     router.refresh();
+
+  //     setIsLoading(false);
+
+  //     notifySuccessEvent("성공적으로 작성되었습니다!");
+
+  //     console.log(`게시글 추가완료`)
+      
+  //   } catch (e) {
+  //     router.refresh();
+
+  //     setIsLoading(false);
+
+  //     notifySuccessEvent(`게시글 추가가 실패되었습니다. ${e}`);
+
+  //     console.log(`게시글 추가 실패`)
+  //   }
+  // };
+
   const addApostHandler = async (
     title: string,
     writer: string,
@@ -338,10 +379,8 @@ const PostsTable = ({ posts, appName }: { posts: Post[], appName: string }) => {
 
     setIsLoading(true);
 
-    await new Promise(f => setTimeout(f, 600));
-    try {
-
-      await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/posts/${appName}`, {
+    useEffect(() => {
+      fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/posts/${appName}`, {
         method: 'post',
         body: JSON.stringify({
           title: title,
@@ -350,25 +389,28 @@ const PostsTable = ({ posts, appName }: { posts: Post[], appName: string }) => {
           content: content
         }),
         cache: 'no-store'
-      });
+      })
+        .then((res) => res.json())
+        .then((data) => {
+          if (data.status === 201 && data.success === true) {
+            router.refresh();
 
-      router.refresh();
+            setIsLoading(false);
 
-      setIsLoading(false);
+            notifySuccessEvent("성공적으로 작성되었습니다!");
 
-      notifySuccessEvent("성공적으로 작성되었습니다!");
+            console.log(`게시글 추가완료`)
+          } else {
+            router.refresh();
 
-      console.log(`게시글 추가완료`)
-      
-    } catch (e) {
-      router.refresh();
+            setIsLoading(false);
 
-      setIsLoading(false);
+            notifySuccessEvent(`게시글 추가가 실패되었습니다. ${data}`);
 
-      notifySuccessEvent(`게시글 추가가 실패되었습니다. ${e}`);
-
-      console.log(`게시글 추가 실패`)
-    }
+            console.log(`게시글 추가 실패`)
+          }
+        });
+    }, []);
   };
 
   const editApostHandler = async (
