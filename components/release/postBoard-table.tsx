@@ -338,39 +338,37 @@ const PostsTable = ({ posts, appName }: { posts: Post[], appName: string }) => {
 
     setIsLoading(true);
 
-    console.log("추가핸들러")
+    await new Promise(f => setTimeout(f, 600));
+    try {
 
-    // await new Promise(f => setTimeout(f, 600));
-    const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/posts/${appName}`, {
-      method: 'post',
-      body: JSON.stringify({
-        title: title,
-        writer: writer,
-        password: password,
-        content: content
-      }),
-      cache: 'no-store'
-    }).then(async (result) => {
-      if (result.status === 201) {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/posts/${appName}`, {
+        method: 'post',
+        body: JSON.stringify({
+          title: title,
+          writer: writer,
+          password: password,
+          content: content
+        }),
+        cache: 'no-store'
+      });
 
-        router.refresh();
+      router.refresh();
 
-        setIsLoading(false);
+      setIsLoading(false);
 
-        notifySuccessEvent("성공적으로 작성되었습니다!");
+      notifySuccessEvent("성공적으로 작성되었습니다!");
 
-        console.log(`게시글 추가완료`)
-      } else {
+      console.log(`게시글 추가완료`)
+      
+    } catch (e) {
+      router.refresh();
 
-        router.refresh();
+      setIsLoading(false);
 
-        setIsLoading(false);
+      notifySuccessEvent(`게시글 추가가 실패되었습니다. ${e}`);
 
-        notifySuccessEvent("게시글 추가가 실패되었습니다!");
-
-        console.log(`게시글 추가 실패`)
-      }
-    })
+      console.log(`게시글 추가 실패`)
+    }
   };
 
   const editApostHandler = async (
