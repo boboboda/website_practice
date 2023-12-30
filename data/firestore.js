@@ -129,7 +129,6 @@ export async function addAPost({
     await setDoc(newPostsRef, newPostData);
 
     return newPostData;
-
     }
 }
 
