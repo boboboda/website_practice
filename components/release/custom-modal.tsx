@@ -7,7 +7,6 @@ import {
 import React from 'react';
 import { Post, FocusedPostType, CustomModalType } from "@/types";
 import { useState, useRef } from "react";
-import { create } from "domain";
 import { EyeSlashFilledIcon, EyeFilledIcon } from "../icons";
 
 
@@ -15,6 +14,7 @@ const CustomModal = ({ focusedPost, modalType, onDeleteAuth, onClose, onEdit, on
     focusedPost?: Post,
     modalType: CustomModalType,
     onDeleteAuth?: (post: Post) => void,
+    onEditAuth?: (post: Post) => void,
     onClose: () => void,
     onEdit?: (id: string, title: string) => void
     onDelete?: (id: string) => void
@@ -33,7 +33,15 @@ const CustomModal = ({ focusedPost, modalType, onDeleteAuth, onClose, onEdit, on
     //false-> 생성 - 데이터가 없는경우
 
     if (focusedPost) {
+        const [editedPostPasswordInput, setEditedPostPasswordInput] = useState<string>(focusedPost.password);
+
         const [editedPostTitleInput, setEditedPostTitleInput] = useState<string>(focusedPost.title);
+
+        const [editedPostContentInput, setEditedPostContentInput] = useState<string>(focusedPost.content);
+
+        const [isVisible, setIsVisible] = React.useState(false);
+
+        const toggleVisibility = () => setIsVisible(!isVisible);
 
         const DetailModal = () => {
             return <>
@@ -107,19 +115,54 @@ const CustomModal = ({ focusedPost, modalType, onDeleteAuth, onClose, onEdit, on
             return <>
                 <ModalHeader className="flex flex-col gap-1">할일 수정</ModalHeader>
                 <ModalBody>
-                    <p><span className="font-bold">id : </span>{focusedPost.id}</p>
-                    <Input
+                    <div className="flex flex-row space-x-4">
+                        <p><span className="font-bold">글쓴이 : </span>{focusedPost.writer}</p>
+                        <Input
+                            isRequired
+                            autoFocus
+                            label="비밀번호"
+                            placeholder="비밀번호을 입력해주세요"
+                            variant="bordered"
+                            endContent={
+                                <button className="focus:outline-none" type="button" onClick={toggleVisibility}>
+                                    {isVisible ? (
+                                        <EyeSlashFilledIcon className="text-2xl text-default-400 pointer-events-none" />
+                                    ) : (
+                                        <EyeFilledIcon className="text-2xl text-default-400 pointer-events-none" />
+                                    )}
+                                </button>
+                            }
+                            type={isVisible ? "text" : "password"}
+                            defaultValue={focusedPost.password}
+                            value={editedPostPasswordInput}
+                            onValueChange={setEditedPostPasswordInput}
+                        />
+                    </div>
+
+                    <Input className="pt-5 max-w-sm"
                         isRequired
-                        autoFocus
-                        label="할일 내용"
-                        placeholder="할일을 입력해주세요"
+                        type="text"
+                        label="제목"
+                        placeholder="제목을 입력해주세요"
                         variant="bordered"
                         defaultValue={focusedPost.title}
                         value={editedPostTitleInput}
                         onValueChange={setEditedPostTitleInput}
                     />
+
+                    <Textarea
+                        label="내용"
+                        type="text"
+                        placeholder="내용을 입력해주세요"
+                        className=""
+                        variant="bordered"
+                        value={editedPostContentInput}
+                        onValueChange={setEditedPostContentInput}
+
+                    />
+
                     <div className="flex py-1 space-x-4">
-                        <span className="font-bold">작성일: </span>
+                        <span className="font-bold">작성일 : </span>
                         <p>{`${focusedPost.created_at}`}</p>
                     </div>
                 </ModalBody>
