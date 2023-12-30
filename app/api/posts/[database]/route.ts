@@ -24,19 +24,28 @@ export async function GET(request: NextRequest,
     { params }: { params: { database: string  } }) {
     
   
-    const data = await request.json();
+    const {
+        password,
+        writer,
+        title,
+        content
+    } = await request.json();
 
-    const addedPost = await addAPost({
-        collectionName: params.database,
-        password: data.password,
-        writer: data.writer,
-        title: data.title,
-        content: data.content
-    });
+    // const addedPost = await addAPost({
+    //     collectionName: params.database,
+    //     password,
+    //     writer,
+    //     title,
+    //     content
+    // });
 
-    const response = {
-        message: `할일 추가 성공`,
-        data: addedPost
+    // const response = {
+    //     message: `할일 추가 성공`,
+    //     data: addedPost
+    // }
+
+    const response ={
+        title: "테스트"
     }
    
     return NextResponse.json(response, {status: 201});
