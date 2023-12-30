@@ -340,7 +340,7 @@ const PostsTable = ({ posts, appName }: { posts: Post[], appName: string }) => {
 
     await new Promise(f => setTimeout(f, 600));
      const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/posts/${appName}`, {
-        method: 'POST',
+        method: 'post',
         body: JSON.stringify({
           title: title,
           writer: writer,
@@ -359,7 +359,7 @@ const PostsTable = ({ posts, appName }: { posts: Post[], appName: string }) => {
 
       setIsLoading(false);
 
-      notifySuccessEvent(`성공적으로 작성되었습니다!${data}`);
+      notifySuccessEvent(`성공적으로 작성되었습니다!`);
 
       console.log(`게시글 추가완료`)
   };
