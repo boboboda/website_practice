@@ -24,20 +24,24 @@ export async function GET(request: NextRequest,
     { params }: { params: { database: string  } }) {
     
   
-    // const data = await request.json();
+    const data = await request.json();
 
-    // const addedPost = await addAPost({
-    //     collectionName: params.database,
-    //     password: data.password,
-    //     writer: data.writer,
-    //     title: data.title,
-    //     content: data.content
-    // });
+    const addedPost = await addAPost({
+        collectionName: params.database,
+        password: data.password,
+        writer: data.writer,
+        title: data.title,
+        content: data.content
+    });
 
-    // const response = {
-    //     message: `할일 추가 성공`,
-    //     data: addedPost
-    // }
+    if(addedPost === null) {
+        return new Response(null, {status : 204});
+     }
+
+    const response = {
+        message: `할일 추가 성공`,
+        data: addedPost
+    }
    
-    return NextResponse.json(params.database, {status: 201});
+    return NextResponse.json(response, {status: 201});
   }
