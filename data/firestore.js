@@ -140,7 +140,7 @@ export async function addAPost({
 
 
 //단일 할일 조회
-export async function fetchATodo(id) {
+export async function fetchAPost(collectionName, id) {
 
 
     if (id === null) {
@@ -148,19 +148,22 @@ export async function fetchATodo(id) {
     }
 
 
-    const todoDocRef = doc(db, "todos", id);
-    const todoDocSnap = await getDoc(todoDocRef);
+    const postDocRef = doc(db, `${collectionName}`, id);
+    const postDocSnap = await getDoc(postDocRef);
 
-    if (todoDocSnap.exists()) {
+    if (postDocSnap.exists()) {
 
-        const fetchedTodo = {
-            id: todoDocSnap.id,
-            title: todoDocSnap.data()["title"],
-            is_done: todoDocSnap.data()["is_done"],
-            created_at: todoDocSnap.data()["created_at"].toDate()
+        const fetchedPost = {
+            id: postDocSnap.id,
+            listNumber: postDocSnap.data()["listNumber"],
+            password: postDocSnap.data()["password"],
+            writer: postDocSnap.data()["writer"],
+            title: postDocSnap.data()["title"],
+            content: postDocSnap.data()["content"],
+            created_at: postDocSnap.data()["created_at"].toDate()
         }
 
-        return fetchedTodo
+        return fetchedPost
     } else {
 
         return null;
@@ -172,23 +175,23 @@ export async function fetchATodo(id) {
 
 
 //단일 삭제
-export async function deleteATodo(id) {
+export async function deleteAPost(collectionName, id) {
 
+    console.log(`post 삭제 ${id}`)
 
+    const fetchedPost = await fetchAPost(collectionName, id)
 
-    const fetchedTodo = await fetchATodo(id)
-
-    if (fetchedTodo === null) {
+    if (fetchedPost === null) {
         return null;
     } else {
-        await deleteDoc(doc(db, "todos", id));
-        return fetchedTodo;
+        await deleteDoc(doc(db, `${collectionName}`, id));
+        return fetchedPost;
     }
 }
 
 
 //단일 할일 수정
-export async function editATodo(id, { title, is_done }) {
+export async function editAPost(id, { title, is_done }) {
 
 
 
@@ -215,6 +218,6 @@ export async function editATodo(id, { title, is_done }) {
 }
 
 
-module.exports = { fetchPosts, addAPost, deleteATodo, editATodo }
+module.exports = { fetchPosts, addAPost, deleteAPost, editAPost }
 
 

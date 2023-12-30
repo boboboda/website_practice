@@ -30,7 +30,7 @@ export default async function postBoardPage({ params }: { params: { slug: string
 
     const response = await fetchPostsApiCall(appName);
 
-    const fetchedPosts = response.data ?? [];
+    const fetchedPosts = response?.data ?? [];
 
 
     return (<>

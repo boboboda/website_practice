@@ -55,6 +55,7 @@ export default async function ReleaseAppPage() {
 	
 	
 	return (
+		
 		<>
 		<h1 className={title()}>출시 어플: 
 		{

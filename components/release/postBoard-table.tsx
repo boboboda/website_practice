@@ -400,11 +400,7 @@ const PostsTable = ({ posts, appName }: { posts: Post[], appName: string }) => {
     id: string) => {
 
     setIsLoading(true);
-
-    // setTimeout(() => {
-    //   console.log("첫 번째 메시지")
-    // }, 5000);
-
+    
     await new Promise(f => setTimeout(f, 600));
     await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/posts/${appName}/${id}`, {
       method: 'delete',

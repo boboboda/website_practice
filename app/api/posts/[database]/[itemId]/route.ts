@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import  { fetchPosts, deleteATodo, editATodo} from "@/data/firestore";
+import  { fetchPosts, deleteAPost} from "@/data/firestore";
 
 
 // 할일 단일 조회
@@ -50,27 +50,27 @@ data: res
   }
 
 
-//   // 할일 단일 삭제: id
-// export async function DELETE(request: NextRequest,
-//     { params }: { params: { slug: string } }) {
+  // 할일 단일 삭제: id
+export async function DELETE(request: NextRequest,
+    { params }: { params: { database: string, itemId: string } }) {
 
-//  // URL -> `/dashboard?search=my-project`
-//  // `search` -> 'my-project'
+ // URL -> `/dashboard?search=my-project`
+ // `search` -> 'my-project'
 
-//  const deletedTodo = await deleteATodo(params.slug)
+ const deletedTodo = await deleteAPost(params.database, params.itemId)
  
-//  if(deletedTodo === null) {
-//     return new Response(null, {status : 204});
-//  }
+ if(deletedTodo === null) {
+    return new Response(null, {status : 204});
+ }
 
-//    const response = {
-//        message: `단일 할일 삭제 성공`,
-//        data: deletedTodo
-//        }
+   const response = {
+       message: `단일 할일 삭제 성공`,
+       data: deletedTodo
+       }
 
 
-//    return NextResponse.json(response, {status: 200});
-//  }
+   return NextResponse.json(response, {status: 200});
+ }
 
 
 //  // 할일 단일 수정

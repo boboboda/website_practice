@@ -7,7 +7,8 @@ import { Image, Card, CardFooter, CardBody, Tooltip, Chip, Button, Link,
 import { title, subtitle, ButtnCustom } from "../primitives";
 import { TagCustom } from "../primitives";
 import {Divider} from "@nextui-org/react";
-import { useState, useMemo } from "react";
+import { useState, useMemo} from "react";
+import { useRouter, usePathname } from "next/navigation"
 // import Image from 'next/image';
 
 
@@ -17,6 +18,7 @@ export default function ReleaseItem({ data }: {data: any }) {
     const description = data.properties.AppDescription.rich_text[0]?.plain_text
     // const imgSrc = data.cover.file? data.cover.file.url : data.cover.external.url
 
+    const router = useRouter()
 
     const [linkData, setLinkData] = useState({});
 
@@ -29,7 +31,9 @@ export default function ReleaseItem({ data }: {data: any }) {
   
       // `href` 값을 사용하여 DropdownItem 컴포넌트를 렌더링
       return (
-        <DropdownItem href={href}>문의게시판</DropdownItem>
+        <DropdownItem onPress={()=>(
+          router.push(`${href}`)
+        )}>문의게시판</DropdownItem>
       );
     };
     // 다른 표현
