@@ -83,8 +83,8 @@ export async function addAPost({
 
         const newPostData = {
             id: newPostsRef.id,
-            title: title,
             password: password,
+            title: title,
             listNumber: 1,
             writer: writer,
             content: content,
@@ -118,8 +118,8 @@ export async function addAPost({
 
     const newPostData = {
         id: newPostsRef.id,
-        title: title,
         password: password,
+        title: title,
         listNumber: addListNumber,
         writer: writer,
         content: content,
