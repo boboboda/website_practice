@@ -7,7 +7,7 @@ import PostsTable from "@/components/release/postBoard-table";
 
 async function fetchPostsApiCall(databaseName: string) {
     console.log("fetchPostsApiCall called");
-    const res = await fetch(`http://localhost:3000/api/posts/${databaseName}`, {
+    const res = await fetch(`${process.env.BASE_URL}/api/posts/${databaseName}`, {
         cache: 'no-store'
     });
 
