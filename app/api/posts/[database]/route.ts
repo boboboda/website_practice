@@ -36,12 +36,12 @@ export async function GET(request: NextRequest,
 
     if(addedPost === null) {
         return new Response(null, {status : 204});
+     } else {
+        const response = {
+            message: `할일 추가 성공`,
+            data: addedPost
+        }
+       
+        return NextResponse.json(response, {status: 201});
      }
-
-    const response = {
-        message: `할일 추가 성공`,
-        data: addedPost
-    }
-   
-    return NextResponse.json(response, {status: 201});
   }
