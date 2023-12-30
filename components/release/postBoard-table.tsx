@@ -341,7 +341,7 @@ const PostsTable = ({ posts, appName }: { posts: Post[], appName: string }) => {
     await new Promise(f => setTimeout(f, 600));
     try {
 
-      const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/posts/${appName}`, {
+      await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/posts/${appName}`, {
         method: 'post',
         body: JSON.stringify({
           title: title,
