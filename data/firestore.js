@@ -131,11 +131,6 @@ export async function addAPost({
     return newPostData;
 
     }
-
-
-
-    
-
 }
 
 
