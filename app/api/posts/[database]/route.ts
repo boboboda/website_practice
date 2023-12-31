@@ -31,21 +31,17 @@ export async function GET(request: NextRequest,
         content
     } = await request.json();
 
-    // const addedPost = await addAPost({
-    //     collectionName: params.database,
-    //     password,
-    //     writer,
-    //     title,
-    //     content
-    // });
+    const addedPost = await addAPost({
+        collectionName: params.database,
+        password,
+        writer,
+        title,
+        content
+    });
 
-    // const response = {
-    //     message: `할일 추가 성공`,
-    //     data: addedPost
-    // }
-
-    const response ={
-        title: "테스트"
+    const response = {
+        message: `할일 추가 성공`,
+        data: addedPost
     }
    
     return NextResponse.json(response, {status: 201});
