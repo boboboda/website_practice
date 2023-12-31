@@ -13,7 +13,7 @@ import {
   Dropdown, DropdownTrigger, DropdownMenu, DropdownItem,
   Modal, ModalContent, useDisclosure,
   Selection, SortDescriptor, Pagination,
-  Tooltip,
+  Tooltip, 
 } from "@nextui-org/react";
 import { Post, FocusedPostType, CustomModalType } from "@/types";
 import { useRouter, usePathname } from "next/navigation"
@@ -73,6 +73,7 @@ const PostsTable = ({ posts, appName }: { posts: Post[], appName: string }) => {
   //검색
   const hasSearchFilter = Boolean(filterValue);
 
+  // 모달 상태 delete, add, edit
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
 
   const notifySuccessEvent = (msg: string) => toast.success(msg);
@@ -140,7 +141,10 @@ const PostsTable = ({ posts, appName }: { posts: Post[], appName: string }) => {
         );
       case "title":
         return (
-          <h1 className="flex justify-center" key={post.id}>
+          <h1 className="flex justify-center cursor-pointer" key={post.id} onClick={(event) => {
+            setCurrentModalData({ focusedPost: post, modalType: "detail" });
+                  onOpen();
+          }}>
             {post.title}
           </h1>
         );
@@ -166,7 +170,7 @@ const PostsTable = ({ posts, appName }: { posts: Post[], appName: string }) => {
             <Tooltip content="Edit user">
               <span className="text-lg text-default-400 cursor-pointer active:opacity-50"
                 onClick={(event) => {
-                  setCurrentModalData({ focusedPost: post, modalType: "edit" });
+                  setCurrentModalData({ focusedPost: post, modalType: "editAuth" });
                   onOpen();
                 }}
               >
@@ -361,15 +365,19 @@ const PostsTable = ({ posts, appName }: { posts: Post[], appName: string }) => {
 
   const editApostHandler = async (
     id: string,
-    editedTitle: string) => {
+    title: string,
+    password: string,
+    content: string) => {
 
     setIsLoading(true);
 
     await new Promise(f => setTimeout(f, 600));
-    await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/todos/${id}`, {
+    await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/posts/${appName}/${id}`, {
       method: 'post',
       body: JSON.stringify({
-        title: editedTitle,
+        title,
+        password,
+        content
       }),
       cache: 'no-store'
     });
@@ -402,11 +410,12 @@ const PostsTable = ({ posts, appName }: { posts: Post[], appName: string }) => {
 
 
 
+
   const ModalComponent = () => {
     return <div>
       <Modal
         isOpen={isOpen}
-        size="5xl"
+        size="2xl"
         classNames={{
           backdrop: "bg-gradient-to-t from-zinc-900 to-zinc-900/10 backdrop-opacity-20"
         }}
@@ -428,8 +437,18 @@ const PostsTable = ({ posts, appName }: { posts: Post[], appName: string }) => {
                   })
                   onOpen()
                 }}
-                onEdit={async (id, title) => {
-                  await editApostHandler(id, title);
+                onEditAuth={async (post) => {
+                  onClose()
+                  await new Promise(f => setTimeout(f, 600));
+                  setCurrentModalData({
+                    focusedPost: post,
+                    modalType: "edit"
+                  })
+                  onOpen()
+                }}
+
+                onEdit={async (id, title, password, content) => {
+                  await editApostHandler(id, title, password, content);
                   onClose();
                 }}
                 onDelete={async (id) => {

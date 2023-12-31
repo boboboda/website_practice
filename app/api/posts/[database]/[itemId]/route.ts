@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import  { fetchPosts, deleteAPost} from "@/data/firestore";
+import  { fetchPosts, deleteAPost, editAPost} from "@/data/firestore";
 
 
 // 할일 단일 조회
@@ -57,30 +57,28 @@ export async function DELETE(request: NextRequest,
  }
 
 
-//  // 할일 단일 수정
-// export async function POST(request: NextRequest,
-//     { params }: { params: { slug: string } }) {
+ // 할일 단일 수정
+export async function POST(request: NextRequest,
+    { params }: { params: { database: string, itemId: string } }) {
 
 
-//  // URL -> `/dashboard?search=my-project`
-//  // `search` -> 'my-project'
+ // URL -> `/dashboard?search=my-project`
+ // `search` -> 'my-project'
 
-//  const { title, is_done } = await request.json();
+ const { title, password, content } = await request.json();
 
-//  const editedTodo = await editATodo(params.slug, {title, is_done})
+ const editedTodo = await editAPost(
+  params.database, 
+  params.itemId, 
+  {title, password, content})
 
-//  if(editedTodo === null) {
-//     return new Response(null, {status : 204});
-//  }
+ if(editedTodo === null) {
+    return new Response(null, {status : 204});
+ }
 
-
-
-  
-//    const response = {
-//        message: `단일 할일 수정 성공`,
-//        data: editedTodo
-//    }
-
-
-//    return NextResponse.json(response, {status: 200});
-//  }
+   const response = {
+       message: `단일 할일 수정 성공`,
+       data: editedTodo
+   }
+   return NextResponse.json(response, {status: 200});
+ }

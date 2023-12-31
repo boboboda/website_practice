@@ -185,28 +185,30 @@ export async function deleteAPost(collectionName, id) {
 
 
 //단일 할일 수정
-export async function editAPost(id, { title, is_done }) {
+export async function editAPost(collectionName, id, { title, password, content }) {
 
+    console.log(`post 수정 ${collectionName} ${id} ${title}, ${password} ${content}`)
 
+    const fetchedPost = await fetchAPost(collectionName, id)
 
-    const fetchedTodo = await fetchATodo(id)
-
-    if (fetchedTodo === null) {
+    if (fetchedPost === null) {
         return null;
     } else {
 
-        const todoRef = doc(db, "todos", id);
+        const postRef = doc(db, `${collectionName}`, id);
 
-        await updateDoc(todoRef, {
+        await updateDoc(postRef, {
             title,
-            is_done
+            password,
+            content
         });
 
         return {
             id: id,
-            created_at: fetchedTodo.created_at,
+            created_at: fetchedPost.created_at,
             title: title,
-            is_done: is_done
+            password: password,
+            content: content
         };
     }
 }
