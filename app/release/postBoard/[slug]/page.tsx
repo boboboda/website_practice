@@ -1,5 +1,5 @@
 import { title } from "@/components/primitives";
-import PostsTable from "@/components/release/postBoard-table";
+import PostsTable from "@/components/release/postComponent/postBoard-table";
 
 
 
@@ -28,14 +28,13 @@ export default async function postBoardPage({ params }: { params: { slug: string
 
     const appName = params.slug ?? ""
 
-    const response = await fetchPostsApiCall(appName);
+    const response = await  fetchPostsApiCall(appName);
 
     const fetchedPosts = response?.data ?? [];
 
-
     return (<>
     <div className="container mx-auto flex px-5 py-24 md:flex flex-col items-center">
-        <h1 className={title()}>문의게시판</h1>
+        <h1 className={title()}>문의사항</h1>
         <PostsTable posts={fetchedPosts} appName={appName} />
     </div>
     </>)

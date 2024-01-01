@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
 import  { fetchPosts, deleteAPost, addAPost} from "@/data/firestore";
-import { Content } from "next/font/google";
 
 // 모든 글 가져오기
 export async function GET(request: NextRequest,
@@ -28,21 +27,22 @@ export async function GET(request: NextRequest,
         password,
         writer,
         title,
-        content
+        content,
     } = await request.json();
 
-    const addedPost = await addAPost({
-        collectionName: params.database,
-        password,
-        writer,
-        title,
-        content
-    });
-
-    const response = {
-        message: `할일 추가 성공`,
-        data: addedPost
-    }
    
-    return NextResponse.json(response, {status: 201});
+        const addedPost = await addAPost({
+            collectionName: params.database,
+            password,
+            writer,
+            title,
+            content
+        });
+
+        const response = {
+            message: `할일 추가 성공`,
+            data: addedPost
+        }
+        
+        return  NextResponse.json(response, {status: 201});
   }

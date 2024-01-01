@@ -2,22 +2,41 @@
 
 import {
     ModalHeader, ModalBody, Modal, ModalContent,
-    ModalFooter, Button, Input, checkbox, Switch, CircularProgress, Textarea, useDisclosure
+    ModalFooter, Button, Input, checkbox, Switch, CircularProgress, Textarea, useDisclosure, Accordion, AccordionItem, Divider, Card, CardHeader, CardBody, CardFooter
 } from "@nextui-org/react";
 import React from 'react';
 import { Post, FocusedPostType, CustomModalType } from "@/types";
-import { useState, useRef } from "react";
-import { EyeSlashFilledIcon, EyeFilledIcon } from "../icons";
+import { EyeSlashFilledIcon, EyeFilledIcon } from "../../icons";
+import { deleteAComment, fetchAPost } from "@/data/firestore";
+import { useRouter, usePathname } from "next/navigation"
+import { ToastContainer, toast } from 'react-toastify';
+import { useState, useEffect } from "react";
 
 
-const CustomModal = ({ focusedPost, modalType, onDeleteAuth, onEditAuth, onClose, onEdit, onDelete, onAdd }: {
+const CustomModal = ({ focusedPost, modalType, appName, onDeleteAuth, onAddComment, ondeleteComment, onEditAuth, onClose, onEdit, onDelete, onAdd }: {
     focusedPost?: Post,
+    appName?: string,
     modalType: CustomModalType,
     onDeleteAuth?: (post: Post) => void,
     onEditAuth?: (post: Post) => void,
     onClose: () => void,
     onEdit?: (id: string, title: string, password: string, content: string) => void
     onDelete?: (id: string) => void
+    onAddComment?: (
+        values: {
+            postId: string;
+            writer: string;
+            content: string;
+            password: string;
+        }
+    ) => void
+    ondeleteComment?: (
+        values: {
+            postId: string;
+            commentId: string;
+            commentPassword: string
+        }
+    ) => void
     onAdd?: (values: {
         writer: string;
         title: string;
@@ -26,13 +45,25 @@ const CustomModal = ({ focusedPost, modalType, onDeleteAuth, onEditAuth, onClose
     }) => void
 }) => {
 
+    const [url, setUrl] = useState("");
+
+    useEffect(() => {
+        const url = `${process.env.NEXT_PUBLIC_BASE_URL}/api/comments/${appName}`;
+        setUrl(url);
+    }, []);
+
+
+    const router = useRouter();
+
+    const path = usePathname();
+
+    const notifySuccessEvent = (msg: string) => toast.success(msg);
+
     //로딩 상태
     const [isLoading, setIsLoading] = useState<Boolean>(false);
 
     //true-> 삭제, 수정, 상세정보 - 데이터가 있는 경우
     //false-> 생성 - 데이터가 없는경우
-
-    const reecivePost = focusedPost ?? null
 
     const [editedPostPasswordInput, setEditedPostPasswordInput] = useState<string>(focusedPost?.password ?? "");
 
@@ -44,24 +75,163 @@ const CustomModal = ({ focusedPost, modalType, onDeleteAuth, onEditAuth, onClose
 
     const editedToggleVisibility = () => setEditedIsVisible(!editedIsVisible);
 
+
+
+    const [addedCommentPasswordInput, setAddedCommentPasswordInput] = useState<string>("");
+
+    const [addedCommentWriterInput, setAddedCommentWriterInput] = useState<string>("");
+
+    const [addedCommentContentInput, setAddedCommentContentInput] = useState<string>("");
+
+
+
+    const CommentAdd = () => {
+
+        return (<>
+            <div className="flex flex-row items-center space-x-4">
+                <div className="flex flex-col w-96">
+                    <Input
+                        isRequired
+                        autoFocus
+                        label="비밀번호"
+                        placeholder="비밀번호을 입력해주세요"
+                        variant="bordered"
+                        type="password"
+                        value={addedCommentPasswordInput}
+                        onValueChange={setAddedCommentPasswordInput}
+                    />
+                    <Input className="max-w-md"
+                        isRequired
+                        autoFocus
+                        type="text"
+                        label="닉네임"
+                        placeholder="닉네임을 입력해주세요"
+                        variant="bordered"
+                        defaultValue=""
+                        value={addedCommentWriterInput}
+                        onValueChange={setAddedCommentWriterInput}
+                    />
+                </div>
+
+                <div className="flex w-full">
+                    <Textarea
+                        label="댓글"
+                        type="text"
+                        placeholder="댓글을 입력해주세요"
+                        variant="bordered"
+                        value={addedCommentContentInput}
+                        onValueChange={setAddedCommentContentInput}
+                    />
+                </div>
+            </div>
+            <div className="flex w-full justify-end">
+                <Button color="warning" variant="flat" onPress={() => {
+                    setIsLoading(true);
+                    if (addedCommentContentInput === "" && addedCommentPasswordInput === "" && addedCommentWriterInput === "") {
+                        notifySuccessEvent("빈칸이 존재합니다. 입력후 작성해주세요")
+                        setIsLoading(false);
+                    } else {
+
+                        onAddComment?.(
+                            {
+                                postId: focusedPost?.id ?? "",
+                                writer: addedCommentWriterInput,
+                                content: addedCommentContentInput,
+                                password: addedCommentPasswordInput
+                            }
+                        )
+                        new Promise(f => setTimeout(f, 1000));
+                        setAddedCommentContentInput("")
+                        setAddedCommentPasswordInput("")
+                        setAddedCommentWriterInput("")
+                        setIsLoading(false);
+
+                    }
+
+
+                }}>
+                    {isLoading ? <CircularProgress
+                        size="sm"
+                        color="warning"
+                        aria-label="Loading..." /> : '작성'}
+                </Button>
+            </div>
+
+        </>
+
+        )
+    }
+
+    const CommentsList = ({ comment, postId }: { comment: any, postId: any }) => {
+
+        const date = new Date(comment.created_at.seconds * 1000 + comment.created_at.nanoseconds / 1000000);
+        const formattedDate = `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()} ${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}`;
+        return (
+            <Card key={comment.id} className="">
+                <CardBody className="flex flex-row w-full items-center space-x-3">
+                    <div className="flex h-5 w-full items-center space-x-4 text-small">
+                        <div className=" w-2/12 items-start">{comment.writer}</div>
+                        <Divider className="" orientation="vertical" />
+                        <div className="w-7/12">{comment.content}</div>
+                        <Divider orientation="vertical" />
+                        <div className="w-2/12 text-center">{formattedDate}</div>
+                        <Divider orientation="vertical" />
+                        <div className=" w-1/12 cursor-pointer" onClick={() => {
+                            ondeleteComment?.(
+                                {
+                                    postId,
+                                    commentId: comment.id,
+                                    commentPassword: comment.password
+                                }
+                            )
+                        }}>삭제</div>
+                    </div>
+
+                </CardBody>
+            </Card>
+        )
+    }
+
+
     const DetailModal = () => {
+
+        const comments = focusedPost?.comments;
+
         return <>
             <ModalHeader className="flex flex-col gap-1">게시글 상세보기</ModalHeader>
             <ModalBody>
                 <p><span className="font-bold">글쓴이 : </span>{focusedPost?.writer ?? ""}</p>
                 <p className="font-bold text-[1rem]"><span className="font-bold text-[1rem]">제목 : </span>{focusedPost?.title ?? ""}</p>
+                <p>내용</p>
                 <Textarea
                     isReadOnly
-                    label="내용"
                     variant="bordered"
-                    labelPlacement="outside"
                     placeholder="Enter your description"
                     defaultValue={focusedPost?.content ?? ""}
-                    className="max-w-xs text-[1rem]"
+                    className="w-full text-[1rem]"
                 />
                 <div className="flex py-1 space-x-4">
                     <span className="font-bold">작성일 : </span>
                     <p>{`${focusedPost?.created_at ?? ""}`}</p>
+                </div>
+                <div className="flex py-1 space-x-4">
+                    <Accordion variant="splitted">
+                        <AccordionItem className="" key="1" aria-label="댓글" title="댓글">
+                            <div className=" space-y-3">
+                                <Divider className="my-4" />
+
+                                {
+                                    focusedPost?.comments.map((comment) => (
+                                        <CommentsList key={comment.id} comment={comment} postId={focusedPost.id} />
+                                    ))
+                                }
+
+                            </div>
+
+                            <Divider className="my-4" />
+                            {CommentAdd()}
+                        </AccordionItem>
+                    </Accordion>
                 </div>
             </ModalBody>
             <ModalFooter>
@@ -83,9 +253,11 @@ const CustomModal = ({ focusedPost, modalType, onDeleteAuth, onEditAuth, onClose
                         return onDeleteAuth?.(focusedPost)
                     case 'editAuth':
                         return onEditAuth?.(focusedPost)
+                    case 'passwordModal':
+                        return deleteAComment?.(focusedPost)
                 }
             } else {
-                alert(`비밀번호가 틀렸습니다. 입력패스워드 ${password} 기존 패스워드${focusedPost?.password}`);
+                alert(`비밀번호가 틀렸습니다.`);
             }
         };
 
@@ -121,28 +293,28 @@ const CustomModal = ({ focusedPost, modalType, onDeleteAuth, onEditAuth, onClose
         return <>
             <ModalHeader className="flex flex-col gap-1">게시글 수정</ModalHeader>
             <ModalBody>
-            <p className=" ps-1"><span className="font-bold">글쓴이 : </span>{focusedPost?.writer}</p>
-                    
-                    <Input className="max-w-xs"
-                        isRequired
-                        autoFocus
-                        label="비밀번호"
-                        placeholder="비밀번호을 입력해주세요"
-                        variant="bordered"
-                        endContent={
-                            <button className="focus:outline-none" type="button" onClick={editedToggleVisibility}>
-                                {editedIsVisible ? (
-                                    <EyeSlashFilledIcon className="text-2xl text-default-400 pointer-events-none" />
-                                ) : (
-                                    <EyeFilledIcon className="text-2xl text-default-400 pointer-events-none" />
-                                )}
-                            </button>
-                        }
-                        type={editedIsVisible ? "text" : "password"}
-                        defaultValue={focusedPost?.password}
-                        value={editedPostPasswordInput}
-                        onValueChange={setEditedPostPasswordInput}
-                    />
+                <p className=" ps-1"><span className="font-bold">글쓴이 : </span>{focusedPost?.writer}</p>
+
+                <Input className="max-w-xs"
+                    isRequired
+                    autoFocus
+                    label="비밀번호"
+                    placeholder="비밀번호을 입력해주세요"
+                    variant="bordered"
+                    endContent={
+                        <button className="focus:outline-none" type="button" onClick={editedToggleVisibility}>
+                            {editedIsVisible ? (
+                                <EyeSlashFilledIcon className="text-2xl text-default-400 pointer-events-none" />
+                            ) : (
+                                <EyeFilledIcon className="text-2xl text-default-400 pointer-events-none" />
+                            )}
+                        </button>
+                    }
+                    type={editedIsVisible ? "text" : "password"}
+                    defaultValue={focusedPost?.password}
+                    value={editedPostPasswordInput}
+                    onValueChange={setEditedPostPasswordInput}
+                />
 
                 <Input
                     isRequired
@@ -175,7 +347,7 @@ const CustomModal = ({ focusedPost, modalType, onDeleteAuth, onEditAuth, onClose
                 <Button color="warning" variant="flat" onPress={() => {
                     setIsLoading(true);
                     onEdit?.(
-                        focusedPost?.id ?? "", 
+                        focusedPost?.id ?? "",
                         editedPostTitleInput,
                         editedPostPasswordInput,
                         editedPostContentInput);
@@ -342,6 +514,8 @@ const CustomModal = ({ focusedPost, modalType, onDeleteAuth, onEditAuth, onClose
                 return PasswordModal(type);
             case 'editAuth':
                 return PasswordModal(type);
+            case 'passwordModal':
+                return PasswordModal(type)
             default: break;
 
         }

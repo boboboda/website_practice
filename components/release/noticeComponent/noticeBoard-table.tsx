@@ -12,33 +12,27 @@ import {
   TableCell,
   Dropdown, DropdownTrigger, DropdownMenu, DropdownItem,
   Modal, ModalContent, useDisclosure,
-  Selection, SortDescriptor, Pagination,
-  Tooltip, 
+  Selection, SortDescriptor, Pagination, ModalHeader, ModalBody,
+  ModalFooter,
+  Tooltip,
 } from "@nextui-org/react";
-import { Post, FocusedPostType, CustomModalType } from "@/types";
+import { Notice, FocusedNoticeType, CustomModalType } from "@/types";
 import { useRouter, usePathname } from "next/navigation"
 import React from 'react';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import { VerticalDotsIcon } from "../icons";
-import CustomModal from "./custom-modal";
+import { VerticalDotsIcon } from "../../icons";
+import NoticeCustomModal from "./custom-modal";
 import { capitalize } from "@/utils";
 import columns from "@/types";
-import { SearchIcon, ChevronDownIcon, PlusIcon, EyeIcon, EditIcon, DeleteIcon } from "../icons";
+import { SearchIcon, ChevronDownIcon, PlusIcon, EyeIcon, EditIcon, DeleteIcon } from "../../icons";
+import { of, from, filter, find } from "rxjs";
 
 
 
-const INITIAL_VISIBLE_COLUMNS = ["listNumber", "title", "writer", "actions"];
+const INITIAL_VISIBLE_COLUMNS = ["listNumber", "title", "writer", "actions", "created_at"];
 
-const PostsTable = ({ posts, appName }: { posts: Post[], appName: string }) => {
-
-
-  const [myPosts, setMyPosts] = useState<Post[]>([]); // 초기값 설정
-
-  useEffect(() => {
-    setMyPosts(posts); // 외부에서 전달받은 posts 값을 상태에 저장
-  }, [posts]);
-
+const NoticesTable = ({ notices, appName }: { notices: Notice[], appName: string }) => {
 
 
   const [filterValue, setFilterValue] = React.useState("");
@@ -59,10 +53,35 @@ const PostsTable = ({ posts, appName }: { posts: Post[], appName: string }) => {
 
   // 띄우는 모달 상태
 
-  const [currentModalData, setCurrentModalData] = useState<FocusedPostType>({
-    focusedPost: null,
+  const [currentModalData, setCurrentModalData] = useState<FocusedNoticeType>({
+    focusedNotice: null,
     modalType: 'detail',
+    appName: ""
   });
+
+  const [currentNotice, setCurrentNotice] = useState<Notice>({
+    id: "",
+    listNumber: "",
+    writer: "",
+    password: "",
+    title: "",
+    content: "",
+    created_at: "",
+    comments: []
+  })
+
+  useEffect(() => {
+    const updataNotices = from(notices)
+      .pipe(
+        find((notice) => notice.id === currentNotice.id)
+      ).subscribe((updateNotice) => {
+        setCurrentModalData({
+          focusedNotice: updateNotice ?? null,
+          modalType: currentModalData.modalType
+        })
+      })
+  }, [notices, currentNotice]);
+
 
   const router = useRouter();
 
@@ -74,7 +93,14 @@ const PostsTable = ({ posts, appName }: { posts: Post[], appName: string }) => {
   const hasSearchFilter = Boolean(filterValue);
 
   // 모달 상태 delete, add, edit
+
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
+
+  const { isOpen: isOneOpen, onOpen: oneOnOpen, onOpenChange: onOneChange, onClose: oneOneClose } = useDisclosure();
+
+  const [passwordIsOpen, setPasswordIsOpen] = useState(false)
+
+  const [passwordInput, setPasswordInput] = useState("")
 
   const notifySuccessEvent = (msg: string) => toast.success(msg);
 
@@ -88,16 +114,16 @@ const PostsTable = ({ posts, appName }: { posts: Post[], appName: string }) => {
 
   //아이템 필터-검색용도
   const filteredItems = React.useMemo(() => {
-    let filteredPosts = [...posts];
+    let filteredNotices = [...notices];
 
     if (hasSearchFilter) {
-      filteredPosts = filteredPosts.filter((posts) =>
-        posts.title.toLowerCase().includes(filterValue.toLowerCase()),
+      filteredNotices = filteredNotices.filter((notices) =>
+        notices.title.toLowerCase().includes(filterValue.toLowerCase()),
       );
     }
 
-    return filteredPosts;
-  }, [posts, filterValue]);
+    return filteredNotices;
+  }, [notices, filterValue]);
 
 
   //페이지 관련
@@ -113,55 +139,57 @@ const PostsTable = ({ posts, appName }: { posts: Post[], appName: string }) => {
 
   // 정렬관련- 날짜 관련 cmp 수정 필요
   const sortedItems = React.useMemo(() => {
-    return [...items].sort((a: Post, b: Post) => {
-      const first = a[sortDescriptor.column as keyof Post] as string;
-      const second = b[sortDescriptor.column as keyof Post] as string;
+    return [...items].sort((a: Notice, b: Notice) => {
+      const first = a[sortDescriptor.column as keyof Notice] as string;
+      const second = b[sortDescriptor.column as keyof Notice] as string;
       const cmp = first < second ? -1 : first > second ? 1 : 0;
 
       return sortDescriptor.direction === "descending" ? -cmp : cmp;
     });
   }, [sortDescriptor, items]);
 
-
-  const renderCell = React.useCallback((post: Post, columnKey: React.Key) => {
-    const cellValue = post[columnKey as keyof Post];
+  const renderCell = React.useCallback((notice: any, columnKey: any) => {
+    const cellValue = notice[columnKey as keyof Notice];
 
     switch (columnKey) {
       case "listNumber":
         return (
-          <h1 className="flex justify-center" key={post.id}>
-            {post.listNumber}
+          <h1 className="flex justify-center" key={notice.id}>
+            {notice.listNumber}
           </h1>
         );
       case "writer":
         return (
-          <h1 className="flex justify-center" key={post.id}>
-            {post.writer}
+          <h1 className="flex justify-center" key={notice.id}>
+            {notice.writer}
           </h1>
         );
       case "title":
         return (
-          <h1 className="flex justify-center cursor-pointer" key={post.id} onClick={(event) => {
-            setCurrentModalData({ focusedPost: post, modalType: "detail" });
-                  onOpen();
+          <h1 className="flex justify-center cursor-pointer" key={notice.id} onClick={(event) => {
+            setCurrentModalData({ focusedNotice: notice, modalType: "detail" });
+            onOpen();
           }}>
-            {post.title}
+            {notice.title}
           </h1>
         );
 
       case "create_at":
         return (
-          <h1 className="flex justify-center" key={post.id}>
-            {`${post.created_at}`}
+          <h1 className="flex w-full text-center items-center justify-center" key={notice.id}>
+            {notice.create_at}
           </h1>
         );
       case "actions":
+
         return (
           <div className="relative flex justify-center space-x-3">
             <Tooltip content="Details">
               <span className="text-lg text-default-400 cursor-pointer active:opacity-50"
                 onClick={(event) => {
-                  setCurrentModalData({ focusedPost: post, modalType: "detail" });
+                  setCurrentModalData({ focusedNotice: notice, modalType: "detail", appName: appName });
+                  // 지우지 마라 이거
+                  setCurrentNotice(notice)
                   onOpen();
                 }}>
                 <EyeIcon />
@@ -170,7 +198,7 @@ const PostsTable = ({ posts, appName }: { posts: Post[], appName: string }) => {
             <Tooltip content="Edit user">
               <span className="text-lg text-default-400 cursor-pointer active:opacity-50"
                 onClick={(event) => {
-                  setCurrentModalData({ focusedPost: post, modalType: "editAuth" });
+                  setCurrentModalData({ focusedNotice: notice, modalType: "editAuth" });
                   onOpen();
                 }}
               >
@@ -180,7 +208,7 @@ const PostsTable = ({ posts, appName }: { posts: Post[], appName: string }) => {
             <Tooltip color="danger" content="Delete user">
               <span className="text-lg text-danger cursor-pointer active:opacity-50"
                 onClick={(event) => {
-                  setCurrentModalData({ focusedPost: post, modalType: "deleteAuth" });
+                  setCurrentModalData({ focusedNotice: notice, modalType: "deleteAuth" });
                   onOpen();
                 }}
               >
@@ -195,7 +223,7 @@ const PostsTable = ({ posts, appName }: { posts: Post[], appName: string }) => {
       default:
         return cellValue;
     }
-  }, [posts]);
+  }, [notices]);
 
   const onNextPage = React.useCallback(() => {
     if (page < pages) {
@@ -229,6 +257,7 @@ const PostsTable = ({ posts, appName }: { posts: Post[], appName: string }) => {
     setPage(1)
   }, [])
 
+  const adminPassword = "wnsdnr12"
 
 
   const topContent = React.useMemo(() => {
@@ -267,18 +296,14 @@ const PostsTable = ({ posts, appName }: { posts: Post[], appName: string }) => {
               </DropdownMenu>
             </Dropdown>
             <Button color="primary" endContent={<PlusIcon />} onClick={() => {
-              setCurrentModalData({
-                focusedPost: null,
-                modalType: "add"
-              })
-              onOpen();
+              TwoOnOpen()
             }}>
-              글쓰기
+              공지 게시
             </Button>
           </div>
         </div>
         <div className="flex justify-between items-center">
-          <span className="text-default-400 text-small">Total {posts.length} posts</span>
+          <span className="text-default-400 text-small">Total {notices.length} notices</span>
           <label className="flex items-center text-default-400 text-small">
             Rows per page:
             <select
@@ -298,7 +323,7 @@ const PostsTable = ({ posts, appName }: { posts: Post[], appName: string }) => {
     visibleColumns,
     onSearchChange,
     onRowsPerPageChange,
-    posts.length,
+    notices.length,
     hasSearchFilter,
   ]);
 
@@ -333,8 +358,7 @@ const PostsTable = ({ posts, appName }: { posts: Post[], appName: string }) => {
     );
   }, [selectedKeys, items.length, page, pages, hasSearchFilter]);
 
-
-  const addApostHandler = async (
+  const addAnoticeHandler = async (
     title: string,
     writer: string,
     password: string,
@@ -343,7 +367,7 @@ const PostsTable = ({ posts, appName }: { posts: Post[], appName: string }) => {
     // setIsLoading(true);
 
     await new Promise(f => setTimeout(f, 600));
-    await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/posts/${appName}`, {
+    await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/notices/${appName}`, {
       method: 'post',
       body: JSON.stringify({
         title: title,
@@ -356,6 +380,8 @@ const PostsTable = ({ posts, appName }: { posts: Post[], appName: string }) => {
 
     router.refresh();
 
+
+
     setIsLoading(false);
 
     notifySuccessEvent(`성공적으로 작성되었습니다!`);
@@ -363,7 +389,7 @@ const PostsTable = ({ posts, appName }: { posts: Post[], appName: string }) => {
     console.log(`게시글 추가완료`)
   };
 
-  const editApostHandler = async (
+  const editAnoticeHandler = async (
     id: string,
     title: string,
     password: string,
@@ -372,12 +398,12 @@ const PostsTable = ({ posts, appName }: { posts: Post[], appName: string }) => {
     setIsLoading(true);
 
     await new Promise(f => setTimeout(f, 600));
-    await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/posts/${appName}/${id}`, {
-      method: 'post',
+    await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/notices/${appName}/${id}`, {
+      method: 'notice',
       body: JSON.stringify({
         title,
         password,
-        content
+        content,
       }),
       cache: 'no-store'
     });
@@ -390,13 +416,13 @@ const PostsTable = ({ posts, appName }: { posts: Post[], appName: string }) => {
   };
 
   // 삭제
-  const deleteApostHandler = async (
+  const deleteAnoticeHandler = async (
     id: string) => {
 
     setIsLoading(true);
 
     await new Promise(f => setTimeout(f, 600));
-    await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/posts/${appName}/${id}`, {
+    await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/notices/${appName}/${id}`, {
       method: 'delete',
       cache: 'no-store'
     });
@@ -405,17 +431,203 @@ const PostsTable = ({ posts, appName }: { posts: Post[], appName: string }) => {
 
     setIsLoading(false);
 
-    notifySuccessEvent("할일 삭제 완료!");
+    notifySuccessEvent("공지 삭제 완료!");
+  };
+
+  const addAcommentHandler = async (
+    noticeId: string,
+    writer: string,
+    password: string,
+    content: string
+  ) => {
+    await new Promise(f => setTimeout(f, 600));
+    await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/notices/comments/${appName}`, {
+      method: 'post',
+      body: JSON.stringify({
+        noticeId,
+        writer,
+        password,
+        content
+      }),
+      cache: 'no-store'
+    });
+
+    router.refresh();
+
+    // router.push("/release/postBoard/bigDataLotto")
+
+    notifySuccessEvent(`성공적으로 작성되었습니다!`);
+
+    console.log(`댓글 추가완료`)
+  };
+
+  const deleteAcommentHandler = async (
+    noticeId: string,
+    commentId: string
+  ) => {
+    await new Promise(f => setTimeout(f, 600));
+    await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/notices/comments/${appName}/${noticeId}?commentId=${commentId}`, {
+      method: 'delete',
+      cache: 'no-store'
+    });
+
+    router.refresh();
+
+    notifySuccessEvent(`댓글이 삭제되었습니다!`);
+
+    console.log(`댓글 삭제완료`)
   };
 
 
+  const [deleteCommentPassword, setDeleteCommentPassword] = useState("")
+
+  const [deleteNoticeId, setDeletePostId] = useState("")
+
+  const [deleteCommentId, setDeleteCommentId] = useState("")
+
+  const { isOpen: isTwoOpen, onOpen: TwoOnOpen, onOpenChange: onTwoChange, onClose: twoOnClose } = useDisclosure();
+
+  // 리팩토링 필요
+  const SubModalComponent = () => {
+
+    const handlePasswordSubmit = async () => {
+
+      if (deleteCommentPassword === passwordInput) {
+        deleteAcommentHandler(
+          deleteNoticeId,
+          deleteCommentId
+        )
+        await new Promise(f => setTimeout(f, 600));
+        setDeleteCommentPassword("")
+        setDeleteCommentId("")
+        setDeletePostId("")
+        oneOneClose()
+      } else {
+        alert(`비밀번호가 틀렸습니다.`);
+      }
+    }
+    return <div>
+      <Modal
+        isOpen={isOneOpen}
+        size="2xl"
+        classNames={{
+          backdrop: "bg-gradient-to-t from-zinc-900 to-zinc-900/10 backdrop-opacity-20"
+        }}
+        onOpenChange={onOneChange}
+        placement="top-center"
+      >
+        <ModalContent>
+          {(onClose) => (
+            <>
+              <ModalHeader className="flex flex-col gap-1">비밀번호를 입력하세요</ModalHeader>
+              <ModalBody>
+                <Input
+                  isRequired
+                  autoFocus
+                  label="비밀번호"
+                  placeholder="비밀번호을 입력해주세요"
+                  variant="bordered"
+                  type="password"
+                  value={passwordInput}
+                  onValueChange={setPasswordInput}
+                />
+              </ModalBody>
+              <ModalFooter>
+                <Button color="danger" variant="flat" onPress={() => {
+                  handlePasswordSubmit()
+                }}>
+                  확인
+                </Button>
+                <Button color="default" onPress={() => {
+                  oneOneClose()
+                }}>
+                  닫기
+                </Button>
+              </ModalFooter>
+            </>
+          )}
+
+        </ModalContent>
+
+      </Modal>
+    </div>
+
+  }
+
+  const adminPasswordComponent = () => {
+
+    const handlePasswordSubmit = async () => {
+
+      if (adminPassword === passwordInput) {
+
+        setCurrentModalData({
+          focusedNotice: null,
+          modalType: "add"
+        })
+        onOpen();
+
+        await new Promise(f => setTimeout(f, 600));
+        setPasswordInput("")
+        twoOnClose()
+      } else {
+        alert(`비밀번호가 틀렸습니다.${adminPassword} ${passwordInput}`);
+      }
+    }
+    return <div>
+      <Modal
+        isOpen={isTwoOpen}
+        size="2xl"
+        classNames={{
+          backdrop: "bg-gradient-to-t from-zinc-900 to-zinc-900/10 backdrop-opacity-20"
+        }}
+        onOpenChange={onTwoChange}
+        placement="top-center"
+      >
+        <ModalContent>
+          {(onClose) => (
+            <>
+              <ModalHeader className="flex flex-col gap-1">관라자 모드</ModalHeader>
+              <ModalBody>
+                <Input
+                  isRequired
+                  autoFocus
+                  label="비밀번호"
+                  placeholder="관리자 모드"
+                  variant="bordered"
+                  type="password"
+                  value={passwordInput}
+                  onValueChange={setPasswordInput}
+                />
+              </ModalBody>
+              <ModalFooter>
+                <Button color="danger" variant="flat" onPress={() => {
+                  handlePasswordSubmit()
+                }}>
+                  확인
+                </Button>
+                <Button color="default" onPress={() => {
+                  twoOnClose()
+                  setPasswordInput("")
+                }}>
+                  닫기
+                </Button>
+              </ModalFooter>
+            </>
+          )}
+
+        </ModalContent>
+
+      </Modal>
+    </div>
+
+  }
 
 
   const ModalComponent = () => {
     return <div>
       <Modal
         isOpen={isOpen}
-        size="2xl"
+        size="3xl"
         classNames={{
           backdrop: "bg-gradient-to-t from-zinc-900 to-zinc-900/10 backdrop-opacity-20"
         }}
@@ -423,53 +635,68 @@ const PostsTable = ({ posts, appName }: { posts: Post[], appName: string }) => {
         placement="top-center">
         <ModalContent>
           {(onClose) => (
-            (currentModalData.focusedPost ? (
-              <CustomModal
-                focusedPost={currentModalData.focusedPost}
+            (currentModalData.focusedNotice ? (
+              <NoticeCustomModal
+                focusedNotice={currentModalData.focusedNotice}
                 modalType={currentModalData.modalType}
+                appName={currentModalData.appName}
                 onClose={onClose}
-                onDeleteAuth={async (post) => {
+                onAddComment={async (value) => {
+                  await addAcommentHandler(
+                    value.noticeId,
+                    value.writer,
+                    value.password,
+                    value.content
+                  )
+                }}
+                ondeleteComment={async (value) => {
+
+                  setDeleteCommentId(value.commentId)
+                  setDeleteCommentPassword(value.commentPassword)
+                  setDeletePostId(value.noticeId)
+                  oneOnOpen();
+                }}
+                onDeleteAuth={async (notice) => {
                   onClose()
                   await new Promise(f => setTimeout(f, 600));
                   setCurrentModalData({
-                    focusedPost: post,
+                    focusedNotice: notice,
                     modalType: "delete"
                   })
                   onOpen()
                 }}
-                onEditAuth={async (post) => {
+                onEditAuth={async (notice) => {
                   onClose()
                   await new Promise(f => setTimeout(f, 600));
                   setCurrentModalData({
-                    focusedPost: post,
+                    focusedNotice: notice,
                     modalType: "edit"
                   })
                   onOpen()
                 }}
 
                 onEdit={async (id, title, password, content) => {
-                  await editApostHandler(id, title, password, content);
+                  await editAnoticeHandler(id, title, password, content);
                   onClose();
                 }}
                 onDelete={async (id) => {
-                  await deleteApostHandler(id);
+                  await deleteAnoticeHandler(id);
                   onClose();
                 }}
               />
             ) : (
-              <CustomModal
+              <NoticeCustomModal
                 modalType={currentModalData.modalType}
                 onClose={onClose}
                 onAdd={async (value) => {
 
-                  await addApostHandler(
+                  await addAnoticeHandler(
                     value.title,
                     value.writer,
                     value.password,
                     value.content);
                   onClose();
-                }}
-              />
+                }} />
             ))
           )}
         </ModalContent>
@@ -477,9 +704,15 @@ const PostsTable = ({ posts, appName }: { posts: Post[], appName: string }) => {
     </div>
   }
 
+
+
+
   return (
     <>
+      {adminPasswordComponent()}
       {ModalComponent()}
+      {SubModalComponent()}
+
       <ToastContainer
         className=" foo "
         style={{ width: "400px" }}
@@ -495,8 +728,6 @@ const PostsTable = ({ posts, appName }: { posts: Post[], appName: string }) => {
         theme="dark"
 
       />
-
-
       <Table
         aria-label="Example table with custom cells, pagination and sorting"
         isHeaderSticky
@@ -513,9 +744,7 @@ const PostsTable = ({ posts, appName }: { posts: Post[], appName: string }) => {
         <TableHeader columns={headerColumns}>
           {(column) => (
             <TableColumn className="text-center"
-
               key={column.uid}
-              // align={column.uid === "action" ? "end" : "center"}
               allowsSorting={column.sortable}>
               {column.name}
             </TableColumn>
@@ -527,18 +756,14 @@ const PostsTable = ({ posts, appName }: { posts: Post[], appName: string }) => {
             item &&
 
             <TableRow key={item.id}>
-              {(columnKey) => <TableCell>{renderCell(item, columnKey)}</TableCell>}
+              {(columnKey) => <TableCell className=" text-center">{renderCell(item, columnKey)}</TableCell>}
             </TableRow>
           )}
         </TableBody>
       </Table>
-
     </>
-
-
-
   );
 }
 
 
-export default PostsTable;
+export default NoticesTable;
