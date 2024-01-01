@@ -2,8 +2,9 @@
 import { initializeApp } from "firebase/app";
 import {
     getFirestore, collection, getDocs, getDoc, setDoc, doc, Timestamp,
-    deleteDoc, updateDoc, query, orderBy, limit,
+    deleteDoc, updateDoc, query, orderBy, limit, deleteField, FieldValue, arrayRemove, findIndex, filter
 } from "firebase/firestore";
+import moment from "moment";
 // TODO: Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
 
@@ -16,6 +17,7 @@ const firebaseConfig = {
     messagingSenderId: process.env.MESSAGING_SENDER_ID,
     appId: process.env.APP_ID
 };
+import { UUID, randomUUID } from "crypto";
 
 
 const app = initializeApp(firebaseConfig);
@@ -42,7 +44,10 @@ export async function fetchPosts(collectionName) {
 
     const fetchedPosts = [];
 
+
+
     querySnapshot.forEach((doc) => {
+
         const aPosts = {
             id: doc.id,
             listNumber: doc.data()["listNumber"],
@@ -50,16 +55,17 @@ export async function fetchPosts(collectionName) {
             writer: doc.data()["writer"],
             title: doc.data()["title"],
             content: doc.data()["content"],
-            created_at: doc.data()["created_at"].toDate()
+            comments: Object.values(doc.data()["comments"]),
+            created_at: moment(doc.data()["created_at"].toDate()).format("YYYY-MM-DD HH:mm:ss")
         }
-
         fetchedPosts.push(aPosts);
 
     });
+
     return fetchedPosts;
 }
 
-//할일 추가하기
+//게시글 추가하기
 export async function addAPost({
     collectionName,
     password,
@@ -88,50 +94,172 @@ export async function addAPost({
             listNumber: 1,
             writer: writer,
             content: content,
-            created_at: createdAtTimestamp.toDate()
+            created_at: createdAtTimestamp.toDate(),
+            comments: []
         }
 
         await setDoc(newPostsRef, newPostData);
 
         return newPostData;
-        
+
     } else {
 
-    const descQuery = await query(postsRef, orderBy("listNumber", "desc"), limit(1))
+        const descQuery = await query(postsRef, orderBy("listNumber", "desc"), limit(1))
 
-    const querySnapshot = await getDocs(descQuery, {
-        cache: 'no-store'
-    });
+        const querySnapshot = await getDocs(descQuery, {
+            cache: 'no-store'
+        });
 
-    const listNumber = await querySnapshot.docs[0].data()["listNumber"];
+        const listNumber = await querySnapshot.docs[0].data()["listNumber"];
 
 
-    console.log(`listNumber ${listNumber}`);
+        console.log(`listNumber ${listNumber}`);
 
-    const addListNumber = Number(listNumber) + 1
+        const addListNumber = Number(listNumber) + 1
 
-    console.log(`addListNumber ${addListNumber}`);
+        console.log(`addListNumber ${addListNumber}`);
 
-    const newPostsRef = doc(collection(db, `${collectionName}`));
+        const newPostsRef = doc(collection(db, `${collectionName}`));
 
-    const createdAtTimestamp = Timestamp.fromDate(new Date())
+        const createdAtTimestamp = Timestamp.fromDate(new Date())
 
-    const newPostData = {
-        id: newPostsRef.id,
-        password: password,
-        title: title,
-        listNumber: addListNumber,
-        writer: writer,
-        content: content,
-        created_at: createdAtTimestamp.toDate()
-    }
+        const newPostData = {
+            id: newPostsRef.id,
+            password: password,
+            title: title,
+            listNumber: addListNumber,
+            writer: writer,
+            content: content,
+            created_at: createdAtTimestamp.toDate(),
+            comments: []
+        }
 
-    await setDoc(newPostsRef, newPostData);
+        await setDoc(newPostsRef, newPostData);
 
-    return newPostData;
+        return newPostData;
     }
 }
 
+
+//댓글 추가하기
+export async function addAComment({
+    collectionName,
+    postId,
+    commentPassword,
+    commentWriter,
+    commentContent }) {
+
+    console.log(`파이어베이스 comment add 실행됨 콜랙션 ${collectionName}`)
+
+    const createUuid = randomUUID();
+
+    const createdAtTimestamp = Timestamp.fromDate(new Date())
+
+    const postRef = doc(db, `${collectionName}`, `${postId}`);
+
+    const postSnap = (await getDoc(postRef)).data();
+
+    console.log(`post 조회 ${postSnap.id}`)
+
+    if (postSnap.comments === undefined) {
+        const newCommentData = {
+            id: postSnap.id,
+            title: postSnap.title,
+            created_at: postSnap.created_at,
+            listNumber: postSnap.listNumber,
+            writer: postSnap.writer,
+            content: postSnap.content,
+            password: postSnap.password,
+            comments: [
+                {
+                    id: createUuid,
+                    password: commentPassword,
+                    writer: commentWriter,
+                    content: commentContent,
+                    created_at: createdAtTimestamp.toDate()
+                }
+            ]
+
+        }
+        await setDoc(doc(db, `${collectionName}`, `${postId}`), newCommentData);
+
+        return newCommentData;
+
+    } else {
+        const newCommentData = {
+            id: postSnap.id,
+            title: postSnap.title,
+            created_at: postSnap.created_at,
+            listNumber: postSnap.listNumber,
+            writer: postSnap.writer,
+            content: postSnap.content,
+            password: postSnap.password,
+            comments: [
+                ...postSnap.comments,
+                {
+                    id: createUuid,
+                    password: commentPassword,
+                    writer: commentWriter,
+                    content: commentContent,
+                    created_at: createdAtTimestamp.toDate()
+                }]
+
+        }
+
+
+        await setDoc(doc(db, `${collectionName}`, `${postId}`), newCommentData);
+
+        return newCommentData;
+
+    }
+
+
+}
+
+//댓글 삭제
+export async function deleteAComment(collectionName, postId, commentId) {
+
+    console.log(`댓글 삭제 postId${postId}, commentId ${commentId}`)
+
+    // const fetchedPost = await fetchAPost(collectionName, id)
+
+    const postRef = doc(db, `${collectionName}`, `${postId}`);
+
+    const postSnap = (await getDoc(postRef)).data();
+
+    if (postSnap.comments === undefined) {
+        return null; // 댓글이 없으면 종료
+    } else {
+
+        const formatArray = Array.isArray(postSnap.comments)
+            ? postSnap.comments
+            : Object.values(postSnap.comments);
+        // console.log(fommamtArray)
+
+        // console.log(formatArray)
+
+        const newComments = formatArray.filter((comment) => comment.id !== commentId);
+
+        console.log(newComments)
+
+        const deleteUpdateData = {
+            id: postSnap.id,
+            title: postSnap.title,
+            created_at: postSnap.created_at,
+            listNumber: postSnap.listNumber,
+            writer: postSnap.writer,
+            content: postSnap.content,
+            password: postSnap.password,
+            comments: newComments
+        }
+
+        console.log(deleteUpdateData)
+
+        await setDoc(postRef, deleteUpdateData);
+
+        return deleteUpdateData;
+    }
+}
 
 //단일 할일 조회
 export async function fetchAPost(collectionName, id) {
@@ -143,7 +271,10 @@ export async function fetchAPost(collectionName, id) {
 
 
     const postDocRef = doc(db, `${collectionName}`, id);
+
     const postDocSnap = await getDoc(postDocRef);
+
+   
 
     if (postDocSnap.exists()) {
 
@@ -154,9 +285,9 @@ export async function fetchAPost(collectionName, id) {
             writer: postDocSnap.data()["writer"],
             title: postDocSnap.data()["title"],
             content: postDocSnap.data()["content"],
+            comments: Object.values(postDocSnap.data()["comments"]),
             created_at: postDocSnap.data()["created_at"].toDate()
         }
-
         return fetchedPost
     } else {
 
@@ -214,6 +345,6 @@ export async function editAPost(collectionName, id, { title, password, content }
 }
 
 
-module.exports = { fetchPosts, addAPost, deleteAPost, editAPost }
+module.exports = { fetchPosts, addAComment, addAPost, deleteAPost, editAPost, deleteAComment }
 
 

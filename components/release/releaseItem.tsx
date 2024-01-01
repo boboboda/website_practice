@@ -22,18 +22,37 @@ export default function ReleaseItem({ data }: {data: any }) {
 
     const [linkData, setLinkData] = useState({});
 
-    const href = useMemo(() => {
+    const [noticeLinkData, setNoticeLinkData] = useState({})
+
+    const postHref = useMemo(() => {
       const databaseName = data.properties.database.rich_text[0]?.plain_text;
       return `/release/postBoard/${databaseName}`;
     }, [linkData]);
 
-    const handleClick = () => {
+    const noticeHref = useMemo(() => {
+      const databaseName = data.properties.database.rich_text[0]?.plain_text;
+      return `/release/noticeBoard/${databaseName}`;
+    }, [noticeLinkData]);
+
+    const noticeHandleClick = () => {
       return (
         <DropdownItem onPress={()=>(
-          router.push(`${href}`)
+          router.push(`${noticeHref}`)
+        )}>공지사항</DropdownItem>
+      );
+    };
+
+    const postHandleClick = () => {
+      return (
+        <DropdownItem onPress={()=>(
+          router.push(`${postHref}`)
         )}>문의게시판</DropdownItem>
       );
     };
+
+    
+
+
     // 다른 표현
     const imgSrc = data.cover.file?.url || data.cover.external.url
 
@@ -118,8 +137,8 @@ export default function ReleaseItem({ data }: {data: any }) {
                 // setCurrentModalData({focusedTodo: aTodo, modalType: key as CustomModalType})
                 // onOpen();
               }}>
-                <DropdownItem href="">공지사항</DropdownItem>
-                {handleClick()}
+                {noticeHandleClick()}
+                {postHandleClick()}
                 <DropdownItem href="">개인정보처리방침</DropdownItem>
               </DropdownMenu>
             </Dropdown>

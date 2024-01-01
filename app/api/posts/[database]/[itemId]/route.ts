@@ -14,17 +14,6 @@ export async function GET(request: NextRequest,
 
 console.log(`api ${JSON.stringify(res)}`)
 
-// console.log(params.slug)
-//   URL -> `/dashboard?search=my-project`
-//   `search` -> 'my-project'
-
-// const fetchedTodo = await fetchPosts(params.slug);
-
-// if(fetchedTodo === null) {
-//   return new Response(null, {status : 204})
-//  }
-
-
 const response = {
 message: `단일 할일 가져오기 성공`,
 data: res
