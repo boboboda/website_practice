@@ -109,7 +109,7 @@ const NoticesTable = ({ notices, appName }: { notices: Notice[], appName: string
 
   const setVisibleColumnsForWindowWidth = () => {
     if (windowWidth <= 700) {
-      setVisibleColumns(new Set(["title", "writer", "created_at"]));
+      setVisibleColumns(new Set(["title", "created_at"]));
     } else {
       setVisibleColumns(new Set(INITIAL_VISIBLE_COLUMNS));
     }
@@ -287,7 +287,7 @@ const NoticesTable = ({ notices, appName }: { notices: Notice[], appName: string
 
   const topContent = React.useMemo(() => {
     return (
-      <div className="flex flex-col gap-4">
+      <div className="flex flex-col gap-4 ">
         <div className="flex justify-between gap-3 items-end">
           <Input
             isClearable
@@ -300,7 +300,7 @@ const NoticesTable = ({ notices, appName }: { notices: Notice[], appName: string
           />
           <div className="flex gap-3">
             <Dropdown>
-              <DropdownTrigger className="hidden sm:flex">
+              <DropdownTrigger className="flex">
                 <Button endContent={<ChevronDownIcon className="text-small" />} variant="flat">
                   Columns
                 </Button>

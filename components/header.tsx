@@ -20,6 +20,9 @@ export default function Header() {
 
   const pathname = usePathname();
 
+  const path = pathname.split("/").slice(0, 2).join("/");
+
+
   return (
     <>
     <Navbar className="mt-2" maxWidth="xl" position="sticky">
@@ -68,7 +71,7 @@ export default function Header() {
                   data-[active=true]:text-xl
                   data-[active=true]: "
                   color="foreground" 
-                  data-active={pathname === item.href ? true : false}
+                  data-active={path === item.href ? true : false}
                   href={item.href}>{item.label}</a>
                   </li>
               ))}
@@ -99,7 +102,7 @@ export default function Header() {
                   data-[active=true]:text-xl
                   data-[active=true]: "
                   color="foreground" 
-                  data-active={pathname === item.href ? true : false}
+                  data-active={path === item.href ? true : false}
                   href={item.href}>{item.label}</a>
                   </li>
               ))}
