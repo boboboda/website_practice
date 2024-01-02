@@ -424,7 +424,7 @@ const NoticesTable = ({ notices, appName }: { notices: Notice[], appName: string
 
     await new Promise(f => setTimeout(f, 600));
     await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/notices/${appName}/${id}`, {
-      method: 'notice',
+      method: 'post',
       body: JSON.stringify({
         title,
         password,
