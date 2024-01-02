@@ -45,23 +45,11 @@ export default async function ReleaseAppPage() {
 	const projects = response.results?.map((aProject: any) =>(
 		aProject.properties.Name.title[0]?.plain_text
 		))
-
-	let count = 0
-
-	for (const project of projects) {
-		count++;
-	  }
-
-	
 	
 	return (
 		
 		<>
-		<h1 className={title()}>출시 어플: 
-		{
-		<span className="pl-4 text-blue-500">{count}</span>
-		}</h1>
-		<div className="md:gap-8 grid grid-cols-1 md:grid-cols-2">
+		<div className="md:gap-8 grid grid-cols-1 gap-0 items-center justify-center md:grid-cols-2">
 		{response.results?.map((aApp: any) => (
 			<ReleaseItem key={aApp.id} data={aApp}/>
 			))}
