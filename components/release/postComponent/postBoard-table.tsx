@@ -104,6 +104,30 @@ const PostsTable = ({ posts, appName }: { posts: Post[], appName: string }) => {
 
   const notifySuccessEvent = (msg: string) => toast.success(msg);
 
+  const [windowWidth, setWindowWidth] = useState(innerWidth);
+
+  const setVisibleColumnsForWindowWidth = () => {
+    if (windowWidth <= 700) {
+      setVisibleColumns(new Set(["title", "writer", "created_at"]));
+    } else {
+      setVisibleColumns(new Set(INITIAL_VISIBLE_COLUMNS));
+    }
+  };
+
+  useEffect(() => {
+    // window 크기가 변경될 때마다
+    window.addEventListener("resize", () => {
+      setWindowWidth(innerWidth);
+    });
+
+    // window 크기가 변경되지 않은 상태에서
+    // windowWidth 상태가 변경될 때
+  }, []);
+
+  useEffect(() => {
+    setVisibleColumnsForWindowWidth();
+  }, [windowWidth]);
+
   //해더 컬럼
   const headerColumns = React.useMemo(() => {
     if (visibleColumns === "all") return columns;
