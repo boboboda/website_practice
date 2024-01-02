@@ -27,10 +27,10 @@ import { capitalize } from "@/utils";
 import columns from "@/types";
 import { SearchIcon, ChevronDownIcon, PlusIcon, EyeIcon, EditIcon, DeleteIcon } from "../../icons";
 import { of, from, filter, find } from "rxjs";
+import { debounce } from "lodash";
 
 
 
-const INITIAL_VISIBLE_COLUMNS = ["listNumber", "title", "writer", "actions", "created_at"];
 
 const NoticesTable = ({ notices, appName }: { notices: Notice[], appName: string }) => {
 
@@ -38,6 +38,8 @@ const NoticesTable = ({ notices, appName }: { notices: Notice[], appName: string
   const [filterValue, setFilterValue] = React.useState("");
 
   const [selectedKeys, setSelectedKeys] = React.useState<Selection>(new Set([]));
+
+  const INITIAL_VISIBLE_COLUMNS = ["listNumber", "title", "writer", "actions", "created_at"];
 
   const [visibleColumns, setVisibleColumns] = React.useState<Selection>(new Set(INITIAL_VISIBLE_COLUMNS));
 
@@ -98,11 +100,34 @@ const NoticesTable = ({ notices, appName }: { notices: Notice[], appName: string
 
   const { isOpen: isOneOpen, onOpen: oneOnOpen, onOpenChange: onOneChange, onClose: oneOneClose } = useDisclosure();
 
-  const [passwordIsOpen, setPasswordIsOpen] = useState(false)
-
   const [passwordInput, setPasswordInput] = useState("")
 
   const notifySuccessEvent = (msg: string) => toast.success(msg);
+
+
+  const [windowWidth, setWindowWidth] = useState(innerWidth);
+
+  const setVisibleColumnsForWindowWidth = () => {
+    if (windowWidth <= 700) {
+      setVisibleColumns(new Set(["title", "writer", "created_at"]));
+    } else {
+      setVisibleColumns(new Set(INITIAL_VISIBLE_COLUMNS));
+    }
+  };
+
+  useEffect(() => {
+    // window 크기가 변경될 때마다
+    window.addEventListener("resize", () => {
+      setWindowWidth(innerWidth);
+    });
+
+    // window 크기가 변경되지 않은 상태에서
+    // windowWidth 상태가 변경될 때
+  }, []);
+
+  useEffect(() => {
+    setVisibleColumnsForWindowWidth();
+  }, [windowWidth]);
 
   //해더 컬럼
   const headerColumns = React.useMemo(() => {

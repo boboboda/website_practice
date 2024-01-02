@@ -76,7 +76,6 @@ const NoticeCustomModal = ({ focusedNotice, modalType, appName, onDeleteAuth, on
     const [addedCommentContentInput, setAddedCommentContentInput] = useState<string>("");
 
 
-
     const CommentAdd = () => {
 
         return (<>
@@ -306,7 +305,7 @@ const NoticeCustomModal = ({ focusedNotice, modalType, appName, onDeleteAuth, on
                     defaultValue={focusedNotice?.password}
                     value={editedNoticePasswordInput}
                     onValueChange={setEditedNoticePasswordInput}
-            />
+                />
 
                 <Input
                     isRequired
@@ -343,7 +342,7 @@ const NoticeCustomModal = ({ focusedNotice, modalType, appName, onDeleteAuth, on
                         editedNoticeTitleInput,
                         editedNoticePasswordInput,
                         editedNoticeContentInput);
-                    }}>
+                }}>
                     {isLoading ? <CircularProgress
                         size="sm"
                         color="warning"
