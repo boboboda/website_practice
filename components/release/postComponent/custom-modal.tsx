@@ -168,13 +168,13 @@ const CustomModal = ({ focusedPost, modalType, appName, onDeleteAuth, onAddComme
         const formattedDate = `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()} ${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}`;
         return (
             <Card key={comment.id} className="">
-                <CardBody className="flex flex-row w-full items-center space-x-3">
-                    <div className="flex h-5 w-full items-center space-x-4 text-small">
+                <CardBody className="flex flex-row w-full overflow-auto items-center space-x-3">
+                    <div className="flex h-auto w-full items-center space-x-4 text-small">
                         <div className=" w-2/12 items-start">{comment.writer}</div>
                         <Divider className="" orientation="vertical" />
-                        <div className="w-7/12">{comment.content}</div>
+                        <div className="w-7/12 h-auto">{comment.content}</div>
                         <Divider orientation="vertical" />
-                        <div className="w-2/12 text-center">{formattedDate}</div>
+                        <div className="w-2/12 h-auto text-center">{formattedDate}</div>
                         <Divider orientation="vertical" />
                         <div className=" w-1/12 cursor-pointer" onClick={() => {
                             ondeleteComment?.(

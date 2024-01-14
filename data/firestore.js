@@ -234,9 +234,6 @@ export async function deleteAComment(collectionName, postId, commentId) {
         const formatArray = Array.isArray(postSnap.comments)
             ? postSnap.comments
             : Object.values(postSnap.comments);
-        // console.log(fommamtArray)
-
-        // console.log(formatArray)
 
         const newComments = formatArray.filter((comment) => comment.id !== commentId);
 
