@@ -160,7 +160,7 @@ const NoticeCustomModal = ({ focusedNotice, modalType, appName, onDeleteAuth, on
         return (
             <Card key={comment.id} className="">
                 <CardBody className="flex flex-row w-full items-center space-x-3">
-                    <div className="flex h-5 w-full items-center space-x-4 text-small">
+                    <div className="flex h-auto w-full items-center space-x-4 text-small">
                         <div className=" w-2/12 items-start">{comment.writer}</div>
                         <Divider className="" orientation="vertical" />
                         <div className="w-7/12">{comment.content}</div>
