@@ -8,7 +8,7 @@ import  { fetchPosts, deleteAPost, addAPost, addAComment} from "@/data/firestore
     
   
     const {
-        postId,
+        noticeId,
         password,
         writer,
         content,
@@ -16,7 +16,7 @@ import  { fetchPosts, deleteAPost, addAPost, addAComment} from "@/data/firestore
 
         const addedcomment = await addAComment({
             collectionName: params.database,
-            postId,
+            postId: noticeId,
             commentPassword: password,
             commentWriter: writer,
             commentContent: content

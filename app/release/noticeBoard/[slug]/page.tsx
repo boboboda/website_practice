@@ -32,10 +32,12 @@ export default async function noticeBoardPage({ params }: { params: { slug: stri
 
     const fetchedNotices = response?.data ?? [];
 
-    return (<>
-    <div className="container mx-auto flex px-5 py-5 md:flex flex-col items-center gap-y-1">
+    return (
+    <>
+    <div className="container flex pl-5 py-5 flex-col items-center justify-center gap-y-3">
         <h1 className={title()}>공지사항</h1>
         <NoticesTable notices={fetchedNotices} appName={appName} />
+       
     </div>
     </>)
 }

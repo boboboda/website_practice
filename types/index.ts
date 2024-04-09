@@ -1,3 +1,4 @@
+import { Timestamp } from "firebase/firestore";
 import {SVGProps} from "react";
 
 export type IconSvgProps = SVGProps<SVGSVGElement> & {
@@ -13,7 +14,25 @@ export type Post = {
   title: string;
   content: string;
   created_at: string;
-  comments: any[];
+  comments: Comment[];
+}
+
+export type Comment = {
+  id: string;
+  writer: string;
+  content: string;
+  password: string;
+  created_at: Timestamp;
+  replys: Reply[];
+}
+
+export type Reply = {
+  id: string;
+  writer: string;
+  personId: string;
+  content: string;
+  password: string;
+  created_at: string
 }
 
 export type Notice = {

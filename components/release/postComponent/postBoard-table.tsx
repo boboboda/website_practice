@@ -15,6 +15,8 @@ import {
   Selection, SortDescriptor, Pagination, ModalHeader, ModalBody,
   ModalFooter,
   Tooltip,
+  ModalProps,
+  ScrollShadow
 } from "@nextui-org/react";
 import { Post, FocusedPostType, CustomModalType } from "@/types";
 import { useRouter, usePathname } from "next/navigation"
@@ -27,8 +29,9 @@ import { capitalize } from "@/utils";
 import columns from "@/types";
 import { SearchIcon, ChevronDownIcon, PlusIcon, EyeIcon, EditIcon, DeleteIcon } from "../../icons";
 import { of, from, filter, find } from "rxjs";
+import PasswordModal from "./password-modal";
 
-
+type ModalSize = "sm" | "md" | "lg" | "xl" | "2xl" | "full" | "xs" | "3xl" | "4xl" | "5xl";
 
 const INITIAL_VISIBLE_COLUMNS = ["listNumber", "title", "writer", "actions"];
 
@@ -71,15 +74,18 @@ const PostsTable = ({ posts, appName }: { posts: Post[], appName: string }) => {
   })
 
   useEffect(() => {
-    const updataPosts = from(posts)
+    const subscription = from(posts)
       .pipe(
         find((post) => post.id === currentPost.id)
       ).subscribe((updatePost) => {
         setCurrentModalData({
           focusedPost: updatePost ?? null,
           modalType: currentModalData.modalType
-        })
-      })
+        });
+      });
+  
+    // 컴포넌트가 언마운트될 때 구독을 해제
+    return () => subscription.unsubscribe();
   }, [posts, currentPost]);
 
 
@@ -96,11 +102,7 @@ const PostsTable = ({ posts, appName }: { posts: Post[], appName: string }) => {
 
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
 
-  const { isOpen: isOneOpen, onOpen: oneOnOpen, onOpenChange: onOneChange, onClose: oneOneClose} = useDisclosure();
-
-  const [passwordIsOpen, setPasswordIsOpen] = useState(false)
-
-  const [passwordInput, setPasswordInput] = useState("")
+  const { isOpen: isOneOpen, onOpen: oneOnOpen, onOpenChange: onOneChange, onClose: oneOneClose } = useDisclosure();
 
   const notifySuccessEvent = (msg: string) => toast.success(msg);
 
@@ -114,18 +116,26 @@ const PostsTable = ({ posts, appName }: { posts: Post[], appName: string }) => {
     }
   };
 
+  const [modalSize, setModalSize] = React.useState<ModalSize>("3xl")
+
+  const setModalEvent = () => {
+    if (windowWidth <= 700) {
+      setModalSize("md");
+    } else {
+      setModalSize("3xl")
+    }
+  }
+
   useEffect(() => {
     // window 크기가 변경될 때마다
     window.addEventListener("resize", () => {
       setWindowWidth(innerWidth);
     });
-
-    // window 크기가 변경되지 않은 상태에서
-    // windowWidth 상태가 변경될 때
   }, []);
 
   useEffect(() => {
     setVisibleColumnsForWindowWidth();
+    setModalEvent();
   }, [windowWidth]);
 
   //해더 컬럼
@@ -481,9 +491,13 @@ const PostsTable = ({ posts, appName }: { posts: Post[], appName: string }) => {
       cache: 'no-store'
     });
 
-    router.refresh();
+    router.refresh()
 
-    // router.push("/release/postBoard/bigDataLotto")
+    const postToUpdate = posts.find(post => post.id === postId);
+
+    if(postToUpdate !== undefined)
+    
+    setCurrentPost(postToUpdate)
 
     notifySuccessEvent(`성공적으로 작성되었습니다!`);
 
@@ -502,232 +516,338 @@ const PostsTable = ({ posts, appName }: { posts: Post[], appName: string }) => {
 
     router.refresh();
 
+    const postToUpdate = posts.find(post => post.id === postId);
+
+    if(postToUpdate !== undefined)
+    
+    setCurrentPost(postToUpdate)
+
     notifySuccessEvent(`댓글이 삭제되었습니다!`);
 
     console.log(`댓글 삭제완료`)
   };
 
+  const addAreplyHandler = async (
+    postId: string,
+    personId: string,
+    commendId: string,
+    writer: string,
+    content: string,
+    password: string,
+  ) => {
+    await new Promise(f => setTimeout(f, 600));
+    await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/posts/comments/reply/${appName}`, {
+      method: 'post',
+      body: JSON.stringify({
+        postId,
+        personId,
+        commendId,
+        writer,
+        password,
+        content
+      }),
+      cache: 'no-store'
+    });
 
-  const [deleteCommentPassword, setDeleteCommentPassword] = useState("")
+    router.refresh();
+
+    const postToUpdate = posts.find(post => post.id === postId);
+
+    if(postToUpdate !== undefined)
+    
+    setCurrentPost(postToUpdate)
+
+    notifySuccessEvent(`성공적으로 작성되었습니다!`);
+
+    console.log(`답글 추가완료`)
+  };
+
+
+  const deleteReplyHandler = async (
+    postId: string,
+    commentId: string,
+    replyId: string
+  ) => {
+    await new Promise(f => setTimeout(f, 600));
+    await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/posts/comments/reply/${appName}/${postId}/${commentId}?replyId=${replyId}`, {
+      method: 'delete',
+      cache: 'no-store'
+    });
+
+    router.refresh();
+
+    const postToUpdate = posts.find(post => post.id === postId);
+
+    if(postToUpdate !== undefined)
+    
+    setCurrentPost(postToUpdate)
+
+    notifySuccessEvent(`답글이 삭제되었습니다!`);
+  };
+
+  const [passwordModalType, setPasswordModalType] = useState<number>(1)
+
+  const [deletePassword, setDeletePassword] = useState("")
 
   const [deletePostId, setDeletePostId] = useState("")
 
   const [deleteCommentId, setDeleteCommentId] = useState("")
 
-  const SubModalComponent = () => {
+  const [deleteReplyId, setDeleteReplyId] = useState("")
+  
 
-    const handlePasswordSubmit = async () => {
 
-      if (deleteCommentPassword === passwordInput) {
-        deleteAcommentHandler(
-          deletePostId,
-          deleteCommentId
-        )
-        await new Promise(f => setTimeout(f, 600));
-        setDeleteCommentPassword("")
-        setDeleteCommentId("")
-        setDeletePostId("")
-        oneOneClose()
-      } else {
+  const handlePasswordSubmit = async ({type, password}: {type: number, password: string}) => {
+
+
+    switch (type) {
+      case 1:
+        if (deletePassword === password) {
+          deleteAcommentHandler(
+            deletePostId,
+            deleteCommentId
+          )
+          await new Promise(f => setTimeout(f, 600));
+          setDeletePassword("")
+          setDeleteCommentId("")
+          setDeletePostId("")
+          oneOneClose()
+        } else {
           alert(`비밀번호가 틀렸습니다.`);
-      }
-    }
-      return <div>
-        <Modal
-          isOpen={isOneOpen}
-          size="2xl"
-          classNames={{
-            backdrop: "bg-gradient-to-t from-zinc-900 to-zinc-900/10 backdrop-opacity-20"
-          }}
-          onOpenChange={onOneChange}
-          placement="top-center"
-        >
-          <ModalContent>
-            {(onClose)=> (
-              <>
-              <ModalHeader className="flex flex-col gap-1">비밀번호를 입력하세요</ModalHeader>
-            <ModalBody>
-              <Input
-                isRequired
-                autoFocus
-                label="비밀번호"
-                placeholder="비밀번호을 입력해주세요"
-                variant="bordered"
-                type="password"
-                value={passwordInput}
-                onValueChange={setPasswordInput}
-              />
-            </ModalBody>
-            <ModalFooter>
-              <Button color="danger" variant="flat" onPress={() => {
-                handlePasswordSubmit()
-              }}>
-                확인
-              </Button>
-              <Button color="default" onPress={() => {
-                oneOneClose()
-              }}>
-                닫기
-              </Button>
-            </ModalFooter>
-              </>
-            )}
-            
-          </ModalContent>
+        }
+        break;
+        case 2:
+          if (deletePassword === password) {
+            deleteReplyHandler(
+              deletePostId,
+              deleteCommentId,
+              deleteReplyId
+            )
 
-        </Modal>
-      </div>
+            await new Promise(f => setTimeout(f, 600));
+            setDeletePassword("")
+            setDeleteCommentId("")
+            setDeletePostId("")
+            setDeleteReplyId("")
+            oneOneClose()
+          } else {
+            alert(`비밀번호가 틀렸습니다.`);
+          }
+
+    }
+
     
   }
 
 
-    const ModalComponent = () => {
-      return <div>
-        <Modal
-          isOpen={isOpen}
-          size="3xl"
-          classNames={{
-            backdrop: "bg-gradient-to-t from-zinc-900 to-zinc-900/10 backdrop-opacity-20"
-          }}
-          onOpenChange={onOpenChange}
-          placement="top-center">
-          <ModalContent>
-            {(onClose) => (
-              (currentModalData.focusedPost ? (
-                <CustomModal
-                  focusedPost={currentModalData.focusedPost}
-                  modalType={currentModalData.modalType}
-                  appName={currentModalData.appName}
-                  onClose={onClose}
-                  onAddComment={async (value) => {
-                    await addAcommentHandler(
-                      value.postId,
-                      value.writer,
-                      value.password,
-                      value.content
-                    )
-                  }}
-                  ondeleteComment={async (value) => {
-                   
-                    setDeleteCommentId(value.commentId)
-                    setDeleteCommentPassword(value.commentPassword)
-                    setDeletePostId(value.postId)
-                    oneOnOpen();
-                  }}
-                  onDeleteAuth={async (post) => {
-                    onClose()
-                    await new Promise(f => setTimeout(f, 600));
-                    setCurrentModalData({
-                      focusedPost: post,
-                      modalType: "delete"
-                    })
-                    onOpen()
-                  }}
-                  onEditAuth={async (post) => {
-                    onClose()
-                    await new Promise(f => setTimeout(f, 600));
-                    setCurrentModalData({
-                      focusedPost: post,
-                      modalType: "edit"
-                    })
-                    onOpen()
-                  }}
+  // 삭제 비번 확인 모달
+  const SubModalComponent = () => {
 
-                  onEdit={async (id, title, password, content) => {
-                    await editApostHandler(id, title, password, content);
-                    onClose();
-                  }}
-                  onDelete={async (id) => {
-                    await deleteApostHandler(id);
-                    onClose();
-                  }}
-                />
-              ) : (
-                <CustomModal
-                  modalType={currentModalData.modalType}
-                  onClose={onClose}
-                  onAdd={async (value) => {
+    return <div>
+      <Modal
+        isOpen={isOneOpen}
+        size={modalSize}
+        classNames={{
+          backdrop: "bg-gradient-to-t from-zinc-900 to-zinc-900/10 backdrop-opacity-20"
+        }}
+        onOpenChange={onOneChange}
+        placement="center"
+      >
+        <ModalContent>
+          {(onClose) => (
+            (
+              <PasswordModal
+              deleteType={passwordModalType}
+              onClose={onClose}
+              selectedDelete={async (value) => {
+                handlePasswordSubmit({
+                  type: value.deleteType,
+                  password: value.password
+                })
+              }}
+              />
+            )
+          )}
 
-                    await addApostHandler(
-                      value.title,
-                      value.writer,
-                      value.password,
-                      value.content);
-                    onClose();
-                  }}
-                />
-              ))
-            )}
-          </ModalContent>
-        </Modal>
-      </div>
-    }
+        </ModalContent>
 
+      </Modal>
+    </div>
 
-
-
-    return (
-      <>
-        {ModalComponent()}
-        {SubModalComponent()}
-
-        <ToastContainer
-          className=" foo "
-          style={{ width: "400px" }}
-          position="top-right"
-          autoClose={1800}
-          hideProgressBar={false}
-          newestOnTop={false}
-          closeOnClick
-          rtl={false}
-          pauseOnFocusLoss
-          draggable
-          pauseOnHover
-          theme="dark"
-
-        />
-        <Table
-          aria-label="Example table with custom cells, pagination and sorting"
-          isHeaderSticky
-          bottomContent={bottomContent}
-          bottomContentPlacement="outside"
-          classNames={{
-            wrapper: "max-h-[382px]",
-          }}
-          sortDescriptor={sortDescriptor}
-          topContent={topContent}
-          topContentPlacement="outside"
-          onSortChange={setSortDescriptor}
-        >
-          <TableHeader columns={headerColumns}>
-            {(column) => (
-              <TableColumn className="text-center"
-
-                key={column.uid}
-                // align={column.uid === "action" ? "end" : "center"}
-                allowsSorting={column.sortable}>
-                {column.name}
-              </TableColumn>
-            )}
-          </TableHeader>
-          <TableBody emptyContent={"보여줄 게시글이 없습니다"} items={sortedItems}>
-            {(item) => (
-
-              item &&
-
-              <TableRow key={item.id}>
-                {(columnKey) => <TableCell>{renderCell(item, columnKey)}</TableCell>}
-              </TableRow>
-            )}
-          </TableBody>
-        </Table>
-
-      </>
-
-
-
-    );
   }
 
 
-  export default PostsTable;
+  const ModalComponent = () => {
+    return <div>
+      <Modal
+        isOpen={isOpen}
+        size={modalSize}
+        classNames={{
+          backdrop: "bg-gradient-to-t from-zinc-900 to-zinc-900/10 backdrop-opacity-20"
+        }}
+        onOpenChange={onOpenChange}
+        placement="center">
+        <ModalContent>
+          {(onClose) => (
+            (currentModalData.focusedPost ? (
+
+              <CustomModal
+                focusedPost={currentModalData.focusedPost}
+                modalType={currentModalData.modalType}
+                appName={currentModalData.appName}
+                onClose={onClose}
+                onAddComment={async (value) => {
+                  await addAcommentHandler(
+                    value.postId,
+                    value.writer,
+                    value.password,
+                    value.content
+                  )
+                }}
+                ondeleteComment={async (value) => {
+
+                  setDeleteCommentId(value.commentId)
+                  setDeletePassword(value.commentPassword)
+                  setDeletePostId(value.postId)
+                  setPasswordModalType(1)
+                  oneOnOpen();
+                }}
+                onAddReply={async (value) => {
+                  await addAreplyHandler(
+                    value.postId,
+                    value.personId,
+                    value.commentId,
+                    value.writer,
+                    value.password,
+                    value.content
+                  )
+
+                }}
+                onDeleteReply={async (value) => {
+
+                  setDeleteCommentId(value.commentId)
+                  setDeletePassword(value.replyPassword)
+                  setDeletePostId(value.postId)
+                  setDeleteReplyId(value.replyId)
+                  setPasswordModalType(2)
+                  oneOnOpen();
+
+                }}
+
+                onDeleteAuth={async (post) => {
+                  onClose()
+                  await new Promise(f => setTimeout(f, 600));
+                  setCurrentModalData({
+                    focusedPost: post,
+                    modalType: "delete"
+                  })
+                  onOpen()
+                }}
+                onEditAuth={async (post) => {
+                  onClose()
+                  await new Promise(f => setTimeout(f, 600));
+                  setCurrentModalData({
+                    focusedPost: post,
+                    modalType: "edit"
+                  })
+                  onOpen()
+                }}
+
+                onEdit={async (id, title, password, content) => {
+                  await editApostHandler(id, title, password, content);
+                  onClose();
+                }}
+                onDelete={async (id) => {
+                  await deleteApostHandler(id);
+                  onClose();
+                }}
+              />
+            ) : (
+              <CustomModal
+                modalType={currentModalData.modalType}
+                onClose={onClose}
+                onAdd={async (value) => {
+
+                  await addApostHandler(
+                    value.title,
+                    value.writer,
+                    value.password,
+                    value.content);
+                  onClose();
+                }}
+              />
+            ))
+          )}
+        </ModalContent>
+      </Modal>
+    </div>
+  }
+
+
+
+
+  return (
+    <>
+      {ModalComponent()}
+      {SubModalComponent()}
+
+      <ToastContainer
+        className=" foo "
+        style={{ width: "400px" }}
+        position="top-right"
+        autoClose={1800}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="dark"
+
+      />
+      <Table
+        aria-label="Example table with custom cells, pagination and sorting"
+        isHeaderSticky
+        bottomContent={bottomContent}
+        bottomContentPlacement="outside"
+        classNames={{
+          wrapper: "max-h-[382px]",
+        }}
+        sortDescriptor={sortDescriptor}
+        topContent={topContent}
+        topContentPlacement="outside"
+        onSortChange={setSortDescriptor}
+      >
+        <TableHeader columns={headerColumns}>
+          {(column) => (
+            <TableColumn className="text-center"
+
+              key={column.uid}
+              // align={column.uid === "action" ? "end" : "center"}
+              allowsSorting={column.sortable}>
+              {column.name}
+            </TableColumn>
+          )}
+        </TableHeader>
+        <TableBody emptyContent={"보여줄 게시글이 없습니다"} items={sortedItems}>
+          {(item) => (
+
+            item &&
+
+            <TableRow key={item.id}>
+              {(columnKey) => <TableCell>{renderCell(item, columnKey)}</TableCell>}
+            </TableRow>
+          )}
+        </TableBody>
+      </Table>
+
+    </>
+
+
+
+  );
+}
+
+
+export default PostsTable;

@@ -9,9 +9,11 @@ import  { fetchPosts, deleteAPost, addAPost, addAComment} from "@/data/firestore
   
     const {
         postId,
+        commentId,
         password,
         writer,
         content,
+        created_at
     } = await request.json();
 
         const addedcomment = await addAComment({

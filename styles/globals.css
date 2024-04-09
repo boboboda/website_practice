@@ -21,3 +21,13 @@ footer {
             dark:border-gray-200/50
             dark:hover:shadow-gray-400/40
 }
+
+.content {
+  overflow: hidden;
+  max-height: 0;
+  transition: max-height 0.5s ease-in-out; /* 애니메이션 효과 */
+}
+
+.content.open {
+  max-height: 500px /* 펼쳐질 때의 최대 높이 */
+}

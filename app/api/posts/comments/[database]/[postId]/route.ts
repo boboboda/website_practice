@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import  { fetchPosts, deleteAPost, editAPost, deleteAComment} from "@/data/firestore";
 
 
-// 할일 단일 조회
+//댓글 단일 조회
 export async function GET(request: NextRequest,
      { params }: { params: { database: string, postId: string  } }) {
    
