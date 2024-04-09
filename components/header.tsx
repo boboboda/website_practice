@@ -15,6 +15,7 @@ import { ThemeSwitch } from "@/components/theme-switch";
 import { usePathname, useSearchParams } from 'next/navigation'
 
 import { siteConfig } from "@/config/site";
+import Head from "next/head"
 
 export default function Header() {
 
@@ -25,6 +26,7 @@ export default function Header() {
 
   return (
     <>
+    <meta name="google-site-verification" content="9nZTkmZViK_nwQ0Vfp-qrT3t_bynfb9jbPkgC3sSIcM" />
     <Navbar className="mt-2" maxWidth="xl" position="sticky">
           <NavbarContent className="basis-1/5 sm:basis-full" justify="start">
             <NavbarBrand as="li" className="gap-3 max-w-fit">
