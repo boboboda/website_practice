@@ -40,7 +40,7 @@ export async function GET(request: NextRequest,
         });
 
         const response = {
-            message: `할일 추가 성공`,
+            message: `게시글 추가 성공`,
             data: addedPost
         }
         

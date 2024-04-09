@@ -25,7 +25,7 @@ const db = getFirestore(app);
 
 
 
-// 모든 할일 가져오기
+// 모든 게시글 가져오기
 // 컬랙션 네임 컬렉션 아이디 수집
 
 export async function fetchPosts(collectionName) {
@@ -55,15 +55,46 @@ export async function fetchPosts(collectionName) {
             writer: doc.data()["writer"],
             title: doc.data()["title"],
             content: doc.data()["content"],
-            comments: Object.values(doc.data()["comments"]),
+            comments: Object.values(doc.data()["comments"]).map(comment => {
+                const id = comment.id
+                const content = comment.content
+                const writer = comment.writer
+                const password = comment.password
+                const created_at = comment.created_at
+                const replys = comment.reply ? Object.values(comment.reply).map(reply => {
+
+                    return {
+                        id: reply.id,
+                        personId: reply.personId,
+                        writer: reply.writer,
+                        content: reply.content,
+                        password: reply.password,
+                        created_at: moment(reply.created_at.toDate).format("YYYY-MM-DD HH:mm:ss")
+                    };
+                }) : [];
+
+                return {
+                    id,
+                    content,
+                    writer,
+                    password,
+                    created_at,
+                    replys
+                }
+            }),
             created_at: moment(doc.data()["created_at"].toDate()).format("YYYY-MM-DD HH:mm:ss")
         }
+
+        console.log(aPosts.comments.reply)
+
         fetchedPosts.push(aPosts);
 
     });
 
     return fetchedPosts;
 }
+
+
 
 //게시글 추가하기
 export async function addAPost({
@@ -149,7 +180,7 @@ export async function addAComment({
     commentWriter,
     commentContent }) {
 
-    console.log(`파이어베이스 comment add 실행됨 콜랙션 ${collectionName}`)
+    console.log(`파이어베이스 comment add 실행됨 콜랙션 ${collectionName}, postId: ${postId} ` )
 
     const createUuid = randomUUID();
 
@@ -235,9 +266,9 @@ export async function deleteAComment(collectionName, postId, commentId) {
             ? postSnap.comments
             : Object.values(postSnap.comments);
 
-        const newComments = formatArray.filter((comment) => comment.id !== commentId);
+        const filterComments = formatArray.filter((comment) => comment.id !== commentId);
 
-        console.log(newComments)
+        console.log(filterComments)
 
         const deleteUpdateData = {
             id: postSnap.id,
@@ -247,7 +278,7 @@ export async function deleteAComment(collectionName, postId, commentId) {
             writer: postSnap.writer,
             content: postSnap.content,
             password: postSnap.password,
-            comments: newComments
+            comments: filterComments
         }
 
         console.log(deleteUpdateData)
@@ -258,7 +289,124 @@ export async function deleteAComment(collectionName, postId, commentId) {
     }
 }
 
-//단일 할일 조회
+//답글 추가하기
+export async function addAReply({
+    collectionName,
+    postId,
+    commentId,
+    personId,
+    replyPassword,
+    replyWriter,
+    replyContent }) {
+
+    console.log(`파이어베이스 reply add 실행됨 콜랙션 ${collectionName}`)
+
+    console.log(`replydata: {postId: ${postId} commentId: ${commentId}, personId: ${personId}, replyPassword: ${replyPassword}, replyWriter: ${replyWriter}, replyContent: ${replyContent}}`)
+
+    const createUuid = randomUUID();
+
+    const createdAtTimestamp = Timestamp.fromDate(new Date())
+
+    const postRef = doc(db, `${collectionName}`, `${postId}`);
+
+    const postSnap = (await getDoc(postRef)).data();
+
+    console.log(`post 조회 ${postSnap.id}`)
+
+    const comments = Array.isArray(postSnap.comments)
+            ? postSnap.comments
+            : Object.values(postSnap.comments);
+
+        const commentIndex = comments.findIndex(comment=> comment.id === commentId);
+
+        console.log(`commentIndex 조회 ${commentIndex}`)
+
+        if(commentIndex !== -1) {
+
+            const selectedComment = comments[commentIndex]
+
+            if(!selectedComment.reply) {
+                selectedComment.reply = [];
+            }
+
+            selectedComment.reply.push({
+                id: createUuid,
+                personId: personId,
+                password: replyPassword,
+                writer: replyWriter,
+                content: replyContent,
+                created_at: createdAtTimestamp.toDate()
+            })
+
+            comments[commentIndex] = selectedComment;
+
+            const newreplyData = {
+                id: postSnap.id,
+                title: postSnap.title,
+                created_at: postSnap.created_at,
+                listNumber: postSnap.listNumber,
+                writer: postSnap.writer,
+                content: postSnap.content,
+                password: postSnap.password,
+                comments: comments
+    
+            }  
+            
+            await setDoc(doc(db, `${collectionName}`, `${postId}`), newreplyData);
+
+            return newreplyData;
+        }
+}
+
+//답글 삭제
+export async function deleteAReply(collectionName, postId, commentId, replyId) {
+
+    console.log(`답글 삭제 postId${postId}, commentId ${commentId}, replyId ${replyId}`)
+
+    const postRef = doc(db, `${collectionName}`, `${postId}`);
+
+    const postSnap = (await getDoc(postRef)).data();
+
+    if (!postSnap.comments) {
+        return null; // 댓글이 없으면 종료
+    } 
+
+    const comments = Array.isArray(postSnap.comments)
+            ? postSnap.comments
+            : Object.values(postSnap.comments);
+
+         // 해당 댓글 찾기
+    const commentIndex = comments.findIndex(comment => comment.id === commentId);
+    if (commentIndex === -1) {
+        // 해당 댓글이 없으면 종료
+        return null;
+    }
+
+    // 해당 댓글의 리플 배열에서 리플 삭제
+    const replys = comments[commentIndex].reply || [];
+    const filterReplys = replys.filter(reply => reply.id !== replyId);
+
+    comments[commentIndex].reply = filterReplys
+
+        const deleteUpdateData = {
+            id: postSnap.id,
+            title: postSnap.title,
+            created_at: postSnap.created_at,
+            listNumber: postSnap.listNumber,
+            writer: postSnap.writer,
+            content: postSnap.content,
+            password: postSnap.password,
+            comments: comments
+        }
+
+        console.log(deleteUpdateData)
+
+        await setDoc(postRef, deleteUpdateData);
+
+        return deleteUpdateData;
+}
+
+//단일 게시글 조회
 export async function fetchAPost(collectionName, id) {
 
 
@@ -296,7 +444,7 @@ export async function fetchAPost(collectionName, id) {
 
 
 
-//단일 삭제
+//단일 게시글 삭제
 export async function deleteAPost(collectionName, id) {
 
     console.log(`post 삭제 ${id}`)
@@ -312,7 +460,7 @@ export async function deleteAPost(collectionName, id) {
 }
 
 
-//단일 할일 수정
+//단일 게시글 수정
 export async function editAPost(collectionName, id, { title, password, content }) {
 
     console.log(`post 수정 ${collectionName} ${id} ${title}, ${password} ${content}`)
@@ -342,6 +490,6 @@ export async function editAPost(collectionName, id, { title, password, content }
 }
 
 
-module.exports = { fetchPosts, addAComment, addAPost, deleteAPost, editAPost, deleteAComment }
+module.exports = { fetchPosts, addAComment, addAPost, deleteAPost, editAPost, deleteAComment, addAReply, deleteAReply }
 
 

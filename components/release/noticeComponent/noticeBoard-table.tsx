@@ -28,8 +28,9 @@ import columns from "@/types";
 import { SearchIcon, ChevronDownIcon, PlusIcon, EyeIcon, EditIcon, DeleteIcon } from "../../icons";
 import { of, from, filter, find } from "rxjs";
 import { debounce } from "lodash";
+import PasswordModal from "../postComponent/password-modal";
 
-
+type ModalSize = "sm" | "md" | "lg" | "xl" | "2xl" | "full" | "xs" | "3xl" | "4xl" | "5xl";
 
 
 const NoticesTable = ({ notices, appName }: { notices: Notice[], appName: string }) => {
@@ -82,6 +83,8 @@ const NoticesTable = ({ notices, appName }: { notices: Notice[], appName: string
           modalType: currentModalData.modalType
         })
       })
+
+      return () => updataNotices.unsubscribe();
   }, [notices, currentNotice]);
 
 
@@ -109,24 +112,32 @@ const NoticesTable = ({ notices, appName }: { notices: Notice[], appName: string
 
   const setVisibleColumnsForWindowWidth = () => {
     if (windowWidth <= 700) {
-      setVisibleColumns(new Set(["title", "created_at"]));
+      setVisibleColumns(new Set(["title", "writer" , "created_at"]));
     } else {
       setVisibleColumns(new Set(INITIAL_VISIBLE_COLUMNS));
     }
   };
+
+  const [modalSize, setModalSize] = React.useState<ModalSize>("3xl")
+
+  const setModalEvent = () => {
+    if (windowWidth <= 700) {
+      setModalSize("md");
+    } else {
+      setModalSize("3xl")
+    }
+  }
 
   useEffect(() => {
     // window 크기가 변경될 때마다
     window.addEventListener("resize", () => {
       setWindowWidth(innerWidth);
     });
-
-    // window 크기가 변경되지 않은 상태에서
-    // windowWidth 상태가 변경될 때
   }, []);
 
   useEffect(() => {
     setVisibleColumnsForWindowWidth();
+    setModalEvent();
   }, [windowWidth]);
 
   //해더 컬럼
@@ -466,7 +477,7 @@ const NoticesTable = ({ notices, appName }: { notices: Notice[], appName: string
     content: string
   ) => {
     await new Promise(f => setTimeout(f, 600));
-    await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/notices/comments/${appName}`, {
+    await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/notices/comments/${appName}Notice`, {
       method: 'post',
       body: JSON.stringify({
         noticeId,
@@ -479,7 +490,11 @@ const NoticesTable = ({ notices, appName }: { notices: Notice[], appName: string
 
     router.refresh();
 
-    // router.push("/release/postBoard/bigDataLotto")
+    const noticeToUpdate = notices.find(notice => notice.id === noticeId);
+
+    if(noticeToUpdate !== undefined)
+    
+    setCurrentNotice(noticeToUpdate)
 
     notifySuccessEvent(`성공적으로 작성되었습니다!`);
 
@@ -491,85 +506,166 @@ const NoticesTable = ({ notices, appName }: { notices: Notice[], appName: string
     commentId: string
   ) => {
     await new Promise(f => setTimeout(f, 600));
-    await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/notices/comments/${appName}/${noticeId}?commentId=${commentId}`, {
+    await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/notices/comments/${appName}Notice/${noticeId}?commentId=${commentId}`, {
       method: 'delete',
       cache: 'no-store'
     });
 
     router.refresh();
 
+    const noticeToUpdate = notices.find(notice => notice.id === noticeId);
+
+    if(noticeToUpdate !== undefined)
+    
+    setCurrentNotice(noticeToUpdate)
+
     notifySuccessEvent(`댓글이 삭제되었습니다!`);
 
     console.log(`댓글 삭제완료`)
   };
 
+  const addAreplyHandler = async (
+    noticeId: string,
+    personId: string,
+    commendId: string,
+    writer: string,
+    content: string,
+    password: string,
+  ) => {
+    await new Promise(f => setTimeout(f, 600));
+    await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/notices/comments/reply/${appName}Notice`, {
+      method: 'post',
+      body: JSON.stringify({
+        noticeId,
+        personId,
+        commendId,
+        writer,
+        password,
+        content
+      }),
+      cache: 'no-store'
+    });
 
-  const [deleteCommentPassword, setDeleteCommentPassword] = useState("")
+    router.refresh();
 
-  const [deleteNoticeId, setDeletePostId] = useState("")
+    const noticeToUpdate = notices.find(notice => notice.id === noticeId);
+
+    if(noticeToUpdate !== undefined)
+    
+    setCurrentNotice(noticeToUpdate)
+
+    notifySuccessEvent(`성공적으로 작성되었습니다!`);
+
+    console.log(`답글 추가완료`)
+  };
+
+
+  const deleteReplyHandler = async (
+    noticeId: string,
+    commentId: string,
+    replyId: string
+  ) => {
+    await new Promise(f => setTimeout(f, 600));
+    await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/notices/comments/reply/${appName}Notice/${noticeId}/${commentId}?replyId=${replyId}`, {
+      method: 'delete',
+      cache: 'no-store'
+    });
+
+    router.refresh();
+
+    const noticeToUpdate = notices.find(notice => notice.id === noticeId);
+
+    if(noticeToUpdate !== undefined)
+    
+    setCurrentNotice(noticeToUpdate)
+
+    notifySuccessEvent(`답글이 삭제되었습니다!`);
+  };
+
+
+  const [passwordModalType, setPasswordModalType] = useState<number>(1)
+
+  const [deletePassword, setDeletePassword] = useState("")
+
+  const [deleteNoticeId, setDeleteNoticeId] = useState("")
 
   const [deleteCommentId, setDeleteCommentId] = useState("")
 
+  const [deleteReplyId, setDeleteReplyId] = useState("")
+
   const { isOpen: isTwoOpen, onOpen: TwoOnOpen, onOpenChange: onTwoChange, onClose: twoOnClose } = useDisclosure();
 
-  // 리팩토링 필요
+  
+  const handlePasswordSubmit = async ({type, password}: {type: number, password: string}) => {
+
+
+    switch (type) {
+      case 1:
+        if (deletePassword === password) {
+          deleteAcommentHandler(
+            deleteNoticeId,
+            deleteCommentId
+          )
+          await new Promise(f => setTimeout(f, 600));
+          setDeletePassword("")
+          setDeleteCommentId("")
+          setDeleteNoticeId("")
+          oneOneClose()
+        } else {
+          alert(`비밀번호가 틀렸습니다.`);
+        }
+        break;
+        case 2:
+          if (deletePassword === password) {
+            deleteReplyHandler(
+              deleteNoticeId,
+              deleteCommentId,
+              deleteReplyId
+            )
+
+            await new Promise(f => setTimeout(f, 600));
+            setDeletePassword("")
+            setDeleteCommentId("")
+            setDeleteNoticeId("")
+            setDeleteReplyId("")
+            oneOneClose()
+          } else {
+            alert(`비밀번호가 틀렸습니다.`);
+          }
+
+    }
+
+    
+  }
+
+
+  // 삭제 비번 확인 모달
   const SubModalComponent = () => {
 
-    const handlePasswordSubmit = async () => {
-
-      if (deleteCommentPassword === passwordInput) {
-        deleteAcommentHandler(
-          deleteNoticeId,
-          deleteCommentId
-        )
-        await new Promise(f => setTimeout(f, 600));
-        setDeleteCommentPassword("")
-        setDeleteCommentId("")
-        setDeletePostId("")
-        oneOneClose()
-      } else {
-        alert(`비밀번호가 틀렸습니다.`);
-      }
-    }
     return <div>
       <Modal
         isOpen={isOneOpen}
-        size="2xl"
+        size={modalSize}
         classNames={{
           backdrop: "bg-gradient-to-t from-zinc-900 to-zinc-900/10 backdrop-opacity-20"
         }}
         onOpenChange={onOneChange}
-        placement="top-center"
+        placement="center"
       >
         <ModalContent>
           {(onClose) => (
-            <>
-              <ModalHeader className="flex flex-col gap-1">비밀번호를 입력하세요</ModalHeader>
-              <ModalBody>
-                <Input
-                  isRequired
-                  autoFocus
-                  label="비밀번호"
-                  placeholder="비밀번호을 입력해주세요"
-                  variant="bordered"
-                  type="password"
-                  value={passwordInput}
-                  onValueChange={setPasswordInput}
-                />
-              </ModalBody>
-              <ModalFooter>
-                <Button color="danger" variant="flat" onPress={() => {
-                  handlePasswordSubmit()
-                }}>
-                  확인
-                </Button>
-                <Button color="default" onPress={() => {
-                  oneOneClose()
-                }}>
-                  닫기
-                </Button>
-              </ModalFooter>
-            </>
+            (
+              <PasswordModal
+              deleteType={passwordModalType}
+              onClose={onClose}
+              selectedDelete={async (value) => {
+                handlePasswordSubmit({
+                  type: value.deleteType,
+                  password: value.password
+                })
+              }}
+              />
+            )
           )}
 
         </ModalContent>
@@ -578,6 +674,9 @@ const NoticesTable = ({ notices, appName }: { notices: Notice[], appName: string
     </div>
 
   }
+
+
+
 
   const adminPasswordComponent = () => {
 
@@ -601,12 +700,12 @@ const NoticesTable = ({ notices, appName }: { notices: Notice[], appName: string
     return <div>
       <Modal
         isOpen={isTwoOpen}
-        size="2xl"
+        size={modalSize}
         classNames={{
           backdrop: "bg-gradient-to-t from-zinc-900 to-zinc-900/10 backdrop-opacity-20"
         }}
         onOpenChange={onTwoChange}
-        placement="top-center"
+        placement="center"
       >
         <ModalContent>
           {(onClose) => (
@@ -649,15 +748,18 @@ const NoticesTable = ({ notices, appName }: { notices: Notice[], appName: string
 
 
   const ModalComponent = () => {
+
+  
+
     return <div>
       <Modal
         isOpen={isOpen}
-        size="3xl"
+        size = {modalSize}
         classNames={{
           backdrop: "bg-gradient-to-t from-zinc-900 to-zinc-900/10 backdrop-opacity-20"
         }}
         onOpenChange={onOpenChange}
-        placement="top-center">
+        placement="center">
         <ModalContent>
           {(onClose) => (
             (currentModalData.focusedNotice ? (
@@ -677,10 +779,33 @@ const NoticesTable = ({ notices, appName }: { notices: Notice[], appName: string
                 ondeleteComment={async (value) => {
 
                   setDeleteCommentId(value.commentId)
-                  setDeleteCommentPassword(value.commentPassword)
-                  setDeletePostId(value.noticeId)
+                  setDeletePassword(value.commentPassword)
+                  setDeleteNoticeId(value.noticeId)
+                  setPasswordModalType(1)
                   oneOnOpen();
                 }}
+                onAddReply={async (value) => {
+                  await addAreplyHandler(
+                    value.noticeId,
+                    value.personId,
+                    value.commentId,
+                    value.writer,
+                    value.password,
+                    value.content
+                  )
+
+                }}
+                onDeleteReply={async (value) => {
+
+                  setDeleteCommentId(value.commentId)
+                  setDeletePassword(value.replyPassword)
+                  setDeleteNoticeId(value.noticeId)
+                  setDeleteReplyId(value.replyId)
+                  setPasswordModalType(2)
+                  oneOnOpen();
+
+                }}
+
                 onDeleteAuth={async (notice) => {
                   onClose()
                   await new Promise(f => setTimeout(f, 600));
@@ -760,6 +885,7 @@ const NoticesTable = ({ notices, appName }: { notices: Notice[], appName: string
         bottomContentPlacement="outside"
         classNames={{
           wrapper: "max-h-[382px]",
+          
         }}
         sortDescriptor={sortDescriptor}
         topContent={topContent}

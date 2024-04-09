@@ -5,7 +5,7 @@ export default function BulletinLayout({
 }) {
 	return (
 		
-			<div>
+		    <div>
 				{children}
 			</div>
 		
