@@ -14,6 +14,9 @@ export default function Home() {
 		
 			
 				<div className="container mx-auto flex px-5 py-24 md:flex-row flex-col items-center justify-center">
+					<Head>
+					<meta name="google-site-verification" content="9nZTkmZViK_nwQ0Vfp-qrT3t_bynfb9jbPkgC3sSIcM" />
+					</Head>
 				<Hero/>
 				</div>
 		
