@@ -24,9 +24,13 @@ export default function Header() {
   const path = pathname.split("/").slice(0, 2).join("/");
 
 
+
   return (
     <>
-    <meta name="google-site-verification" content="9nZTkmZViK_nwQ0Vfp-qrT3t_bynfb9jbPkgC3sSIcM" />
+    <meta name="google-site-verification" content="m5OSAuutjyid3qZGPul7bLxNpaLK1TLfY_jCeh5TpXM" />
+    <meta name="naver-site-verification" content="f71196e4dbe205d177e771af7db3602a74f06a6d" />
+
+
     <Navbar className="mt-2" maxWidth="xl" position="sticky">
           <NavbarContent className="basis-1/5 sm:basis-full" justify="start">
             <NavbarBrand as="li" className="gap-3 max-w-fit">
