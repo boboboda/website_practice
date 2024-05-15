@@ -2,7 +2,7 @@ export type SiteConfig = typeof siteConfig;
 
 export const siteConfig = {
 	name: "코딩천재 부영실",
-	description: "Make beautiful websites regardless of your design experience.",
+	description: "코딩천재 부영실의 개발한 앱 소개, 개발노트 정보 교환, 제작의뢰 등 정보 교환을 위한 홈페이지 입니다.",
 	navItems: [
 		{
 			label: "홈",
