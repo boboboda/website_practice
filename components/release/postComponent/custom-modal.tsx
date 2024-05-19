@@ -7,7 +7,7 @@ import {
 import React from 'react';
 import { Post, FocusedPostType, CustomModalType, Comment, Reply } from "@/types";
 import { EyeSlashFilledIcon, EyeFilledIcon } from "../../icons";
-import { deleteAComment, fetchAPost } from "@/data/firestore";
+import { deleteAComment, fetchAPost } from "@/data/firebase";
 import { useRouter, usePathname } from "next/navigation"
 import { ToastContainer, toast } from 'react-toastify';
 import { useState, useEffect, ChangeEvent } from "react";
