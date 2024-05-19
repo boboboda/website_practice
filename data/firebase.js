@@ -5,6 +5,7 @@ import {
     deleteDoc, updateDoc, query, orderBy, limit, deleteField, FieldValue, arrayRemove, findIndex, filter
 } from "firebase/firestore";
 import moment from "moment";
+import { getStorage } from 'firebase/storage';
 // TODO: Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
 
@@ -22,6 +23,7 @@ import { UUID, randomUUID } from "crypto";
 
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
+const storage = getStorage(app);
 
 
 
@@ -493,3 +495,4 @@ export async function editAPost(collectionName, id, { title, password, content }
 module.exports = { fetchPosts, addAComment, addAPost, deleteAPost, editAPost, deleteAComment, addAReply, deleteAReply }
 
 
+export { storage };

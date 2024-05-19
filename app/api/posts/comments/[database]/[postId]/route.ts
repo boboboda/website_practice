@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import  { fetchPosts, deleteAPost, editAPost, deleteAComment} from "@/data/firestore";
+import  { fetchPosts, deleteAPost, editAPost, deleteAComment} from "@/data/firebase";
 
 
 //댓글 단일 조회

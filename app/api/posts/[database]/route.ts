@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import  { fetchPosts, deleteAPost, addAPost} from "@/data/firestore";
+import  { fetchPosts, deleteAPost, addAPost} from "@/data/firebase";
 
 // 모든 글 가져오기
 export async function GET(request: NextRequest,
