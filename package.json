@@ -42,6 +42,7 @@
     "npm": "^10.8.0",
     "postcss": "8.4.31",
     "quill": "^2.0.2",
+    "quill-image-compress": "^1.2.32",
     "react": "18.2.0",
     "react-dom": "18.2.0",
     "react-lottie-player": "^1.5.5",

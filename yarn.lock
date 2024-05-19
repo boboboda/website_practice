@@ -6032,6 +6032,13 @@ quill-delta@^5.1.0:
     lodash.clonedeep "^4.5.0"
     lodash.isequal "^4.5.0"
 
+quill-image-compress@^1.2.32:
+  version "1.2.32"
+  resolved "https://registry.yarnpkg.com/quill-image-compress/-/quill-image-compress-1.2.32.tgz#ba453f735e96ed709b490733d6432c1d887dc849"
+  integrity sha512-du7OfVjgVaOLmmtpFptCwGdnmcK9Y4G3j5q5NCi1/otA2aPNS/1Pvh2UJt+n9jvyvT8fQYXjklhPDf9rL9Jh4g==
+  dependencies:
+    quill "^1.3.7"
+
 quill@^1.3.7:
   version "1.3.7"
   resolved "https://registry.yarnpkg.com/quill/-/quill-1.3.7.tgz#da5b2f3a2c470e932340cdbf3668c9f21f9286e8"

@@ -1,22 +1,32 @@
-// "use client";
+"use client"
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import dynamic from 'next/dynamic';
 
-import Lottie from 'react-lottie-player';
-// Alternatively:
-// import Lottie from 'react-lottie-player/dist/LottiePlayerLight'
+// Dynamic import with no SSR
+const Lottie = dynamic(() => import('react-lottie-player'), {
+  ssr: false,
+  loading: () => <div>불러오는 중..</div> // 로딩 중에 표시할 컴포넌트
+});
 
 import lottieJson from '../../public/main animation.json';
 
-
-
-
 export default function Animation() {
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
+  if (!isMounted) {
+    return <p>Loading...</p>; // 초기 로딩 상태 표시
+  }
+
   return (
     <Lottie
-    play
+      play
       loop
       animationData={lottieJson}
     />
-  )
+  );
 }
