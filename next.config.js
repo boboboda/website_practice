@@ -15,7 +15,6 @@ const nextConfig = {
     //     // format: ['image/png', 'image/webp', 'image/jpeg']
 
     // },
-    
     async headers() {
         return [
             {
