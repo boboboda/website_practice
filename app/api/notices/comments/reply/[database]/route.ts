@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { fetchPosts, deleteAPost, addAPost, addAComment, addAReply } from "@/data/firestore";
+import { fetchPosts, deleteAPost, addAPost, addAComment, addAReply } from "@/data/firebase";
 
 
 //답글 추가

@@ -8,6 +8,10 @@ export const siteConfig = {
 			label: "홈",
 			href: "/",
 		},
+		{
+			label: "개발노트",
+			href: "/developmentNote",
+		},
     {
       label: "출시어플",
       href: "/release",
