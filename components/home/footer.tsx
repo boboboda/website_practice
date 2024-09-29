@@ -5,8 +5,7 @@ export default function Footer() {
   return (
     <>
       <footer className="">
-        <div className="">
-          <div className="container px-5 py-6 mx-auto flex items-center sm:flex-row flex-col">
+      <div className="container py-6 mx-auto flex items-center sm:flex-row flex-col">
             <NextLink href="/" className="flex title-font font-medium items-center md:justify-start justify-center">
 
               <span className="ml-3 text-[1.1rem]">코딩천재 부영실</span>
@@ -25,7 +24,6 @@ export default function Footer() {
               </a>
             </span>
           </div>
-        </div>
       </footer>
     </>
   )

@@ -105,6 +105,8 @@ const NoticesTable = ({ notices, appName }: { notices: Notice[], appName: string
 
   const [passwordInput, setPasswordInput] = useState("")
 
+   const adminPassword = "wnsdnr12"
+
   const notifySuccessEvent = (msg: string) => toast.success(msg);
 
 
@@ -293,7 +295,7 @@ const NoticesTable = ({ notices, appName }: { notices: Notice[], appName: string
     setPage(1)
   }, [])
 
-  const adminPassword = "wnsdnr12"
+ 
 
 
   const topContent = React.useMemo(() => {
@@ -694,7 +696,7 @@ const NoticesTable = ({ notices, appName }: { notices: Notice[], appName: string
         setPasswordInput("")
         twoOnClose()
       } else {
-        alert(`비밀번호가 틀렸습니다.${adminPassword} ${passwordInput}`);
+        alert(`비밀번호가 틀렸습니다.`);
       }
     }
     return <div>

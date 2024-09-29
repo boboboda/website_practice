@@ -57,18 +57,16 @@ export const ThemeSwitch: FC<ThemeSwitchProps> = ({
 					class: clsx(
 						[
 							"w-auto h-auto",
-							// "bg-transparent",
 							"rounded-lg",
 							"flex items-center justify-center",
 							"group-data-[selected=true]:bg-slate-600",
-							// "!text-default-500",
 							"!text-slate-300",
 							"pt-px",
 							"px-1",
 							"py-1",
 							"mx-0",
 							"bg-slate-1000",
-							// "hover:bg-gray-200",
+						
 
 						],
 						classNames?.wrapper

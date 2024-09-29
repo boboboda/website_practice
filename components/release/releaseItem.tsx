@@ -68,7 +68,11 @@ export default function ReleaseItem({ data }: {data: any }) {
     return (
  <div>
            {
-        <Card className="card-modifier">
+        <Card className="flex flex-col m-3 bg-slate-300 dark:bg-slate-500 rounded-xl w-full transition duration-300 transform border border-gray-300
+        hover:scale-105
+        hover:shadow-lg
+        dark:border-gray-200/50
+        dark:hover:shadow-gray-400/40">
           <CardBody className="overflow-visible space-y-6 item-center">
             <Image
               shadow="sm"

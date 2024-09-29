@@ -9,46 +9,51 @@ module.exports = {
     './node_modules/@nextui-org/theme/dist/**/*.{js,ts,jsx,tsx}'
   ],
   theme: {
-    extend: {},
-    // screens :{
-    //   'sm': '640px',
-    //   // => @media (min-width: 640px) { ... }
+    extend: {
+      colors: {
+        'custom-bg-color': 'rgb(104, 109, 118, 0.3)',
+      }
+    },
+    screens :{
+      'sm': '640px',
+      // => @media (min-width: 640px) { ... }
 
-    //   'md': '768px',
-    //   // => @media (min-width: 768px) { ... }
+      'md': '768px',
+      // => @media (min-width: 768px) { ... }
 
-    //   'lg': '1024px',
-    //   // => @media (min-width: 1024px) { ... }
+      'lg': '1024px',
+      // => @media (min-width: 1024px) { ... }
 
-    //   'xl': '1280px',
-    //   // => @media (min-width: 1280px) { ... }
+      'xl': '1280px',
+      // => @media (min-width: 1280px) { ... }
 
-    //   '2xl': '1536px',
-    //   // => @media (min-width: 1536px) { ... }
-    // },
-    // breakpoints: {
-    //   sm: 576,
-    //   md: 768,
-    //   lg: 1024,
-    //   xl: 1280,
-    // },
+      '2xl': '1536px',
+      // => @media (min-width: 1536px) { ... }
+    },
+    breakpoints: {
+      sm: 576,
+      md: 768,
+      lg: 1024,
+      xl: 1280,
+    },
   },
   darkMode: "class",
-  plugins: [nextui(
-    {
+  plugins: [
+    nextui({
       themes: {
         light: {
           colors: {
-            background: '#bae6fd'
-          }
+            background: '#bae6fd',
+            text: '#333333', // NextUI의 light 테마 텍스트 색상
+          },
         },
         dark: {
           colors: {
-            background: '#27272A'
-          }
-        }
-      }
-    }
-
-  )],
+            background: '#27272A',
+            text: '#ffffff', // NextUI의 dark 테마 텍스트 색상
+          },
+        },
+      },
+    }),
+  ],
 }
