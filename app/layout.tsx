@@ -1,11 +1,12 @@
 import "@/styles/globals.css";
-import Header from "@/components/header";
-import Footer from "@/components/footer";
+import Header from "../components/home/header";
+import Footer from "@/components/home/footer";
 import { siteConfig } from "@/config/site";
 import { Metadata } from "next";
 import { Providers } from "./providers";
 import { fontSans } from "@/config/fonts";
 import clsx from "clsx";
+import AdFooter from "@/components/home/adFooter";
 
 
 
@@ -42,12 +43,13 @@ export default function RootLayout({
 			// className="bg-primary"
 			>
 			<Providers themeProps={{ attribute: "class", defaultTheme: "dark" }}>
-			<div className="relative flex flex-col h-screen">
+			<div className="flex flex-col h-screen">
 			<Header/>
-			<main className="container items-center justify-center mx-auto max-w-7xl md:pt-16 pr-6 flex-grow">
+			<main className="items-center justify-center w-full xl:pt-16 flex-grow overflow-auto">
 			{children}
-			</main>
 			<Footer/>
+			</main>
+			<AdFooter/>
 			</div>
 			
 			</Providers>

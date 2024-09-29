@@ -13,7 +13,7 @@ export default function Home() {
 
 		
 			
-				<div className="container mx-auto flex px-5 py-24 md:flex-row flex-col items-center justify-center">
+				<div className="container mx-auto flex py-24 md:flex-row flex-col items-center justify-center">
 				<Hero/>
 				</div>
 		

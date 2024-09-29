@@ -4,7 +4,7 @@ import Animation from "./animation"
 import { title, subtitle } from "@/components/primitives";
 import Typed from 'typed.js';
 import { useState, useEffect, useRef } from "react";
-
+import VisitCalcurateView from "./visitCalcurateView";
 
 export default function Hero() {
 
@@ -14,11 +14,11 @@ export default function Hero() {
         const typed = new Typed(el.current, {
           strings: [
             "나만의 홈페이지 또는 어플?", 
-          "비전있는 아이템?", 
-          "충족되지 않는 앱 서비스?", 
-          "그 꿈 부영실이",
-          "이루어드리겠습니다."], // Strings to display
-          // Speed settings, try diffrent values untill you get good results
+            "비전있는 아이템?", 
+            "충족되지 않는 앱 서비스?", 
+            "그 꿈 부영실이",
+            "이루어드리겠습니다."
+          ], // Strings to display
           startDelay: 300,
           typeSpeed: 100,
           backSpeed: 100,
@@ -26,7 +26,7 @@ export default function Hero() {
           loop: true
         });
     
-        // Destropying
+        // Destroying
         return () => {
           typed.destroy();
         };
@@ -34,27 +34,30 @@ export default function Hero() {
 
     return (
         <>
-            <div className="lg:flex-grow md:w-1/2 lg:pr-24 md:pr-16 flex flex-col space-y-5 md:items-start md:text-left mb-16 md:mb-0 items-center text-center">
+        <div className="grid grid-cols-12 gap-4 w-full px-8">
+          <div className="col-span-12 items-center xl:col-span-6 flex flex-col space-y-10 text-left xl:items-start justify-center">
                 <h1 className={title()}>
                     안녕하세요!!&nbsp;  
                 </h1>
                 <li className={title({ size:"sm" })}>
-                저는 코딩천재 부영실입니다.&nbsp; 
-				</li>
-
+                    저는 코딩천재 부영실입니다.&nbsp; 
+                </li>
                 <li className={title({ size:"xs" })}>
-                여러분은 꿈을 꾸십니까? 
-				</li>
-
+                    여러분은 꿈을 꾸십니까? 
+                </li>
                 <h1 className={title({ size:"xs", color:"pink"})}>
-                <span ref={el}></span>
+                    <span ref={el}></span>
                 </h1>
-            
-            </div>
-            <div className="lg:max-w-lg lg:w-full md:w-1/2 w-5/6">
-                <Animation />
-            </div>
+          </div>
+          <div className="col-span-12 xl:col-span-6">
+              <Animation />
+          </div>
+
+          <div className="col-span-12 mt-8">
+          <VisitCalcurateView />
+        </div>
+        </div>
+        
         </>
     )
-
 }

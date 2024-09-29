@@ -9,7 +9,7 @@ const Lottie = dynamic(() => import('react-lottie-player'), {
   loading: () => <div>불러오는 중..</div> // 로딩 중에 표시할 컴포넌트
 });
 
-import lottieJson from '../../public/main animation.json';
+import lottieJson from '../../public/buyoungsil_Animation.json';
 
 export default function Animation() {
   const [isMounted, setIsMounted] = useState(false);
@@ -28,5 +28,8 @@ export default function Animation() {
       loop
       animationData={lottieJson}
     />
+
+      // <img src="/antAnimation.gif" alt="Example GIF"/>
+  
   );
 }

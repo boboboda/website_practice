@@ -1,3 +1,6 @@
+import { Providers } from "../providers";
+
+
 export default function DevelopmentNoteLayout({
 	children,
 }: {
@@ -5,9 +8,13 @@ export default function DevelopmentNoteLayout({
 }) {
 	return (
 		
-			<div className="inline-block max-w-lg text-center justify-center">
+			
+<Providers themeProps={{ attribute: "class", defaultTheme: "dark" }}>
+<div>
 				{children}
 			</div>
+
+</Providers>
 		
 	);
 }

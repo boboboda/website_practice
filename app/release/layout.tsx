@@ -6,8 +6,9 @@ export default function ReleaseLayout({
     children: React.ReactNode;
 }) {
     return (
-                <div>
+                <div className=" container mx-auto">
                     {children}
                 </div>
     );
 }
+

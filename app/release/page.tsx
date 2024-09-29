@@ -49,7 +49,7 @@ export default async function ReleaseAppPage() {
 	return (
 		
 		<>
-		<div className="md:gap-8 grid grid-cols-1 gap-0 items-center justify-center md:grid-cols-2">
+		<div className=" grid grid-cols-1 gap-0 items-center justify-center px-10 md:grid-cols-2 md:gap-8">
 		{response.results?.map((aApp: any) => (
 			<ReleaseItem key={aApp.id} data={aApp}/>
 			))}

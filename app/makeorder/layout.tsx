@@ -1,3 +1,5 @@
+import { Providers } from "../providers";
+
 export default function PricingLayout({
 	children,
 }: {
@@ -5,9 +7,14 @@ export default function PricingLayout({
 }) {
 	return (
 		
-			<div className="inline-block max-w-lg text-center justify-center">
+		<Providers themeProps={{ attribute: "class", defaultTheme: "dark" }}>
+
+<div className="inline-block max-w-lg text-center justify-center">
 				{children}
 			</div>
+
+		</Providers>
+			
 		
 	);
 }
