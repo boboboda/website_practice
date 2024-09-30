@@ -12,6 +12,9 @@ import { usePathname } from "next/navigation";
 import NextLink from "next/link";
 import { siteConfig } from "@/config/site";
 import Head from "next/head";
+import { Metadata, Viewport } from "next";
+
+
 
 export default function Header() {
   const pathname = usePathname();
@@ -56,9 +59,9 @@ export default function Header() {
             <Navbar className="w-full" position="sticky">
               <NavbarContent className="w-full" justify="end">
                 <ul className="flex gap-4 justify-end items-center w-full">
-                  {siteConfig.navItems.map((item: any) => (
+                  {siteConfig.navItems.map((item: any, index) => (
                     <li
-                      key={item.id}
+                      key={index}
                       className="text-medium whitespace-nowrap box-border list-none"
                     >
                       <a

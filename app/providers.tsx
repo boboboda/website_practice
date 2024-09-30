@@ -14,8 +14,19 @@ export interface ProvidersProps {
 }
 
 
+
 export function Providers({ children, themeProps }: ProvidersProps) {
+	useEffect(() => {
+		setMount(true)
+	}, [])
+	
+	const [isMount, setMount] = React.useState(false)
+
   const router = useRouter();
+
+  if(!isMount) {
+	return null
+  }
 
 	return (
 		<NextUIProvider navigate={router.push}>

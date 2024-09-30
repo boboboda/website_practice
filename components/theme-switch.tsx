@@ -66,8 +66,6 @@ export const ThemeSwitch: FC<ThemeSwitchProps> = ({
 							"py-1",
 							"mx-0",
 							"bg-slate-1000",
-						
-
 						],
 						classNames?.wrapper
 					),
