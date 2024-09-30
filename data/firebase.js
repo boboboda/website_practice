@@ -493,7 +493,4 @@ export async function editAPost(collectionName, id, { title, password, content }
 }
 
 
-module.exports = { fetchPosts, addAComment, addAPost, deleteAPost, editAPost, deleteAComment, addAReply, deleteAReply }
-
-
-export { storage };
+export { storage }
