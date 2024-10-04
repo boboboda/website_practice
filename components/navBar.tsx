@@ -26,6 +26,7 @@ import { ToastContainer, toast } from "react-toastify";
 
 export default function NavBar() {
 
+  console.log("test")
 
   const { user, expires, fetchSession  } = useUserStore((state)=> state);
 
