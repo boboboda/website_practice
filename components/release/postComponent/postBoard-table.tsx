@@ -791,6 +791,7 @@ const PostsTable = ({ posts, appName }: { posts: Post[], appName: string }) => {
       {ModalComponent()}
       {SubModalComponent()}
 
+      <div className="w-full h-[100%]">
       <ToastContainer
         className=" foo "
         style={{ width: "400px" }}
@@ -804,7 +805,6 @@ const PostsTable = ({ posts, appName }: { posts: Post[], appName: string }) => {
         draggable
         pauseOnHover
         theme="dark"
-
       />
       <Table
         aria-label="Example table with custom cells, pagination and sorting"
@@ -841,7 +841,7 @@ const PostsTable = ({ posts, appName }: { posts: Post[], appName: string }) => {
           )}
         </TableBody>
       </Table>
-
+      </div>
     </>
 
 

@@ -33,7 +33,7 @@ export default async function postBoardPage({ params }: { params: { slug: string
     const fetchedPosts = response?.data ?? [];
 
     return (<>
-    <div className="container flex pl-5 py-5 flex-col items-center justify-center gap-y-3">
+    <div className="container flex pl-5 py-5 flex-col h-[100%] items-center justify-center gap-y-3">
         <h1 className={title()}>문의사항</h1>
         <PostsTable posts={fetchedPosts} appName={appName} />
     </div>

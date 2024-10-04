@@ -43,7 +43,7 @@ module.exports = {
       themes: {
         light: {
           colors: {
-            background: '#bae6fd',
+            background: '#ffffff',
             text: '#333333', // NextUI의 light 테마 텍스트 색상
           },
         },
