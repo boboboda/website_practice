@@ -8,7 +8,6 @@ import { useAuthStore, useAuthStoreSubscribe } from "@/app/providers/auth-store-
 import { ToastContainer, toast } from "react-toastify";
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { log } from "console";
 
 
 export default function Hero() {
@@ -68,27 +67,14 @@ export default function Hero() {
     }
 
 
-  }, [signInStatus, signUpStatus, socialLoginStatus, logOutStatus])
+  }, [signInStatus, signUpStatus, socialLoginStatus, logOutStatus, resetStatus, router])
 
 
 
   return (
     <>
       <div className="flex flex-col w-full h-[3000px] px-8 justify-start items-center">
-      <ToastContainer
-        className=" foo"
-        style={{ width: "450px" }}
-        position="top-right"
-        autoClose={1800}
-        hideProgressBar={false}
-        newestOnTop={false}
-        closeOnClick
-        rtl={false}
-        pauseOnFocusLoss
-        draggable
-        pauseOnHover
-        theme="dark"
-      />
+     
         <div className="container flex flex-row h-[700px] w-[90%]">
         <div className="items-center flex flex-col mt-[130px] space-y-10 w-[50%] text-left md:items-start justify-start">
           <h1 className={title({ size: "sm" })}>

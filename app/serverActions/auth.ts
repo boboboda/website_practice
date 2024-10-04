@@ -1,6 +1,6 @@
 "use server"
 
-import { auth, signIn, signOut, update  } from '@/auth'
+import { auth, signIn, signOut, update  } from '@/auth/auth'
 import { AuthError } from "@auth/core/errors";
 
 export const signUpWithCredentials = async (formData: FormData) => {

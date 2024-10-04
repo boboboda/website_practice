@@ -1,10 +1,24 @@
 "use client"
 
-import {Card, CardHeader, CardBody, CardFooter, Image, Button} from "@nextui-org/react";
+import {Card, CardHeader, CardFooter, Image, Button} from "@nextui-org/react";
+import { useUserStore } from "@/app/providers/user-store-provider"
+
 
 export default function NoteContent() {
+  const session  = useUserStore(state=> state)
+
+  const user = session.user
     return (
-        <div className="max-w-[1000px] gap-2 grid grid-cols-12 grid-rows-2 px-4">
+      <div>
+          <div>
+            {
+                user.rule === "admin"? <Button>글쓰기</Button>: null
+            }
+        </div>
+         <div className="max-w-[1000px] gap-2 grid grid-cols-12 grid-rows-2 px-4">
+
+         
+
         <Card className="col-span-12 sm:col-span-6 h-[300px] flex justify-start bg-slate-800 gap-4 hover:cursor-pointer hover:bg-gray-600">
             <div className="flex w-100% h-[50px] items-center justify-center">
             <h4 className="text-white font-medium text-[24px]">Android Jetpack Compose</h4>
@@ -87,5 +101,8 @@ export default function NoteContent() {
           </CardFooter>
         </Card> 
       </div>
+
+      </div>
+        
       );
 }

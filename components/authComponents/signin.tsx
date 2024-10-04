@@ -5,7 +5,7 @@ import {
   signInWithGitHub,
   signInWithGoogle,
   signInWithCredentials,
-} from "@/serverActions/auth";
+} from "@/app/serverActions/auth"
 import { Button, Input } from "@nextui-org/react";
 import { useEffect, useRef, useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";

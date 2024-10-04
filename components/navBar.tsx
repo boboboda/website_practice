@@ -20,7 +20,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { use, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useUserStore, useUserStoreSubscribe  } from "@/app/providers/user-store-provider";
 import { User } from "next-auth";
-import { signOutWithForm } from "@/serverActions/auth";
+import { signOutWithForm } from "@/app/serverActions/auth";
 import { useAuthStore } from "@/app/providers/auth-store-provider";
 import { ToastContainer, toast } from "react-toastify";
 

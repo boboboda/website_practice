@@ -1,4 +1,4 @@
-import { signIn } from '@/auth';
+import { signIn } from '@/auth/auth';
 import { subscribeWithSelector } from 'zustand/middleware';
 // src/stores/user-store.ts
 import { createStore } from 'zustand/vanilla'

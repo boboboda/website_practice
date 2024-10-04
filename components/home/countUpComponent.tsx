@@ -47,7 +47,7 @@ interface CountUpProps {
         }
         
         
-    }, [mounted, end, start, duration, prefix, suffix, separator]);
+    }, [id,mounted, end, start, duration, prefix, suffix, separator]);
   
     return <span id={id} className="text-white">{start}</span>;
   };
