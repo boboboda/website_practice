@@ -43,7 +43,7 @@ export default function SignInComponent() {
     } else {
       setIsInvalidEmail(false);
     }
-  }, [email]);
+  }, [email, emailFoucus]);
 
   useEffect(() => {
     if (passwordFoucus) {
@@ -51,7 +51,7 @@ export default function SignInComponent() {
     } else {
       setIsInvalidPassword(false);
     }
-  }, [password]);
+  }, [password, passwordFoucus]);
 
  
   // 로그인 성공여부
