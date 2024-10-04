@@ -1,10 +1,10 @@
 import NoteContent from "@/components/developmentNote/noteContent";
 
-export default function Home() {
+export default function Note() {
 
 	return (
 
-				<div className="container mx-auto flex md:flex-row flex-col items-center justify-center">
+				<div className="mx-auto flex md:flex-col flex-col items-center justify-center">
 				<NoteContent/>
 				</div>
 	);

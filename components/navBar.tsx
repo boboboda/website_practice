@@ -26,8 +26,6 @@ import { ToastContainer, toast } from "react-toastify";
 
 export default function NavBar() {
 
-  console.log("test")
-
   const { user, expires, fetchSession  } = useUserStore((state)=> state);
 
   const { subscribe } = useUserStoreSubscribe();
@@ -189,15 +187,11 @@ export default function NavBar() {
           </div>
         )}
 
-        {/* <NavbarContent justify="end">
-        <NavbarItem>
+        <div className="flex justify-end">
+           <NavbarItem>
         <ThemeSwitch />
         </NavbarItem>
-        </NavbarContent> */}
-
-        {/* <div className="w-full flex flex-row justify-end">
-          
-        </div> */}
+        </div>
       </NextNavbar>
     </div>
   );

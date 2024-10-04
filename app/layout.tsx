@@ -15,7 +15,7 @@ import { AuthStoreProvider } from "./providers/auth-store-provider";
 import dynamic from 'next/dynamic'
 
 const ToastContainer = dynamic(() => import('react-toastify').then(mod => mod.ToastContainer), {
-  ssr: false,
+	ssr: false,
 })
 
 
@@ -34,7 +34,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: [
+	themeColor: [
 		{ media: "(prefers-color-scheme: light)", color: "white" },
 		{ media: "(prefers-color-scheme: dark)", color: "black" },
 	],
@@ -50,47 +50,51 @@ export default async function RootLayout({
 	return (
 		<html lang="en" className="dark">
 			<body>
-				
 
-				<AuthStoreProvider>
-				<UserStoreProvider>
-				<AppProvider>
-				<Providers themeProps={{attribute: "class", defaultTheme: "dark" }}>
-			<div className="flex flex-col h-screen w-full">
-			<ToastContainer
-        className=" foo"
-        style={{ width: "450px" }}
-        position="top-right"
-        autoClose={1800}
-        hideProgressBar={false}
-        newestOnTop={false}
-        closeOnClick
-        rtl={false}
-        pauseOnFocusLoss
-        draggable
-        pauseOnHover
-        theme="dark"
-      />
-			<Header/>
-			<main className="flex-grow flex flex-col w-full md:pt-16">
-                <div className="flex-grow">
-                  {children}
-                </div>
-                <Footer />
-              </main>
-			<AdFooter/>
-			</div>
-			</Providers>
-				</AppProvider>
-				</UserStoreProvider>
-				</AuthStoreProvider>
-				
-			
-			
+				<Providers themeProps={{ attribute: "class", defaultTheme: "dark" }}>
+					<AuthStoreProvider>
+						<UserStoreProvider>
+							<AppProvider>
+								<Providers themeProps={{ attribute: "class", defaultTheme: "dark" }}>
+									<div className="flex flex-col h-screen w-full">
+										<ToastContainer
+											className=" foo"
+											style={{ width: "450px" }}
+											position="top-right"
+											autoClose={1800}
+											hideProgressBar={false}
+											newestOnTop={false}
+											closeOnClick
+											rtl={false}
+											pauseOnFocusLoss
+											draggable
+											pauseOnHover
+											theme="dark"
+										/>
+										<Header />
+										<main className="flex-grow flex flex-col w-full md:pt-16">
+											<div className="flex-grow">
+												{children}
+											</div>
+											<Footer />
+										</main>
+										<AdFooter />
+									</div>
+								</Providers>
+							</AppProvider>
+						</UserStoreProvider>
+					</AuthStoreProvider>
+
+				</Providers>
+
+
+
+
+
 			</body>
-			
-		</html>				
-	
-		
+
+		</html>
+
+
 	);
 }
