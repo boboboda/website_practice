@@ -3,6 +3,10 @@ import { subscribeWithSelector } from 'zustand/middleware'
 import { Session, User } from "@auth/core/types"
 import { getSession } from "next-auth/react"
 
+
+
+
+
 export interface UserInfoActions {
   fetchSession: () => Promise<void>
   clearSession: () => void
@@ -14,6 +18,7 @@ export const defaultInitState: Session = {
   user: {
     name: '',
     email: '',
+    rule: ''
   },
   expires: '',
 }
@@ -39,3 +44,6 @@ export const createUserStore = (initState: Session = defaultInitState) => {
     }))
   )
 }
+
+
+

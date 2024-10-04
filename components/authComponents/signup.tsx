@@ -1,13 +1,21 @@
 "use client";
 
-import { signUpWithCredentials } from "@/serverActions/auth";
+import { signUpWithCredentials } from "@/app/serverActions/auth";
 import { Button, Input } from "@nextui-org/react";
 import { useEffect, useRef, useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faGithub, faGoogle } from "@fortawesome/free-brands-svg-icons";
 import { faEye, faEyeSlash, faL } from "@fortawesome/free-solid-svg-icons";
+import { useUserStore } from "@/app/providers/user-store-provider";
+import { toast } from "react-toastify";
+import { useRouter } from "next/navigation";
+import { useAuthStore } from "@/app/providers/auth-store-provider";
 
 export default function SignUpComponent() {
+
+  let router = useRouter();
+
+
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -16,10 +24,10 @@ export default function SignUpComponent() {
   const confirmPasswordInputRef = useRef<HTMLInputElement>(null);
 
   const [isInvalidName, setIsInvalidName] = useState(false);
-  const [isInvalidEmail, setIsInvalidEmail] =  useState(false);
-  const [isInvalidPassword, setIsInvalidPassword] =  useState(false);
-  const [isInvalidConfirmPassword, setIsInvalidConfirmPassword] =  useState(false);
-  
+  const [isInvalidEmail, setIsInvalidEmail] = useState(false);
+  const [isInvalidPassword, setIsInvalidPassword] = useState(false);
+  const [isInvalidConfirmPassword, setIsInvalidConfirmPassword] = useState(false);
+
   const [isVisible, setIsVisible] = useState(false);
   const [confirmPasswordIsVisible, setConfirmPasswordIsVisible] = useState(false);
 
@@ -34,53 +42,53 @@ export default function SignUpComponent() {
   const validateConfirmPassword = (confirmPassword: string) => confirmPassword === password;
 
   useEffect(() => {
-    if(nameFoucus) {
+    if (nameFoucus) {
       setIsInvalidName(name === "" || !validateName(name));
     } else {
       setIsInvalidName(false);
     }
-  }, [name]);
+  }, [name, nameFoucus]);
 
   useEffect(() => {
-    if(emailFoucus){
+    if (emailFoucus) {
       setIsInvalidEmail(email === "" || !validateEmail(email));
     } else {
       setIsInvalidEmail(false);
     }
-    
-  }, [email]);
+
+  }, [email, emailFoucus]);
 
   useEffect(() => {
-    if(passwordFoucus) {
+    if (passwordFoucus) {
       setIsInvalidPassword(password === "" || !validatePassword(password));
     } else {
       setIsInvalidPassword(false);
     }
-    
-  }, [password]);
+
+  }, [password, passwordFoucus]);
 
   useEffect(() => {
 
-    if(confirmPasswordFoucus) {
+    if (confirmPasswordFoucus) {
       setIsInvalidConfirmPassword(confirmPassword === "" || !validateConfirmPassword(confirmPassword));
     } else {
       setIsInvalidConfirmPassword(false);
     }
 
-    
-  }, [confirmPassword, password]);
+
+  }, [confirmPassword, password, confirmPassword]);
 
   const toggleVisibility = () => {
     if (passwordInputRef.current) {
       const cursorPosition = passwordInputRef.current.selectionStart;
       setIsVisible(!isVisible);
-      
+
       // 상태 업데이트 후 커서 위치를 복원합니다.
       setTimeout(() => {
         passwordInputRef.current?.setSelectionRange(cursorPosition, cursorPosition);
       }, 0);
     }
-  } 
+  }
   const confirmToggleVisibility = () => {
 
     if (confirmPasswordInputRef.current) {
@@ -92,20 +100,50 @@ export default function SignUpComponent() {
       }, 0);
     }
 
-   
+
   }
 
   const allConfirm = !isInvalidName && !isInvalidEmail && !isInvalidPassword && !isInvalidConfirmPassword &&
-                     name !== "" && email !== "" && password !== "" && confirmPassword !== "";
+    name !== "" && email !== "" && password !== "" && confirmPassword !== "";
 
-                     
+
+    const { fetchSession  } = useUserStore((state)=> state);
+
+    const { setSignUpStatus } = useAuthStore((state)=> state)
+
+
+
+    const notifyFailedEvent = (msg: string) => toast.error(msg);
+
+  const handleSignUp = async (formData: FormData) => {
+    const result = await signUpWithCredentials(formData);
+
+    if (result.success) {
+      // 로그인 성공 처리
+      fetchSession();
+
+      setSignUpStatus("success");
+
+      setTimeout(() => {
+        router.push("/");
+      }, 500);
+
+
+
+    } else {
+      // 로그인 실패 처리
+      notifyFailedEvent("회원가입이 실패하였습니다. 다시 시도해주세요");
+      console.error(result.error);
+    }
+  };
+
   return (
     <div className="flex justify-center w-full">
       <div className="flex flex-col items-center w-[350px] rounded-[20px] bg-black py-[20px] gap-2">
 
         <form
           className="flex flex-col w-full mx-0 px-0 justify-center items-center gap-2"
-          action={signUpWithCredentials}
+          action={handleSignUp}
         >
           <Input
             type="text"
@@ -114,7 +152,7 @@ export default function SignUpComponent() {
             variant="bordered"
             placeholder="Enter your Name"
             value={name}
-            onFocus={()=> setNameFocus(true)}
+            onFocus={() => setNameFocus(true)}
             onChange={(e) => setName(e.target.value)}
             isInvalid={isInvalidName}
             color={isInvalidName ? "danger" : "success"}
@@ -130,7 +168,7 @@ export default function SignUpComponent() {
             placeholder="Enter your Email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            onFocus={()=> setEmailFocus(true)}
+            onFocus={() => setEmailFocus(true)}
             isInvalid={isInvalidEmail}
             color={isInvalidEmail ? "danger" : "success"}
             errorMessage={isInvalidEmail ? "이메일 형식에 맞게 작성해주세요" : ""}
@@ -145,7 +183,7 @@ export default function SignUpComponent() {
             variant="bordered"
             placeholder="Enter your password"
             value={password}
-            onFocus={()=> {
+            onFocus={() => {
               setPasswordFocus(true);
             }}
             onChange={(e) => setPassword(e.target.value)}
@@ -177,7 +215,7 @@ export default function SignUpComponent() {
             variant="bordered"
             placeholder="Confirm your password"
             value={confirmPassword}
-            onFocus={()=>{
+            onFocus={() => {
               setConfirmPasswordFocus(true)
             }}
             onChange={(e) => setConfirmPassword(e.target.value)}
@@ -202,13 +240,13 @@ export default function SignUpComponent() {
             className="max-w-xs h-[80px]"
           />
 
-          <Button 
+          <Button
             disabled={!allConfirm}
             type="submit"
             color={allConfirm ? "primary" : "default"}
             className="w-[90%] h-[50px]"
           >
-            <span className="text-white text-center text-[16px]">Sign up</span> 
+            <span className="text-white text-center text-[16px]">Sign up</span>
           </Button>
         </form>
       </div>

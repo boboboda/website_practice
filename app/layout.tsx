@@ -1,3 +1,4 @@
+
 import "@/styles/globals.css";
 import 'react-toastify/dist/ReactToastify.css';
 import Header from "./header";
@@ -13,6 +14,10 @@ import AppProvider from "@/components/channelTalkManager";
 import { UserStoreProvider } from "./providers/user-store-provider";
 import { AuthStoreProvider } from "./providers/auth-store-provider";
 import dynamic from 'next/dynamic'
+import { QueryClient, dehydrate } from "react-query";
+import QueryProviders from "./providers/query-provider";
+import { HydrationBoundary } from "@tanstack/react-query";
+import { refreshUserSession } from "@/app/serverActions/udpateSession";
 
 const ToastContainer = dynamic(() => import('react-toastify').then(mod => mod.ToastContainer), {
 	ssr: false,
@@ -46,46 +51,60 @@ export default async function RootLayout({
 	children: React.ReactNode;
 }) {
 
+	const queryClient = new QueryClient()
 
+  await queryClient.prefetchQuery({
+    queryKey: ['userSession'],
+    queryFn: refreshUserSession,
+  })
 	return (
 		<html lang="en" className="dark">
 			<body>
 
-				<Providers themeProps={{ attribute: "class", defaultTheme: "dark" }}>
-					<AuthStoreProvider>
-						<UserStoreProvider>
-							<AppProvider>
-								<Providers themeProps={{ attribute: "class", defaultTheme: "dark" }}>
-									<div className="flex flex-col h-screen w-full">
-										<ToastContainer
-											className=" foo"
-											style={{ width: "450px" }}
-											position="top-right"
-											autoClose={1800}
-											hideProgressBar={false}
-											newestOnTop={false}
-											closeOnClick
-											rtl={false}
-											pauseOnFocusLoss
-											draggable
-											pauseOnHover
-											theme="dark"
-										/>
-										<Header />
-										<main className="flex-grow flex flex-col w-full md:pt-16">
-											<div className="flex-grow">
-												{children}
-											</div>
-											<Footer />
-										</main>
-										<AdFooter />
-									</div>
-								</Providers>
-							</AppProvider>
-						</UserStoreProvider>
-					</AuthStoreProvider>
 
-				</Providers>
+				<QueryProviders>
+					<HydrationBoundary state={dehydrate(queryClient)}>
+						<Providers themeProps={{ attribute: "class", defaultTheme: "dark" }}>
+							<AuthStoreProvider>
+								<UserStoreProvider>
+									<AppProvider>
+										<Providers themeProps={{ attribute: "class", defaultTheme: "dark" }}>
+											<div className="flex flex-col h-screen w-full">
+												<ToastContainer
+													className=" foo"
+													style={{ width: "450px" }}
+													position="top-right"
+													autoClose={1800}
+													hideProgressBar={false}
+													newestOnTop={false}
+													closeOnClick
+													rtl={false}
+													pauseOnFocusLoss
+													draggable
+													pauseOnHover
+													theme="dark"
+												/>
+												<Header />
+												<main className="flex-grow flex flex-col w-full md:pt-16">
+													<div className="flex-grow">
+														{children}
+													</div>
+													<Footer />
+												</main>
+												<AdFooter />
+											</div>
+										</Providers>
+									</AppProvider>
+								</UserStoreProvider>
+							</AuthStoreProvider>
+
+						</Providers>
+					</HydrationBoundary>
+				</QueryProviders>
+
+
+
+
 
 
 

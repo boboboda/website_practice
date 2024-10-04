@@ -9,16 +9,8 @@ import bcrypt from 'bcryptjs'
 import { JWT } from "@auth/core/jwt";
 import { Account, Session, User } from "@auth/core/types";
 import NextAuth, { NextAuthResult } from "next-auth"
-import GitHub from "@auth/core/providers/github";
-import { profile } from "console";
 import { Collection} from "mongodb";
 
-
-
-
-interface UserInfo extends User {
-  accounts?: string[];
-}
 
 
 export const { handlers, signIn, signOut, auth, unstable_update: update }: NextAuthResult  = NextAuth(
@@ -70,8 +62,8 @@ export const { handlers, signIn, signOut, auth, unstable_update: update }: NextA
                       throw new Error("User already exists")
                     }
                     const hashedPassword = await bcrypt.hash(password as string, 10)
-                    const result = await usersCollection.insertOne({ email, password: hashedPassword })
-                    return { id: result.insertedId.toString(), name, email }
+                    const result = await usersCollection.insertOne({ email, name, rule: "user", password: hashedPassword })
+                    return { id: result.insertedId.toString(), name, rule:"user", email }
                   } else if (action === 'login') {
                     // 로그인 로직
                     const user = await usersCollection.findOne({ email })
@@ -82,7 +74,7 @@ export const { handlers, signIn, signOut, auth, unstable_update: update }: NextA
                     if (!isValid) {
                       throw new Error("Invalid password")
                     }
-                    return { id: user._id.toString(), name:user.name, email: user.email }
+                    return { id: user._id.toString(), name:user.name, rule:user.rule, email: user.email }
                   }
           
                   throw new Error("Invalid action")
@@ -103,10 +95,14 @@ export const { handlers, signIn, signOut, auth, unstable_update: update }: NextA
 
             console.log(account?.provider, "소셜")
 
-            if(account?.provider === 'google' || 'github' && account?.provider !== null) {
+            if(account?.provider === "credentials") {
+              return true
+            }
+
+            if(account?.provider === 'google' || 'github') {
 
               const db = (await client).db("buyoungsilDb");
-            const usersCollection: Collection<UserInfo> = db.collection("user_cred");
+            const usersCollection: Collection<User> = db.collection("user_cred");
           
             console.log(user, "signIn Uuser")
             // 동일 이메일로 존재하는 사용자가 있는지 확인
@@ -122,13 +118,14 @@ export const { handlers, signIn, signOut, auth, unstable_update: update }: NextA
                 existingUser.accounts = [];
               }
 
-          
-          
               // 계정이 존재하면 OAuth 계정을 연결하는 로직
               if (!existingUser.accounts.includes(account.provider)) {
                 await usersCollection.updateOne(
                   { email: user.email },
-                  { $push: { accounts: account.provider } }
+                  
+                  { 
+                    $set: { rule: "user",},
+                    $push: { accounts: account.provider } }
                 );
               }
           
