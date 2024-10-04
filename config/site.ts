@@ -10,26 +10,26 @@ export const siteConfig = {
 		},
 		{
 			label: "개발노트",
-			href: "/developmentNote",
+			href: "/note",
 		},
-    {
-      label: "출시어플",
-      href: "/release",
-    },
-    {
-      label: "제작의뢰",
-      href: "/makeorder",
-    },
-    {
-      label: "연락하기",
-      href: "https://open.kakao.com/o/ss0BBmVb",
-    }
+		{
+			label: "출시어플",
+			href: "/release",
+		},
+		{
+			label: "제작의뢰",
+			href: "/makeorder",
+		},
+		{
+			label: "연락하기",
+			href: "https://open.kakao.com/o/ss0BBmVb",
+		}
 	],
 	links: {
 		github: "https://github.com/nextui-org/nextui",
 		twitter: "https://twitter.com/getnextui",
 		docs: "https://nextui.org",
 		discord: "https://discord.gg/9b6yyZKmH4",
-    sponsor: "https://patreon.com/jrgarciadev"
+		sponsor: "https://patreon.com/jrgarciadev"
 	},
 };

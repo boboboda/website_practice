@@ -38,7 +38,7 @@
 } */
 
 /* 전역 스타일 */
-body, html, #__next {
+body, html, #__next  {
   height: 100%;
   width: 100%;
   margin: 0;

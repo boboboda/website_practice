@@ -1,63 +1,119 @@
-"use client";
-import NextLink from "next/link";
+"use client"
+
 import Animation from "./animation"
-import { title, subtitle } from "@/components/primitives";
-import Typed from 'typed.js';
-import { useState, useEffect, useRef } from "react";
+import { title } from "@/components/primitives";
 import VisitCalcurateView from "./visitCalcurateView";
+import CustomTyped from "./customTyped";
+import { useAuthStore, useAuthStoreSubscribe } from "@/app/providers/auth-store-provider";
+import { ToastContainer, toast } from "react-toastify";
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { log } from "console";
+
 
 export default function Hero() {
 
-    const el = useRef(null);
+  const router = useRouter()
 
-    useEffect(() => {
-        const typed = new Typed(el.current, {
-          strings: [
-            "나만의 홈페이지 또는 어플?", 
-            "비전있는 아이템?", 
-            "충족되지 않는 앱 서비스?", 
-            "그 꿈 부영실이",
-            "이루어드리겠습니다."
-          ], // Strings to display
-          startDelay: 300,
-          typeSpeed: 100,
-          backSpeed: 100,
-          backDelay: 300,
-          loop: true
-        });
-    
-        // Destroying
-        return () => {
-          typed.destroy();
-        };
-      }, []);
+  const { signInStatus, signUpStatus, socialLoginStatus, logOutStatus, resetStatus } = useAuthStore((state)=> state)
 
-    return (
-        <>
-        <div className="grid grid-cols-12 gap-4 w-full px-8">
-          <div className="col-span-12 items-center xl:col-span-6 flex flex-col space-y-10 text-left xl:items-start justify-center">
-                <h1 className={title()}>
-                    안녕하세요!!&nbsp;  
-                </h1>
-                <li className={title({ size:"sm" })}>
-                    저는 코딩천재 부영실입니다.&nbsp; 
-                </li>
-                <li className={title({ size:"xs" })}>
-                    여러분은 꿈을 꾸십니까? 
-                </li>
-                <h1 className={title({ size:"xs", color:"pink"})}>
-                    <span ref={el}></span>
-                </h1>
-          </div>
-          <div className="col-span-12 xl:col-span-6">
-              <Animation />
-          </div>
+  const notifySuccessEvent = (msg: string) => toast.success(msg);
 
-          <div className="col-span-12 mt-8">
-          <VisitCalcurateView />
+  useEffect(()=>{
+
+    console.log(logOutStatus, '로그아웃 상태')
+
+    if (signInStatus === "success") {
+
+      notifySuccessEvent("로그인 되었습니다.")
+
+      router.refresh()
+
+      setTimeout(() => {
+        resetStatus()
+      }, 500)
+
+    } 
+
+    if (signUpStatus === "success") {
+      notifySuccessEvent("회원가입 되었습니다.")
+      
+       router.refresh()
+
+       setTimeout(() => {
+        resetStatus()
+      }, 500)
+    } 
+
+    if (socialLoginStatus === "success") {
+      notifySuccessEvent("소셜 로그인 되었습니다.")
+
+      router.refresh()
+
+      setTimeout(() => {
+        resetStatus()
+      }, 500)
+    } 
+
+    if (logOutStatus === "success") {
+
+      notifySuccessEvent("로그아웃 되었습니다.")
+
+      router.refresh()
+
+      setTimeout(() => {
+        resetStatus()
+      }, 500)
+      
+    }
+
+
+  }, [signInStatus, signUpStatus, socialLoginStatus, logOutStatus])
+
+
+
+  return (
+    <>
+      <div className="flex flex-col w-full h-[3000px] px-8 justify-start items-center">
+      <ToastContainer
+        className=" foo"
+        style={{ width: "450px" }}
+        position="top-right"
+        autoClose={1800}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="dark"
+      />
+        <div className="container flex flex-row h-[700px] w-[90%]">
+        <div className="items-center flex flex-col mt-[130px] space-y-10 w-[50%] text-left md:items-start justify-start">
+          <h1 className={title({ size: "sm" })}>
+            안녕하세요!!&nbsp;
+          </h1>
+          <li className={title({ size: "sm" })}>
+            코딩천재 부영실입니다.&nbsp;
+          </li>
+          <li className={title({ size: "sm" })}>
+            여러분은 꿈을 꾸십니까?
+          </li>
+          <CustomTyped />
+
+        </div>
+        <div className="w-[50%]">
+        <Animation />
         </div>
         </div>
         
-        </>
-    )
+
+        <div>
+          <VisitCalcurateView />
+        </div>
+      </div>
+
+    </>
+  )
 }

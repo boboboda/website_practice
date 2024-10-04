@@ -1,6 +1,6 @@
 "use client"
 
-import React from "react";
+import React, { useEffect } from "react";
 import { Image, Card, CardFooter, CardBody, Tooltip, Chip, Button, Link,
   Dropdown, DropdownTrigger, DropdownMenu, DropdownItem, listboxSection,
 } from "@nextui-org/react";
@@ -19,25 +19,21 @@ export default function ReleaseItem({ data }: {data: any }) {
     // const imgSrc = data.cover.file? data.cover.file.url : data.cover.external.url
 
     const router = useRouter()
+    const pathname = usePathname();
 
-    const [linkData, setLinkData] = useState({});
+    let [noticeHref, setNoticeHref] = useState("")
+    let [postHref, setPostHref] = useState("")
 
-    const [noticeLinkData, setNoticeLinkData] = useState({})
+    useEffect(()=>{
+     setPostHref(data.properties.database.rich_text[0]?.plain_text)
+     setNoticeHref(data.properties.database.rich_text[0]?.plain_text)
+    },[])
 
-    const postHref = useMemo(() => {
-      const databaseName = data.properties.database.rich_text[0]?.plain_text;
-      return `/release/postBoard/${databaseName}`;
-    }, [linkData]);
-
-    const noticeHref = useMemo(() => {
-      const databaseName = data.properties.database.rich_text[0]?.plain_text;
-      return `/release/noticeBoard/${databaseName}`;
-    }, [noticeLinkData]);
 
     const noticeHandleClick = () => {
       return (
         <DropdownItem onPress={()=>(
-          router.push(`${noticeHref}`)
+          router.push(`release/noticeBoard/${noticeHref}`)
         )}>공지사항</DropdownItem>
       );
     };
@@ -45,7 +41,7 @@ export default function ReleaseItem({ data }: {data: any }) {
     const postHandleClick = () => {
       return (
         <DropdownItem onPress={()=>(
-          router.push(`${postHref}`)
+          router.push(`release/postBoard/${postHref}`)
         )}>문의게시판</DropdownItem>
       );
     };
@@ -55,8 +51,6 @@ export default function ReleaseItem({ data }: {data: any }) {
 
     // 다른 표현
     const imgSrc = data.cover.file?.url || data.cover.external.url
-
-    // const databaseName = notionData.properties.database.rich_text[0]?.plain_text
 
     const appTags = data.properties.Tags.multi_select
 
@@ -68,21 +62,18 @@ export default function ReleaseItem({ data }: {data: any }) {
     return (
  <div>
            {
-        <Card className="flex flex-col m-3 bg-slate-300 dark:bg-slate-500 rounded-xl w-full transition duration-300 transform border border-gray-300
+        <Card className="flex flex-col m-3 bg-white dark:bg-slate-500 rounded-xl transition duration-300 transform border border-gray-300
         hover:scale-105
         hover:shadow-lg
         dark:border-gray-200/50
-        dark:hover:shadow-gray-400/40">
+        dark:hover:shadow-gray-400/40" >
           <CardBody className="overflow-visible space-y-6 item-center">
             <Image
               shadow="sm"
-              radius="lg"
-              height="100%"
+              height={400}
               width="100%"
-              src={imgSrc}
-              fallbackSrc="https://via.placeholder.com/300x200"
-                alt="NextUI hero Image"
-              className="w-full object-cover h-[300px]"
+              src={`${imgSrc}`}
+                alt="NextUI hero Image with delay"
             />
             <div className="flex flex-col p-x-2 space-y-4 item-center">
             <li className= {title({ size:"sm", position: "center" })}>
@@ -135,12 +126,7 @@ export default function ReleaseItem({ data }: {data: any }) {
                   메뉴
                 </Button>
               </DropdownTrigger>
-              <DropdownMenu onAction={() =>{
-                // console.log(`aTodo.id: ${aTodo.id}  key: ${key}}`)
-
-                // setCurrentModalData({focusedTodo: aTodo, modalType: key as CustomModalType})
-                // onOpen();
-              }}>
+              <DropdownMenu>
                 {noticeHandleClick()}
                 {postHandleClick()}
                 <DropdownItem href="">개인정보처리방침</DropdownItem>

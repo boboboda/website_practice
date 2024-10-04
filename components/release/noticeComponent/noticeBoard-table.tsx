@@ -386,10 +386,10 @@ const NoticesTable = ({ notices, appName }: { notices: Notice[], appName: string
         />
         <div className="hidden sm:flex w-[30%] justify-end gap-2">
           <Button isDisabled={pages === 1} size="sm" variant="flat" onPress={onPreviousPage}>
-            Previous
+            이전
           </Button>
           <Button isDisabled={pages === 1} size="sm" variant="flat" onPress={onNextPage}>
-            Next
+            다음
           </Button>
         </div>
       </div>
@@ -751,8 +751,6 @@ const NoticesTable = ({ notices, appName }: { notices: Notice[], appName: string
 
   const ModalComponent = () => {
 
-  
-
     return <div>
       <Modal
         isOpen={isOpen}
@@ -866,7 +864,7 @@ const NoticesTable = ({ notices, appName }: { notices: Notice[], appName: string
       {SubModalComponent()}
 
       <ToastContainer
-        className=" foo "
+        className=" foo"
         style={{ width: "400px" }}
         position="top-right"
         autoClose={1800}

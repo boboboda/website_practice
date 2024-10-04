@@ -1,6 +1,5 @@
 import { title } from "@/components/primitives";
 import Head from "next/head"
-import Hero from "../../components/home/hero"
 import { TOKEN, DATABASE_ID } from "@/config";
 import ReleaseItem from "@/components/release/releaseItem";
 
@@ -19,16 +18,17 @@ async function fetchNotionAilCall() {
 			'content-type': 'application/json',
 			Authorization: `${TOKEN}`
 		},
-		body: 
-		JSON.stringify({ 
-			sorts: [
-				{
-					"property": "Name",
-					"direction": "descending"
-				}
-			],
-			page_size: 100 }),
-	} )
+		body:
+			JSON.stringify({
+				sorts: [
+					{
+						"property": "Name",
+						"direction": "descending"
+					}
+				],
+				page_size: 100
+			}),
+	})
 
 	const projects = await res.json()
 
@@ -39,23 +39,22 @@ async function fetchNotionAilCall() {
 
 
 export default async function ReleaseAppPage() {
-	
+
 	const response = await fetchNotionAilCall()
 
-	const projects = response.results?.map((aProject: any) =>(
+	const projects = response.results?.map((aProject: any) => (
 		aProject.properties.Name.title[0]?.plain_text
-		))
-	
+	))
+
 	return (
-		
-		<>
-		<div className=" grid grid-cols-1 gap-0 items-center justify-center px-10 md:grid-cols-2 md:gap-8">
-		{response.results?.map((aApp: any) => (
-			<ReleaseItem key={aApp.id} data={aApp}/>
-			))}
+		<div className=" grid grid-cols-1 gap-0 items-start justify-start px-10 md:grid-cols-2 md:gap-8">
+			{response.results?.map((aApp: any) => (
+				<ReleaseItem key={aApp.id} data={aApp} />
+			)
+			)}
+
+
 		</div>
-		</>
-		
 	);
 }
 

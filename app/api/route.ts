@@ -1,12 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 
 
+
 export async function GET(request: NextRequest) {
    
    
     const response = {
-        message: `호호호`,
-        data: '오늘도 빡코딩'
+        message: `잘못들어오셨어요`,
+        data: '없어요'
     }
 
 
