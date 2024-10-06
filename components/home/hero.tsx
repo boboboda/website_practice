@@ -4,8 +4,8 @@ import Animation from "./animation"
 import { title } from "@/components/primitives";
 import VisitCalcurateView from "./visitCalcurateView";
 import CustomTyped from "./customTyped";
-import { useAuthStore, useAuthStoreSubscribe } from "@/app/providers/auth-store-provider";
-import { ToastContainer, toast } from "react-toastify";
+import { useAuthStore, useAuthStoreSubscribe } from "@/components/providers/auth-store-provider";
+import {  toast } from "react-toastify";
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 

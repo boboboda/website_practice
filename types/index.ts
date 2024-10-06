@@ -70,5 +70,11 @@ export type FocusedNoticeType = {
   appName?: string
 }
 
+export type NoteCategory = 'Android' | 'Ios' | 'react' | 'python';
+
+export const noteCategories: NoteCategory[] = ['Android', 'Ios', 'react', 'python'];
+
+
+
 
 export default columns

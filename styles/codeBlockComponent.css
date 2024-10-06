@@ -1,0 +1,61 @@
+
+.tiptap {
+  .code-block {
+    position: relative;
+
+
+    select {
+      position: absolute;
+      /* right: 5rem; */
+      top: 0.5rem;
+      left: 0.5rem;
+      padding-left: 10px;
+      background-color: transparent;
+      /* background-color: rgb(29, 28, 28); */
+      /* background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path fill="Black" d="M7 10l5 5 5-5z"/></svg>'); */
+      /* background-repeat: no-repeat;
+      background-position: right 0.5rem center;
+      background-size: 1.5em; */
+      /* padding-right: 2rem; */
+      /* -webkit-appearance: none;
+      -moz-appearance: none;
+      appearance: none; */
+      border-radius: 5px;
+      color: rgb(185, 185, 185);
+      width: fit-content;
+      max-width: 7rem;
+      height: 30px;
+      font-size: 0.9rem;
+      display: none;
+      line-height: 2rem;
+      text-align: center;
+      padding: 0;
+      padding-bottom: 0.3rem;
+      /* -webkit-appearance: none; */
+      /* -moz-appearance: none; */
+      /* appearance: none; */
+
+      &:hover {
+        background-color: rgb(85, 85, 85);
+      }
+    }
+
+    &:hover {
+      select {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+    }
+
+  
+    select::-ms-expand {
+      display: none;
+    }
+
+    option {
+      @apply text-gray-400
+    }
+  }
+  
+}

@@ -5,19 +5,17 @@ import Header from "./header";
 import Footer from "@/components/home/footer";
 import { siteConfig } from "@/config/site";
 
-import { Providers } from "./providers/providers";
+import { Providers } from "@/components/providers/providers";
 import { fontSans } from "@/config/fonts";
 import clsx from "clsx";
 import AdFooter from "@/components/home/adFooter";
 import { Metadata, Viewport } from "next";
 import AppProvider from "@/components/channelTalkManager";
-import { UserStoreProvider } from "./providers/user-store-provider";
-import { AuthStoreProvider } from "./providers/auth-store-provider";
+import { UserStoreProvider, useUserStore } from "@/components/providers/user-store-provider";
+import { AuthStoreProvider } from "@/components/providers/auth-store-provider";
 import dynamic from 'next/dynamic'
 import { QueryClient, dehydrate } from "react-query";
-import QueryProviders from "./providers/query-provider";
-import { HydrationBoundary } from "@tanstack/react-query";
-import { refreshUserSession } from "@/app/serverActions/udpateSession";
+import QueryProviders from "@/components/providers/query-provider";
 
 const ToastContainer = dynamic(() => import('react-toastify').then(mod => mod.ToastContainer), {
 	ssr: false,
@@ -51,20 +49,20 @@ export default async function RootLayout({
 	children: React.ReactNode;
 }) {
 
-	const queryClient = new QueryClient()
+// 	const queryClient = new QueryClient()
 
-  await queryClient.prefetchQuery({
-    queryKey: ['userSession'],
-    queryFn: refreshUserSession,
-  })
+//   await queryClient.prefetchQuery({
+//     queryKey: ['userSession'],
+//     queryFn: refreshUserSession,
+//   })
+
 	return (
 		<html lang="en" className="dark">
 			<body>
 
 
 				<QueryProviders>
-					<HydrationBoundary state={dehydrate(queryClient)}>
-						<Providers themeProps={{ attribute: "class", defaultTheme: "dark" }}>
+				<Providers themeProps={{ attribute: "class", defaultTheme: "dark" }}>
 							<AuthStoreProvider>
 								<UserStoreProvider>
 									<AppProvider>
@@ -85,7 +83,7 @@ export default async function RootLayout({
 													theme="dark"
 												/>
 												<Header />
-												<main className="flex-grow flex flex-col w-full md:pt-16">
+												<main className="flex-grow flex flex-col w-full">
 													<div className="flex-grow">
 														{children}
 													</div>
@@ -99,7 +97,6 @@ export default async function RootLayout({
 							</AuthStoreProvider>
 
 						</Providers>
-					</HydrationBoundary>
 				</QueryProviders>
 
 
