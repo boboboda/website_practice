@@ -1,17 +1,12 @@
 
-import Hero from "../components/home/hero"
+import Hero from "../components/home/hero";
 
 export default function Home() {
+  console.log("메인페이지로드");
 
-	console.log("히어로");
-
-	return (
-
-		<div className="h-full w-full mx-auto flex md:flex-row flex-col items-center justify-center">
-				<Hero/>
-				</div>
-	
-				
-	);
-
+  return (
+    <div className="h-full w-full mx-auto flex md:flex-row flex-col md:mt-16 items-center justify-center ">
+      <Hero />
+    </div>
+  );
 }

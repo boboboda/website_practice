@@ -5,16 +5,16 @@ import {
   signInWithGitHub,
   signInWithGoogle,
   signInWithCredentials,
-} from "@/app/serverActions/auth"
+} from "@/lib/serverActions/auth"
 import { Button, Input } from "@nextui-org/react";
 import { useEffect, useRef, useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faGithub, faGoogle } from "@fortawesome/free-brands-svg-icons";
 import { faEye, faEyeSlash, faL } from "@fortawesome/free-solid-svg-icons";
 import { ToastContainer, toast } from "react-toastify";
-import { useAuthStore } from "@/app/providers/auth-store-provider";
+import { useAuthStore } from "@/components/providers/auth-store-provider";
 import { useRouter } from "next/navigation"
-import { useUserStore } from "@/app/providers/user-store-provider";
+import { useUserStore } from "@/components/providers/user-store-provider";
 
 
 export default function SignInComponent() {

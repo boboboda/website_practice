@@ -1,6 +1,6 @@
 export declare module 'next-auth' {
     interface User {
-      rule?: string
+      role?: string
       accounts?: string[];
     }
     interface Session {

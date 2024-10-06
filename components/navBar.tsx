@@ -18,10 +18,10 @@ import { Navbar as NextNavbar } from "@nextui-org/react";
 import { siteConfig } from "@/config/site";
 import { usePathname, useRouter } from "next/navigation";
 import { use, useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { useUserStore, useUserStoreSubscribe  } from "@/app/providers/user-store-provider";
+import { useUserStore, useUserStoreSubscribe  } from "@/components/providers/user-store-provider";
 import { User } from "next-auth";
-import { signOutWithForm } from "@/app/serverActions/auth";
-import { useAuthStore } from "@/app/providers/auth-store-provider";
+import { signOutWithForm } from "@/lib/serverActions/auth";
+import { useAuthStore } from "@/components/providers/auth-store-provider";
 import { ToastContainer, toast } from "react-toastify";
 
 export default function NavBar() {
@@ -30,8 +30,19 @@ export default function NavBar() {
 
   const { subscribe } = useUserStoreSubscribe();
 
+  const [path, setPath] = useState('/')
+
   const pathname = usePathname();
-  const path = pathname.split("/").slice(0, 2).join("/");
+
+  useEffect(() => {
+    // pathname이 변경될 때마다 필요한 업데이트 수행
+    console.log('Current pathname:', pathname);
+
+    setPath(pathname.split("/").slice(0, 2).join("/"))
+
+  }, [pathname]);
+
+
   const [existsUserState, setExistsUserState] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -41,18 +52,19 @@ export default function NavBar() {
 
  
   useEffect(() => {
-    
+
     clearTimeout(timeoutRef.current)
 
     setIsLoading(true)
-    fetchSession()
+
+    fetchSession() 
 
     timeoutRef.current = setTimeout(() => { 
       setIsLoading(false)
 
-    }, 2000)
+    }, 1000)
 
-  }, [fetchSession])
+  }, [])
 
    // user 상태 변경을 구독하는 effect
    useEffect(() => {
@@ -100,6 +112,9 @@ export default function NavBar() {
       notifyFailedEvent("로그인이 실패하였습니다. 다시 시도해주세요");
     }
   };
+
+
+
 
   return (
     <div className="flex mt-[10px] ms-[30px] items-center justify-center">
@@ -179,6 +194,27 @@ export default function NavBar() {
                   <p>로그인 정보</p>
                   <p>{user?.email}</p>
                 </DropdownItem>
+                {
+                  user?.role === 'admin'? 
+                  
+                  <DropdownItem key="adminWrite" textValue="adminWrite" onClick={()=>{
+                    router.push('/admin/write');
+                  }}>
+                  <p>개발노트 쓰기</p>
+                </DropdownItem>
+                
+                  
+                  : null
+                }
+                {
+                  user?.role === 'admin'? 
+                  <DropdownItem key="adminNoteList" textValue="adminNoteList" onClick={()=>{
+                    router.push('/admin/list')
+                  }}>
+                    <p>개발노트 리스트 관리</p>
+                  </DropdownItem>
+                  : null
+                }
                 <DropdownItem key="logout" color="danger" textValue="Log Out" onClick={handleLogOut}>
                   Log Out
                 </DropdownItem>
