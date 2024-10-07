@@ -5,6 +5,7 @@ import client from "@/lib/mongodb"  // MongoDB 클라이언트 import
 import { User } from "@auth/core/types"
 import { JSONContent } from '@tiptap/react';
 import { Note } from "@/store/editorSotre"
+import { parse } from 'path';
 
 
 export async function addEdtiorServer(note: string) {
@@ -21,7 +22,7 @@ export async function addEdtiorServer(note: string) {
     const noteId =notes.noteId
 
 
-    const noteData = await noteCollection.findOne<Note>({ noteId } ,
+    const noteData = await noteCollection.findOne<Note>({ "notes.noteId": noteId },
         { projection: { _id: 0 }  })
 
     if (noteData) {
@@ -47,7 +48,7 @@ export async function addEdtiorServer(note: string) {
 }
 
 
-export async function AllFetchEdtiorServer() {
+export async function allFetchEdtiorServer() {
 
   console.log("에디터서버 db 로드 실행")
 
@@ -69,4 +70,30 @@ try {
   console.error('db 에러', error)
   throw error
 }
+}
+
+
+export async function findOneEditorServer(noteId: string) {
+  try {
+    const db = (await client).db('buyoungsilDb')
+    const noteCollection = db.collection('developNote')
+
+    const numbericNoteId = parseInt(noteId);
+
+    const noteData = await noteCollection.findOne<Note>(
+      { "notes.noteId": numbericNoteId },
+      { projection: { _id: 0 } }
+    )
+
+    console.log('server one data', noteData)
+
+    if (!noteData) {
+      return null
+    }
+
+    return JSON.stringify(noteData)
+  } catch (error) {
+    console.error('db 에러', error)
+    throw error
+  }
 }

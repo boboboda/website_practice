@@ -1,4 +1,3 @@
-import { Providers } from "../providers/providers";
 
 export default function ReleaseLayout({
     children,

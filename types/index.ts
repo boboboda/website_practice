@@ -56,6 +56,15 @@ const columns = [
   {name: "액션", uid: "actions"}
 ];
 
+const noteColumns = [
+  {name: "번호", uid: "noteId", sortable: true},
+  {name: "메인카테고리", uid: "mainCategory"},
+  {name: "서브카테고리", uid: "subCategory"},
+  {name: "제목", uid: "title"},
+  {name: "액션", uid: "actions"}
+];
+
+
 export type CustomModalType = 'detail' | 'edit' | 'delete' | 'add' | 'deleteAuth' | 'editAuth' | 'passwordModal'
 
 export type FocusedPostType = {
@@ -74,7 +83,9 @@ export type NoteCategory = 'Android' | 'Ios' | 'react' | 'python';
 
 export const noteCategories: NoteCategory[] = ['Android', 'Ios', 'react', 'python'];
 
+export type NoteEditorType = 'add' | 'edit';
 
 
 
-export default columns
+
+export {columns, noteColumns};

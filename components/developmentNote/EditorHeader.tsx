@@ -2,12 +2,12 @@
 
 import { Icon } from "@/components/ui/Icon";
 import { Toolbar } from "@/components/ui/Toolbar";
-import { Editor } from "@tiptap/core";
+import { Editor, removeDuplicates } from "@tiptap/core";
 import { useEditorState } from "@tiptap/react";
 import { EditorInfo } from "./EditorInfo";
 import { EditorUser } from "./types";
 import { Button, Input, Select, SelectItem } from "@nextui-org/react";
-import { noteCategories, NoteCategory } from "@/types/index";
+import { noteCategories, NoteCategory, NoteEditorType } from "@/types/index";
 import { useEffect, useState } from "react";
 import { useNoteStore, useNoteStoreSubscribe } from "../providers/editor-provider";
 import { Note, SubCategory } from "@/store/editorSotre";
@@ -25,16 +25,20 @@ export const EditorHeader = ({
   editor,
   isSidebarOpen,
   toggleSidebar,
-  title,
-  setTitle,
-  notes
+  // title,
+  // setTitle,
+  notes,
+  note,
+  editType
 }: {
   editor: Editor;
   isSidebarOpen?: boolean;
   toggleSidebar: () => void;
-  title: string,
-  setTitle: (string)=>void
+  // title: string,
+  // setTitle: (string)=>void
   notes: Note[]
+  note: Note
+  editType: NoteEditorType
 }) => {
   const { characters, words } = useEditorState({
     editor,
@@ -54,21 +58,22 @@ export const EditorHeader = ({
     subCategory,
     setSubCategories,
     saveToServer,
+    title
   } = useNoteStore((state) => state);
 
 
-  const [value, setValue] = useState<Set<NoteCategory>>(new Set());
+  const [viewMainCategory, setViewMainCategory] = useState<Set<NoteCategory>>(new Set());
 
   const [viewSubCategory, setViewSubCategory] = useState<SubCategory>(null);
 
   const handleSelectionChange = (newValue: Set<NoteCategory>) => {
-    setValue(newValue);
+    setViewMainCategory(newValue);
 
     // 선택된 카테고리 가져오기
     const selectedCategory = Array.from(newValue)[0];
 
     if (selectedCategory) {
-      setContent({ category: selectedCategory });
+      setContent({ mainCategory: selectedCategory });
     }
   };
 
@@ -76,13 +81,27 @@ export const EditorHeader = ({
 
   useEffect(()=> {
 
-    const serverSubCategories = notes.map(note => note.subCategory)
-
-    if(serverSubCategories.length !== 0 && serverSubCategories[0] !== null) {
-      setSubCategories(serverSubCategories)
-    }
+    switch (editType) {
+      case "add":
+        const serverSubCategories = notes.map(note => note.subCategory);
+        if (serverSubCategories.length !== 0 && serverSubCategories[0] !== null) {
+          setSubCategories(removeDuplicates(serverSubCategories));
+        }
+        if (mainCategory) {
+          setViewMainCategory(new Set([mainCategory]));
+        }
+        break;
     
-
+      case "edit":
+        const editSubCat = note.subCategory;
+        setSubCategories([editSubCat]);
+        break;
+    
+      default:
+        // 기본 동작 (필요한 경우)
+        console.log("Unknown edit type");
+        break;
+    }
   },[])
 
   useEffect(() => {
@@ -92,12 +111,7 @@ export const EditorHeader = ({
     }
   }, [subCategories]);
 
-  useEffect(() => {
-    if (mainCategory) {
-      setValue(new Set([mainCategory]));
-    }
-  }, []);
-
+  
   const handleSubCategoryChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const selectedValue = e.target.value;
 
@@ -175,7 +189,7 @@ export const EditorHeader = ({
           <Select
             label="메인 카테고리"
             className="max-w-xs"
-            selectedKeys={value}
+            selectedKeys={viewMainCategory}
             onSelectionChange={handleSelectionChange}
           >
             {noteCategories.map((category) => (
@@ -249,7 +263,7 @@ export const EditorHeader = ({
             label="제목"
             value={title}
             onChange={(e) => {
-              setTitle(e.target.value);
+              // setTitle(e.target.value);
 
               setContent({ title: e.target.value });
 
