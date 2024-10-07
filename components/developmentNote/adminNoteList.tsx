@@ -4,8 +4,6 @@ import AdminNoteTable from "./table/noteTable";
 
 export default function AdminNoteList({fetchNotes}: {fetchNotes: Note[]}) {
 
-    console.log(fetchNotes)
-
     return(
         <div className="w-full pt-3">
             <div className="w-full flex justify-center">

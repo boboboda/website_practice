@@ -56,7 +56,7 @@ const VisitCalculateView: React.FC = () => {
 
   return (
     <div
-      className="w-full flex flex-row gap-[70px] justify-center"
+      className="w-full flex flex-col md:flex-row gap-[70px] justify-center"
       style={{
         opacity: isVisible ? 1 : 0,
         transform: `translateY(${isVisible ? 0 : "50px"})`,

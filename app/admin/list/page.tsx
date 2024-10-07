@@ -15,8 +15,6 @@ export default async function DevelopNoteList() {
   
   const notes = JSON.parse(noteRes)
 
-  console.log('noteData', notes)
-
   return (
     <NoteStoreProvider>
       <div className="w-full">

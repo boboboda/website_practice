@@ -170,7 +170,7 @@ const AdminNoteTable = ({ notes }: { notes: Note[] }) => {
             <Tooltip content="Edit Note">
               <span className="text-lg text-default-400 cursor-pointer active:opacity-50"
                 onClick={(event) => {
-                 
+                 router.push(`write/${note.noteId}`)
                 }}
               >
                 <EditIcon />

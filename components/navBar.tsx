@@ -117,8 +117,11 @@ export default function NavBar() {
 
 
   return (
-    <div className="flex mt-[10px] ms-[30px] items-center justify-center">
-      <NextLink href="/" className="flex flex-col justify-start items-start">
+    <div className="w-full flex flex-col md:flex-row mt-[20px] md:ms-[10px] md:items-center justify-end md:justify-center">
+      
+      <NextNavbar maxWidth="full" className="w-full flex flex-col md:flex-row items-start">
+        <NavbarContent className="justify-start">
+        <NextLink href="/" className="flex justify-start items-start">
         <Image
           height="50%"
           width="100%"
@@ -128,8 +131,6 @@ export default function NavBar() {
           className="object-contain h-[50px] w-[180px] ms-[10px]"
         />
       </NextLink>
-      <NextNavbar maxWidth="full" className="w-full flex flex-col items-start">
-        <NavbarContent className="justify-start">
           <ul className="flex gap-4 justify-start items-start">
             {siteConfig.navItems.map((item: any, index) => (
               <li
@@ -138,7 +139,7 @@ export default function NavBar() {
               >
                 <a
                   className="relative inline-flex items-center tap-highlight-transparent outline-none 
-            text-xl text-slate-500 font-semibold
+            text-[15px] md:text-xl text-slate-500 font-semibold
             data-[focus-visible=true]:z-10 
             data-[focus-visible=true]:outline-2 
             data-[focus-visible=true]:outline-focus 
@@ -148,7 +149,8 @@ export default function NavBar() {
             active:opacity-disabled transition-opacity 
             data-[active=true]:text-[#0072F5]
             data-[active=true]:dark:text-[#0072F5]
-            data-[active=true]:text-xl"
+            data-[active=true]:text-[15px] 
+            data-[active=true]:md:text-xl"
                   color="foreground"
                   data-active={path === item.href ? true : false}
                   href={item.href}
@@ -159,28 +161,27 @@ export default function NavBar() {
             ))}
           </ul>
         </NavbarContent>
-        {isLoading ? 
+      </NextNavbar>
+
+      <div className="flex flex-row w-full md:w-fit justify-end pr-[20px] mr-[40px] gap-5">
+      {isLoading ? 
         <div>
         <Skeleton className="flex rounded-full w-12 h-12"/>
       </div>  
         : !existsUserState ? (
-          <NavbarContent justify="end">
+          <div className="flex flex-row gap-3">
             {
               path === '/signup' ? null 
-              : <NavbarItem>
-              <Link className="text-white no-underline font-sans" href="/signup">
+              : <Link className="text-white no-underline font-sans" href="/signup">
               <Button variant="ghost">Sign Up</Button>
               </Link>
-            </NavbarItem>
 
             }
             
-            <NavbarItem>
             <Link className="text-white no-underline font-sans" href="/signin">
               <Button variant="ghost">Sign In</Button>
               </Link>
-            </NavbarItem>
-          </NavbarContent>
+          </div>
         ) : (
           <div>
             <Dropdown placement="bottom-end">
@@ -223,12 +224,8 @@ export default function NavBar() {
           </div>
         )}
 
-        <div className="flex justify-end">
-           <NavbarItem>
-        <ThemeSwitch />
-        </NavbarItem>
-        </div>
-      </NextNavbar>
+<ThemeSwitch />
+      </div>
     </div>
   );
 }

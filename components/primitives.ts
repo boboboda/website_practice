@@ -15,7 +15,7 @@ export const title = tv({
 		size: {
 			xxs: "text-[0.3rem] lg:text-[1rem] leading-9",
 			xs: "text-2xl lg:text-3xl",
-			sm: "text-3xl lg:text-4xl",
+			sm: "text-2xl lg:text-4xl",
 			md: "text-[2.3rem] lg:text-5xl leading-9",
 			lg: "text-4xl lg:text-6xl",
 		},

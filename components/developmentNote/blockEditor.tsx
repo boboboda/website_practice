@@ -58,7 +58,6 @@ const CustomModalContent = ({ onClose, deleteLocal }: { onClose: () => void, del
 export const BlockEditor = ({fetchNotes, editorType, editNote}: {editNote?:Note, fetchNotes: Note[], editorType: NoteEditorType}) => {
   const menuContainerRef = useRef(null);
 
-  const [headTitle, setHeadTitle] = useState("");
 
 
 
@@ -70,7 +69,7 @@ export const BlockEditor = ({fetchNotes, editorType, editNote}: {editNote?:Note,
  
   const leftSidebar = useSidebar();
 
-  let {loadFromLocal , deleteLocal, setSubCategories, title } = useNoteStore((state)=> state)
+  let {loadFromLocal , deleteLocal, setContent } = useNoteStore((state)=> state)
 
   const { editor } = useBlockEditor({ clientID: "kim" })
 
@@ -96,9 +95,21 @@ export const BlockEditor = ({fetchNotes, editorType, editNote}: {editNote?:Note,
 
   useEffect(()=>{
 
-    setHeadTitle(title)
+    switch(editorType) {
+      case "add":
 
-  }, [title])
+      break
+      case "edit":
+
+      editor.commands.clearContent();
+      editor.commands.setContent(editNote.content)
+      setContent({title: editNote.title, content: editNote.content})
+
+
+      break
+    }
+  }, [])
+
 
 
   if (!editor) {
@@ -134,7 +145,7 @@ export const BlockEditor = ({fetchNotes, editorType, editNote}: {editNote?:Note,
             if (success) {
               onClose();
               if (editor) {
-                setHeadTitle("")
+                setContent({title: ""})
                 editor.commands.clearContent();
                 editor.commands.setContent(defaultInitContent.content)
               }
