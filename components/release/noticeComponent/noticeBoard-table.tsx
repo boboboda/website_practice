@@ -24,7 +24,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import { VerticalDotsIcon } from "../../icons";
 import NoticeCustomModal from "./custom-modal";
 import { capitalize } from "@/lib/utils";
-import columns from "@/types";
+import {columns} from "@/types";
 import { SearchIcon, ChevronDownIcon, PlusIcon, EyeIcon, EditIcon, DeleteIcon } from "../../icons";
 import { of, from, filter, find } from "rxjs";
 import { debounce } from "lodash";

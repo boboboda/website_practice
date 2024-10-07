@@ -2,7 +2,7 @@
 import { createStore } from 'zustand/vanilla'
 import { JSONContent } from '@tiptap/react';
 import { addEdtiorServer } from '@/lib/serverActions/edtorServerAction';
-import { AllFetchEdtiorServer } from '@/lib/serverActions/edtorServerAction';
+import { allFetchEdtiorServer } from '@/lib/serverActions/edtorServerAction';
 import { NoteCategory } from './../types/index';
 import { subscribeWithSelector } from 'zustand/middleware';
 
@@ -28,6 +28,7 @@ export interface EditorActions {
     setHasLocalChanges: (value: boolean) => void;
     deleteSubCategory: (id: number) => void;
     setSubCategories: (subCategories: SubCategory[]) => void;
+    setEditorState: (state: EditorState) => void
 }
 
 export const defaultInitContent: Note = {
@@ -58,10 +59,12 @@ export const defaultInitContent: Note = {
     ],
 }
 
-export type EditorStore = Note & EditorActions & {
+export interface EditorState {
     subCategories: SubCategory[];
-    hasLocalChanges: boolean;
+    hasLocalChanges: boolean
 }
+
+export type EditorStore = Note & EditorActions & EditorState
 
 
 
@@ -71,6 +74,7 @@ export const createEditorStore = (initState: Note = defaultInitContent) => {
             ...initState,
             subCategories: [],
             hasLocalChanges: false,
+            setEditorState: (values) => set((state) => ({...state, ...values})),
             setContent: (note) => set((state) => ({ ...state, ...note })),
             saveToLocal: () => {
 
@@ -105,7 +109,7 @@ export const createEditorStore = (initState: Note = defaultInitContent) => {
                     console.log('실행됨 2')
                 let note = get();
 
-                const jsonData = await AllFetchEdtiorServer()
+                const jsonData = await allFetchEdtiorServer()
 
                 const allFetchData: Note[] = JSON.parse(jsonData)
 

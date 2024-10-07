@@ -16,21 +16,18 @@ import {
   ModalFooter,
   Tooltip,
 } from "@nextui-org/react";
-import { Notice, FocusedNoticeType, CustomModalType } from "@/types";
+import { CustomModalType } from "@/types";
 import { useRouter, usePathname } from "next/navigation"
 import React from 'react';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { VerticalDotsIcon } from "../../icons";
 import { capitalize } from "@/lib/utils";
-import columns from "@/types";
+import {noteColumns} from "@/types";
 import { SearchIcon, ChevronDownIcon, PlusIcon, EyeIcon, EditIcon, DeleteIcon } from "../../icons";
 import { of, from, filter, find } from "rxjs";
 import { debounce } from "lodash";
 import { Note } from "@/store/editorSotre";
-
-type ModalSize = "sm" | "md" | "lg" | "xl" | "2xl" | "full" | "xs" | "3xl" | "4xl" | "5xl";
-
 
 const AdminNoteTable = ({ notes }: { notes: Note[] }) => {
 
@@ -39,14 +36,14 @@ const AdminNoteTable = ({ notes }: { notes: Note[] }) => {
 
   const [selectedKeys, setSelectedKeys] = React.useState<Selection>(new Set([]));
 
-  const INITIAL_VISIBLE_COLUMNS = ["listNumber", "title", "writer", "actions", "created_at"];
+  const INITIAL_VISIBLE_COLUMNS = ["noteId","mainCategory","subCategory", "title" , "actions"];
 
   const [visibleColumns, setVisibleColumns] = React.useState<Selection>(new Set(INITIAL_VISIBLE_COLUMNS));
 
   const [rowsPerPage, setRowsPerPage] = React.useState(5);
 
   const [sortDescriptor, setSortDescriptor] = React.useState<SortDescriptor>({
-    column: "create_at",
+    column: "notetId",
     direction: "ascending",
   });
 
@@ -65,7 +62,7 @@ const AdminNoteTable = ({ notes }: { notes: Note[] }) => {
 
   const setVisibleColumnsForWindowWidth = () => {
     if (windowWidth <= 700) {
-      setVisibleColumns(new Set(["title", "writer" , "created_at"]));
+      setVisibleColumns(new Set(["title", "noteId" , "mainCategory", "subCategory"]));
     } else {
       setVisibleColumns(new Set(INITIAL_VISIBLE_COLUMNS));
     }
@@ -86,9 +83,9 @@ const AdminNoteTable = ({ notes }: { notes: Note[] }) => {
 
   //해더 컬럼
   const headerColumns = React.useMemo(() => {
-    if (visibleColumns === "all") return columns;
+    if (visibleColumns === "all") return noteColumns;
 
-    return columns.filter((column) => Array.from(visibleColumns).includes(column.uid));
+    return noteColumns.filter((column) => Array.from(visibleColumns).includes(column.uid));
   }, [visibleColumns]);
 
 
@@ -97,8 +94,8 @@ const AdminNoteTable = ({ notes }: { notes: Note[] }) => {
     let filteredNotes = [...notes];
 
     if (hasSearchFilter) {
-        filteredNotes = filteredNotes.filter((notices) =>
-        notices.title.toLowerCase().includes(filterValue.toLowerCase()),
+        filteredNotes = filteredNotes.filter((notes) =>
+        notes.title.toLowerCase().includes(filterValue.toLowerCase()),
       );
     }
 
@@ -132,12 +129,24 @@ const AdminNoteTable = ({ notes }: { notes: Note[] }) => {
     const cellValue = note[columnKey as keyof Note];
 
     switch (columnKey) {
-      case "listNumber":
+      case "noteId":
         return (
           <h1 className="flex justify-center" key={note.noteId}>
             {note.noteId}
           </h1>
         );
+        case "mainCategory":
+        return (
+          <h1 className="flex justify-center" key={note.noteId}>
+            {note.mainCategory}
+          </h1>
+        );
+        case "subCategory":
+          return (
+            <h1 className="flex justify-center" key={note.noteId}>
+              {note.subCategory.name}
+            </h1>
+          );
       case "title":
         return (
           <h1 className="flex justify-center cursor-pointer" key={note.id} onClick={(event) => {
@@ -148,26 +157,26 @@ const AdminNoteTable = ({ notes }: { notes: Note[] }) => {
           </h1>
         );
 
-      case "create_at":
-        return (
-          <h1 className="flex w-full text-center items-center justify-center" key={note.id}>
-            {note.create_at}
-          </h1>
-        );
+      // case "create_at":
+      //   return (
+      //     <h1 className="flex w-full text-center items-center justify-center" key={note.id}>
+      //       {note.create_at}
+      //     </h1>
+      //   );
       case "actions":
 
         return (
           <div className="relative flex justify-center space-x-3">
-            <Tooltip content="Details">
+            <Tooltip content="Edit Note">
               <span className="text-lg text-default-400 cursor-pointer active:opacity-50"
                 onClick={(event) => {
-                
-                }}>
-                <EyeIcon />
+                 
+                }}
+              >
+                <EditIcon />
               </span>
             </Tooltip>
-           
-            <Tooltip color="danger" content="Delete user">
+            <Tooltip color="danger" content="Delete Note">
               <span className="text-lg text-danger cursor-pointer active:opacity-50"
                 onClick={(event) => {
                 
@@ -249,7 +258,7 @@ const AdminNoteTable = ({ notes }: { notes: Note[] }) => {
                 selectionMode="multiple"
                 onSelectionChange={setVisibleColumns}
               >
-                {columns.map((column) => (
+                {noteColumns.map((column) => (
                   <DropdownItem key={column.uid} className="capitalize">
                     {capitalize(column.name)}
                   </DropdownItem>
@@ -260,7 +269,7 @@ const AdminNoteTable = ({ notes }: { notes: Note[] }) => {
           </div>
         </div>
         <div className="flex justify-between items-center">
-          <span className="text-default-400 text-small">Total {notes.length} notices</span>
+          <span className="text-default-400 text-small">Total {notes.length} notes</span>
           <label className="flex items-center text-default-400 text-small">
             Rows per page:
             <select
@@ -284,12 +293,12 @@ const AdminNoteTable = ({ notes }: { notes: Note[] }) => {
     hasSearchFilter,
   ]);
 
-  //페이지 뷰
+  //바텀뷰
   const bottomContent = React.useMemo(() => {
     return (
 
-      <div className="py-2 px-2 flex justify-between items-center">
-        <span className="w-[30%] text-small text-default-400">
+      <div className="py-2 px-2 flex justify-end items-center">
+        {/* <span className="w-[30%] text-small text-default-400">
           {selectedKeys === "all"
             ? "All items selected"
             : `${selectedKeys.size} of ${filteredItems.length} selected`}
@@ -302,7 +311,7 @@ const AdminNoteTable = ({ notes }: { notes: Note[] }) => {
           page={page}
           total={pages}
           onChange={setPage}
-        />
+        /> */}
         <div className="hidden sm:flex w-[30%] justify-end gap-2">
           <Button isDisabled={pages === 1} size="sm" variant="flat" onPress={onPreviousPage}>
             이전
@@ -315,50 +324,19 @@ const AdminNoteTable = ({ notes }: { notes: Note[] }) => {
     );
   }, [selectedKeys, items.length, page, pages, hasSearchFilter]);
 
- 
-  const [passwordModalType, setPasswordModalType] = useState<number>(1)
-
-  const [deletePassword, setDeletePassword] = useState("")
-
-  const [deleteNoticeId, setDeleteNoticeId] = useState("")
-
-  const [deleteCommentId, setDeleteCommentId] = useState("")
-
-  const [deleteReplyId, setDeleteReplyId] = useState("")
-
-  const { isOpen: isTwoOpen, onOpen: TwoOnOpen, onOpenChange: onTwoChange, onClose: twoOnClose } = useDisclosure();
-
-
-
- 
-
-
-
-
   return (
     <>
-      <ToastContainer
-        className=" foo"
-        style={{ width: "400px" }}
-        position="top-right"
-        autoClose={1800}
-        hideProgressBar={false}
-        newestOnTop={false}
-        closeOnClick
-        rtl={false}
-        pauseOnFocusLoss
-        draggable
-        pauseOnHover
-        theme="dark"
-
-      />
       <Table
-        aria-label="Example table with custom cells, pagination and sorting"
+        aria-label="table with custom cells, pagination and sorting"
         isHeaderSticky
         bottomContent={bottomContent}
         bottomContentPlacement="outside"
         classNames={{
-          wrapper: "max-h-[382px]",
+          base: "max-h-[382px] md:max-w-[80%] mx-auto",
+          thead: "w-full",
+          tbody: "w-full",
+          table: "w-full min-w-full",
+          th: "bg-default-100 sticky top-0 z-10",
           
         }}
         sortDescriptor={sortDescriptor}
@@ -380,7 +358,7 @@ const AdminNoteTable = ({ notes }: { notes: Note[] }) => {
 
             item &&
 
-            <TableRow key={item.id}>
+            <TableRow key={item.noteId}>
               {(columnKey) => <TableCell className=" text-center">{renderCell(item, columnKey)}</TableCell>}
             </TableRow>
           )}

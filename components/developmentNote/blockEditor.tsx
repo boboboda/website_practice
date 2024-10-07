@@ -28,6 +28,7 @@ import {
 import { useNoteStore } from "../providers/editor-provider";
 import { useRouter } from "next/navigation";
 import { defaultInitContent, Note, SubCategory } from "@/store/editorSotre";
+import { NoteEditorType } from "@/types";
 
 const CustomModalContent = ({ onClose, deleteLocal }: { onClose: () => void, deleteLocal: ()=>void }) => {
   return (
@@ -54,10 +55,14 @@ const CustomModalContent = ({ onClose, deleteLocal }: { onClose: () => void, del
   );
 };
 
-export const BlockEditor = ({fetchNotes}: {fetchNotes: Note[]}) => {
+export const BlockEditor = ({fetchNotes, editorType, editNote}: {editNote?:Note, fetchNotes: Note[], editorType: NoteEditorType}) => {
   const menuContainerRef = useRef(null);
 
   const [headTitle, setHeadTitle] = useState("");
+
+
+
+
 
   const router = useRouter()
 
@@ -154,11 +159,9 @@ export const BlockEditor = ({fetchNotes}: {fetchNotes: Note[]}) => {
           editor={editor}
           isSidebarOpen={leftSidebar.isOpen}
           toggleSidebar={leftSidebar.toggle}
-          title={headTitle}
           notes={fetchNotes}
-          setTitle={(value) =>{
-            setHeadTitle(value)
-          }}
+          note={editNote}
+          editType={editorType}
         />
         <EditorContent editor={editor} className="flex-1 overflow-y-auto" />
         <ContentItemMenu editor={editor} />

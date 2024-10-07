@@ -1,6 +1,6 @@
 import NoteComponent from "@/components/developmentNote/noteComponent";
 import { NoteStoreProvider } from "@/components/providers/editor-provider";
-import { AllFetchEdtiorServer } from "@/lib/serverActions/edtorServerAction";
+import { allFetchEdtiorServer } from "@/lib/serverActions/edtorServerAction";
 import { Note } from "@/store/editorSotre";
 
 
@@ -9,7 +9,7 @@ import { Note } from "@/store/editorSotre";
 
 export default async function DevelopNoteWrite() {
 
-  const noteRes = await AllFetchEdtiorServer()
+  const noteRes = await allFetchEdtiorServer()
 
   
   const notes = JSON.parse(noteRes)
@@ -20,7 +20,7 @@ export default async function DevelopNoteWrite() {
   return (
     <NoteStoreProvider>
       <div>
-        <NoteComponent fetchNotes={notes}/>
+        <NoteComponent fetchNotes={notes} editorType="add"/>
       </div>
     </NoteStoreProvider>
   );
