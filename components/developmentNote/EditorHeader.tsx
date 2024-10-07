@@ -6,7 +6,7 @@ import { Editor, removeDuplicates } from "@tiptap/core";
 import { useEditorState } from "@tiptap/react";
 import { EditorInfo } from "./EditorInfo";
 import { EditorUser } from "./types";
-import { Button, Input, Select, SelectItem } from "@nextui-org/react";
+import { Button, Chip, Input, Select, SelectItem } from "@nextui-org/react";
 import { noteCategories, NoteCategory, NoteEditorType } from "@/types/index";
 import { useEffect, useState } from "react";
 import { useNoteStore, useNoteStoreSubscribe } from "../providers/editor-provider";
@@ -58,6 +58,7 @@ export const EditorHeader = ({
     subCategory,
     setSubCategories,
     saveToServer,
+    updateToServer,
     title
   } = useNoteStore((state) => state);
 
@@ -93,8 +94,18 @@ export const EditorHeader = ({
         break;
     
       case "edit":
-        const editSubCat = note.subCategory;
+        const editSubCat: SubCategory = note.subCategory
+
+        const editMainCat: NoteCategory = note.mainCategory
+
+        console.log(editSubCat, "헤드")
         setSubCategories([editSubCat]);
+        setContent({mainCategory: editMainCat})
+        setContent({subCategory: editSubCat})
+        setContent({noteId: note.noteId})
+
+        setViewSubCategory(editSubCat)
+        setViewMainCategory(new Set([editMainCat]))
         break;
     
       default:
@@ -169,6 +180,68 @@ export const EditorHeader = ({
 
   const notifySuccessEvent = (msg: string) => toast.success(msg);
 
+
+  const TextEditMode = () => (
+    <>
+    {
+    editType === "add" ? <Chip  variant="shadow"
+    classNames={{
+      base: "bg-gradient-to-br from-indigo-500 to-pink-500 border-small border-white/50 shadow-pink-500/30",
+      content: "drop-shadow shadow-black text-white",
+    }}>
+      ADD MODE
+      </Chip
+      >  
+      : <Chip 
+      color="warning"
+      classNames={{
+        base: "bg-gradient-to-br from-indigo-500 to-pink-500 border-small border-white/50 shadow-pink-500/30",
+        content: "drop-shadow shadow-black text-white",
+      }}
+      >
+        EDIT MODE
+        </Chip>
+    }
+    </>
+    )
+
+
+
+    const handleSaveToServer = async () => {
+      try {
+        const result = await saveToServer();
+        console.log("saveServer", result);
+
+        if(result) {
+          notifySuccessEvent("서버에 저장되었습니다.");
+
+          router.push('/')
+        }
+
+      } catch (error) {
+        console.log(error);
+      }
+    }
+
+    const handleUpdateToServer = async () => {
+      try {
+
+        const result = await updateToServer();
+        console.log("updateServer", result);
+
+        if(result) {
+          notifySuccessEvent("문서가 수정되었습니다.");
+
+          router.push('/')
+        }
+
+      } catch (error) {
+        console.log(error);
+      }
+    }
+
+
+
   return (
     <div className="flex flex-col items-center w-full py-2 pl-6 pr-3 gap-3 border-b border-neutral-200">
       <div className="flex flex-row w-full gap-4">
@@ -230,28 +303,33 @@ export const EditorHeader = ({
             추가
           </Button>
         </div>
+        
 
         <div className="flex flex-1 justify-end items-center">
+        <div className="flex justify-end items-center mr-3">
+        <TextEditMode/>
+        </div>
           <EditorInfo characters={characters} words={words} />
           <Button
             className="hover:bg-blue-500"
-            onClick={async () => {
-              try {
-                const result = await saveToServer();
-                console.log("saveServer", result);
+            onClick={ async ()=>{
+              switch(editType) {
+                case "add" : await handleSaveToServer()
 
-                if(result) {
-                  notifySuccessEvent("서버에 저장되었습니다.");
+                break
 
-                  router.push('/')
-                }
-
-              } catch (error) {
-                console.log(error);
+                case "edit" : await handleUpdateToServer()
+                break
               }
-            }}
-          >
-            배포
+            }
+
+              
+
+            }
+          >{
+            editType === "add" ? "배포" : "수정"
+          }
+            
           </Button>
         </div>
       </div>

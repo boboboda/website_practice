@@ -8,18 +8,17 @@ import { Note } from "@/store/editorSotre"
 import { parse } from 'path';
 
 
-export async function addEdtiorServer(note: string) {
+export async function addEdtiorServer(reqData: string) {
 
     console.log("에디터서버 db 추가 실행")
 
-    const notes: Note = JSON.parse(note)
+    const note: Note = JSON.parse(reqData)
     
-    console.log(notes)
   try {
     const db = (await client).db('buyoungsilDb')
     const noteCollection = db.collection('developNote')
 
-    const noteId =notes.noteId
+    const noteId =note.noteId
 
 
     const noteData = await noteCollection.findOne<Note>({ "notes.noteId": noteId },
@@ -32,7 +31,7 @@ export async function addEdtiorServer(note: string) {
 
     
     
-    const result = await noteCollection.insertOne({ notes });
+    const result = await noteCollection.insertOne({ note });
 
     if(result.acknowledged) {
 
@@ -60,7 +59,7 @@ try {
     const cursor = usersCollection.find({}, { projection: { _id: 0 }  });  // 모든 문서를 찾음
     const noteData = await cursor.toArray();  // 비동기로 모든 문서를 배열로 변환
 
-    const dataParsing: Note[] =  noteData.map(db => db.notes)
+    const dataParsing: Note[] =  noteData.map(db => db.note)
 
     console.log('서버', dataParsing)
   
@@ -80,20 +79,52 @@ export async function findOneEditorServer(noteId: string) {
 
     const numbericNoteId = parseInt(noteId);
 
-    const noteData = await noteCollection.findOne<Note>(
-      { "notes.noteId": numbericNoteId },
+    const noteData = await noteCollection.findOne(
+      { "note.noteId": numbericNoteId },
       { projection: { _id: 0 } }
     )
 
+    const note: Note = noteData.note
+
     console.log('server one data', noteData)
 
-    if (!noteData) {
+    if (!note) {
       return null
     }
 
-    return JSON.stringify(noteData)
+    return JSON.stringify(note)
   } catch (error) {
     console.error('db 에러', error)
     throw error
+  }
+}
+
+
+export async function findOneAndUpdateEditorServer(noteId: string, reqData: string) {
+  try {
+    const db = (await client).db('buyoungsilDb')
+    const noteCollection = db.collection('developNote')
+
+    const numbericNoteId = parseInt(noteId);
+    
+    const note = JSON.parse(reqData) 
+
+    console.log("노트아이디", numbericNoteId)
+
+    const updatedNoteData = await noteCollection.findOneAndUpdate({"note.noteId": numbericNoteId},
+      { $set: {note: note}  },
+      { projection: { _id: 0 } }
+    )
+
+    console.log('update one data', updatedNoteData)
+
+    if (!updatedNoteData) {
+      return { success: false }
+    }
+
+    return { success: true }
+  } catch (error) {
+    console.error('db 에러', error)
+    return { success: false }
   }
 }

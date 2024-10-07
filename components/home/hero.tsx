@@ -73,10 +73,10 @@ export default function Hero() {
 
   return (
     <>
-      <div className="flex flex-col w-full h-[3000px] px-8 justify-start items-center">
+      <div className="flex flex-col w-full md:h-[1500px] md:px-8 md:justify-start items-center">
      
-        <div className="container flex flex-row h-[700px] w-[90%]">
-        <div className="items-center flex flex-col mt-[130px] space-y-10 w-[50%] text-left md:items-start justify-start">
+        <div className="container flex flex-col justify-center items-center md:flex-row md:h-[700px] w-[90%]">
+        <div className="items-center flex flex-col mt-[130px] space-y-10 w-full md:w-[50%] text-left md:items-start justify-start">
           <h1 className={title({ size: "sm" })}>
             안녕하세요!!&nbsp;
           </h1>
@@ -89,13 +89,13 @@ export default function Hero() {
           <CustomTyped />
 
         </div>
-        <div className="w-[50%]">
+        <div className="w-full md:w-[50%]">
         <Animation />
         </div>
         </div>
         
 
-        <div>
+        <div className="md:">
           <VisitCalcurateView />
         </div>
       </div>

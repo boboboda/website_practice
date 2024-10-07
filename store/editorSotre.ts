@@ -1,10 +1,11 @@
 
 import { createStore } from 'zustand/vanilla'
 import { JSONContent } from '@tiptap/react';
-import { addEdtiorServer } from '@/lib/serverActions/edtorServerAction';
+import { addEdtiorServer, findOneAndUpdateEditorServer } from '@/lib/serverActions/edtorServerAction';
 import { allFetchEdtiorServer } from '@/lib/serverActions/edtorServerAction';
 import { NoteCategory } from './../types/index';
 import { subscribeWithSelector } from 'zustand/middleware';
+import { stringify } from 'path-to-regexp';
 
 export interface Note extends JSONContent {
     noteId?: number | null;
@@ -29,6 +30,7 @@ export interface EditorActions {
     deleteSubCategory: (id: number) => void;
     setSubCategories: (subCategories: SubCategory[]) => void;
     setEditorState: (state: EditorState) => void
+    updateToServer:() => Promise<boolean>
 }
 
 export const defaultInitContent: Note = {
@@ -136,6 +138,46 @@ export const createEditorStore = (initState: Note = defaultInitContent) => {
                     const noteData = await addEdtiorServer(JSON.stringify(newData))
                     
                     if(noteData.success) {
+
+                        localStorage.removeItem('editorAutoSave');
+
+                        set({defaultInitContent})
+
+                        return true
+                    }
+                    
+                }
+                    
+                } catch (error) {
+                 console.log(error)
+                    return false
+                }
+                
+            },
+            updateToServer: async () => {
+                try {
+
+                let note = get();
+
+                console.log('스토어 노트아이디', note.noteId)
+
+
+                const newData = {
+                    noteId: note.noteId,
+                    title: note.title,
+                    mainCategory: note.mainCategory,
+                    subCategory: note.subCategory,
+                    content: note.content
+                }
+
+                if(newData) {
+                    console.log('에디터 서버 실행')
+                    const result = await findOneAndUpdateEditorServer(note.noteId.toString(), JSON.stringify(newData))
+                    
+
+                    console.log("성공여부", result.success)
+
+                    if(result.success) {
 
                         localStorage.removeItem('editorAutoSave');
 

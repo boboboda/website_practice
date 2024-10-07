@@ -8,6 +8,7 @@
 
 /* 전역 스타일 css */
 body, html, #__next  {
+  flex: 1;
   height: 100%;
   width: 100%;
   margin: 0;

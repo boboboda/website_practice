@@ -14,16 +14,17 @@ export default async function DevelopNoteWrite({ params }: { params: { slug: str
 
   const noteRes = await findOneEditorServer(params.slug)
 
-  
-  const notes = JSON.parse(noteRes)
+  const noteParsing = JSON.parse(noteRes)
 
-  console.log('editor note', notes)
+  const note: Note = noteParsing
+
+  console.log('editor note', note)
 
 
   return (
     <NoteStoreProvider>
       <div>
-        <NoteComponent fetchNotes={notes} editorType="edit"/>
+        <NoteComponent editNote={note} editorType="edit"/>
       </div>
     </NoteStoreProvider>
   );
