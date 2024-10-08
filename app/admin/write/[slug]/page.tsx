@@ -1,6 +1,6 @@
 import NoteComponent from "@/components/developmentNote/noteComponent";
 import { NoteStoreProvider } from "@/components/providers/editor-provider";
-import { findOneEditorServer } from "@/lib/serverActions/edtorServerAction";
+import { findOneEditorServer } from "@/lib/serverActions/editorServerAction";
 import { Note } from "@/store/editorSotre";
 
 
@@ -23,7 +23,7 @@ export default async function DevelopNoteWrite({ params }: { params: { slug: str
 
   return (
     <NoteStoreProvider>
-      <div>
+      <div className="w-full">
         <NoteComponent editNote={note} editorType="edit"/>
       </div>
     </NoteStoreProvider>

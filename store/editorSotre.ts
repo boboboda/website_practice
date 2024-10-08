@@ -1,8 +1,8 @@
 
 import { createStore } from 'zustand/vanilla'
 import { JSONContent } from '@tiptap/react';
-import { addEdtiorServer, findOneAndUpdateEditorServer } from '@/lib/serverActions/edtorServerAction';
-import { allFetchEdtiorServer } from '@/lib/serverActions/edtorServerAction';
+import { addEdtiorServer, deleteOneEditorServer, findOneAndUpdateEditorServer } from '@/lib/serverActions/editorServerAction';
+import { allFetchEdtiorServer } from '@/lib/serverActions/editorServerAction';
 import { NoteCategory } from './../types/index';
 import { subscribeWithSelector } from 'zustand/middleware';
 import { stringify } from 'path-to-regexp';
@@ -29,8 +29,9 @@ export interface EditorActions {
     setHasLocalChanges: (value: boolean) => void;
     deleteSubCategory: (id: number) => void;
     setSubCategories: (subCategories: SubCategory[]) => void;
-    setEditorState: (state: EditorState) => void
-    updateToServer:() => Promise<boolean>
+    setEditorState: (state: EditorState) => void;
+    updateToServer:() => Promise<boolean>;
+    deleteToServer:(noteID: string) => Promise<boolean>;
 }
 
 export const defaultInitContent: Note = {
@@ -193,6 +194,24 @@ export const createEditorStore = (initState: Note = defaultInitContent) => {
                     return false
                 }
                 
+            },
+            deleteToServer: async (noteId: string) => {
+                try {
+
+                    const result = await deleteOneEditorServer(noteId)
+
+                    if(result.success) {
+                        return true
+                    } else {
+                        return false
+                    }
+
+                } catch (error) {
+
+                    console.log('delete err', error)
+                    return false
+                    
+                }
             },
             loadFromLocal: () => {
                 const saved = localStorage.getItem('editorAutoSave');

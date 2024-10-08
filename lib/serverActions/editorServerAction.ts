@@ -1,4 +1,4 @@
-import { Document } from './../extensions/Document/Document';
+import { Document } from '../extensions/Document/Document';
 'use server'
 
 import client from "@/lib/mongodb"  // MongoDB 클라이언트 import
@@ -128,3 +128,31 @@ export async function findOneAndUpdateEditorServer(noteId: string, reqData: stri
     return { success: false }
   }
 }
+
+
+export async function deleteOneEditorServer(noteId: string) {
+  try {
+    const db = (await client).db('buyoungsilDb')
+    const noteCollection = db.collection('developNote')
+
+    const numbericNoteId = parseInt(noteId);
+    
+    console.log("노트아이디", numbericNoteId)
+
+    const result = await noteCollection.deleteOne({"note.noteId": numbericNoteId})
+
+    console.log('delete one data', result.acknowledged)
+
+    if(result.deletedCount === 1) {
+      return { success: true }
+    } else  {
+      return { success: false }
+    }
+
+   
+  } catch (error) {
+    console.error('db 에러', error)
+    return { success: false }
+  }
+}
+

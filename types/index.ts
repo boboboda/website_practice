@@ -79,11 +79,11 @@ export type FocusedNoticeType = {
   appName?: string
 }
 
-export type NoteCategory = 'Android' | 'Ios' | 'react' | 'python';
+export type NoteCategory = 'basics' |'Android' | 'Ios' | 'react' | 'python';
 
-export const noteCategories: NoteCategory[] = ['Android', 'Ios', 'react', 'python'];
+export const noteCategories: NoteCategory[] = ['basics','Android', 'Ios', 'react', 'python'];
 
-export type NoteEditorType = 'add' | 'edit';
+export type NoteEditorType = 'add' | 'edit' | 'read';
 
 
 

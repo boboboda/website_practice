@@ -1,11 +1,8 @@
 "use client";
 import { EditorContent } from "@tiptap/react";
 import React, { useEffect, useRef, useState } from "react";
-
 import { LinkMenu } from "@/components/menus";
-
 import { useBlockEditor } from "@/hooks/useBlockEditor";
-
 import "@/styles/index.css";
 import { Sidebar } from "@/components/Sidebar";
 import ImageBlockMenu from "@/lib/extensions/ImageBlock/components/ImageBlockMenu";
@@ -30,40 +27,10 @@ import { useRouter } from "next/navigation";
 import { defaultInitContent, Note, SubCategory } from "@/store/editorSotre";
 import { NoteEditorType } from "@/types";
 
-const CustomModalContent = ({ onClose, deleteLocal }: { onClose: () => void, deleteLocal: ()=>void }) => {
-  return (
-    <>
-      <ModalHeader className="flex flex-col gap-1">안내</ModalHeader>
-      <ModalBody>
-        <h3>이전에 쓰던 글을 불러오시겠습니까?</h3>
-      </ModalBody>
-      <ModalFooter>
-        <Button color="primary" onPress={onClose}>
-          예
-        </Button>
-        <Button
-           color="danger"
-          onPress={()=>{
-            deleteLocal()
-            onClose()
-          }}
-        >
-          아니요
-        </Button>
-        </ModalFooter>
-    </>
-  );
-};
 
-export const BlockEditor = ({fetchNotes, editorType, editNote}: {editNote?:Note, fetchNotes: Note[], editorType: NoteEditorType}) => {
+
+export const BlockEditor = ({fetchNotes, editorType, note}: {note?:Note, fetchNotes: Note[], editorType: NoteEditorType}) => {
   const menuContainerRef = useRef(null);
-
-
-
-
-
-
-  const router = useRouter()
 
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
  
@@ -71,7 +38,9 @@ export const BlockEditor = ({fetchNotes, editorType, editNote}: {editNote?:Note,
 
   let {loadFromLocal , deleteLocal, setContent } = useNoteStore((state)=> state)
 
-  const { editor } = useBlockEditor({ clientID: "kim" })
+  const [readState, setReadState] = useState(true);
+
+  const { editor } = useBlockEditor({ clientID: "kim", readState: readState })
 
   useEffect(() => {
     const fetchData = async () => {
@@ -102,15 +71,22 @@ export const BlockEditor = ({fetchNotes, editorType, editNote}: {editNote?:Note,
       case "edit":
 
       editor.commands.clearContent();
-      editor.commands.setContent(editNote.content)
-      setContent({title: editNote.title, content: editNote.content})
+      editor.commands.setContent(note.content)
+      setContent({title: note.title, content: note.content})
 
+      case "read":
 
+      editor.commands.clearContent();
+      editor.commands.setContent(note.content)
+      setContent({title: note.title, content: note.content})
+
+      setReadState(false)
       break
     }
-  }, [])
+  }, [note])
 
 
+  
 
   if (!editor) {
     return null;
@@ -120,7 +96,7 @@ export const BlockEditor = ({fetchNotes, editorType, editNote}: {editNote?:Note,
 
 
   return (
-    <div className="flex h-full" ref={menuContainerRef}>
+    <div className="flex h-full w-full" ref={menuContainerRef}>
       <Modal
          placement="center"
         backdrop="opaque"
@@ -166,14 +142,20 @@ export const BlockEditor = ({fetchNotes, editorType, editNote}: {editNote?:Note,
         editor={editor}
       />
       <div className="relative flex flex-col flex-1 h-full overflow-hidden">
-        <EditorHeader
+
+        {
+          editorType !== "read" ?
+          <EditorHeader
           editor={editor}
           isSidebarOpen={leftSidebar.isOpen}
           toggleSidebar={leftSidebar.toggle}
           notes={fetchNotes}
-          note={editNote}
+          note={note}
           editType={editorType}
         />
+        : null
+        }
+        
         <EditorContent editor={editor} className="flex-1 overflow-y-auto" />
         <ContentItemMenu editor={editor} />
         <LinkMenu editor={editor} appendTo={menuContainerRef} />
@@ -190,3 +172,28 @@ export const BlockEditor = ({fetchNotes, editorType, editNote}: {editNote?:Note,
 };
 
 export default BlockEditor;
+
+const CustomModalContent = ({ onClose, deleteLocal }: { onClose: () => void, deleteLocal: ()=>void }) => {
+  return (
+    <>
+      <ModalHeader className="flex flex-col gap-1">안내</ModalHeader>
+      <ModalBody>
+        <h3>이전에 쓰던 글을 불러오시겠습니까?</h3>
+      </ModalBody>
+      <ModalFooter>
+        <Button color="primary" onPress={onClose}>
+          예
+        </Button>
+        <Button
+           color="danger"
+          onPress={()=>{
+            deleteLocal()
+            onClose()
+          }}
+        >
+          아니요
+        </Button>
+        </ModalFooter>
+    </>
+  );
+};

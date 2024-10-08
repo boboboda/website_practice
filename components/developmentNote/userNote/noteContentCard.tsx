@@ -2,15 +2,24 @@
 
 import {Card, CardHeader, CardFooter, Image, Button} from "@nextui-org/react";
 import { useUserStore } from "@/components/providers/user-store-provider"
+import { useRouter } from "next/navigation";
 
 
-export default function NoteContent() {
+export default function NoteContentCard() {
+
+  const router = useRouter()
   
     return (
-      <div className="max-w-[1000px] px-4">
+      <div className="max-w-[1000px] px-4 mt-[20px]">
          <div className="w-full gap-2 grid grid-cols-12 grid-rows-2 ">
-        <Card className="col-span-12 sm:col-span-6 h-[300px] flex justify-start bg-slate-800 gap-4 hover:cursor-pointer hover:bg-gray-600">
-            <div className="flex w-100% h-[50px] items-center justify-center">
+        <Card className="col-span-12 sm:col-span-6 h-[250px] flex justify-start bg-slate-800 gap-4 hover:cursor-pointer hover:bg-gray-600"
+        isPressable
+        onClick={()=>{
+          console.log('노트 누름')
+          router.push("/note/react")
+        }}
+        >
+            <div className="flex w-full h-[50px] items-center justify-center">
             <h4 className="text-white font-medium text-[24px]">Android Jetpack Compose</h4>
             </div>
             <div className="flex flex-row">
@@ -21,17 +30,17 @@ export default function NoteContent() {
             className="w-[90%] object-cover"
             src="/composeLogo.png"
           /></div>
-          <div className="flex flex-col w-[60%] h-full p-2 mt-[5px] gap-2">
-          <h4 className="text-white font-medium text-[14px] ms-2">1. 컴포즈 ui 구현</h4>
-          <h4 className="text-white font-medium text-[14px] ms-2">2. 파이어베이스 연동, 로컬 Room DB 구현</h4>
-          <h4 className="text-white font-medium text-[14px] ms-2">3. 다양한 아키텍처 구현</h4>
-          <h4 className="text-white font-medium text-[14px] ms-2">4. 딥링크 구현</h4>
-          <h4 className="text-white font-medium text-[14px] ms-2">5. 배포 및 버전관리</h4>
+          <div className="flex flex-col w-[60%] h-full mt-[5px] justify-start gap-2">
+          <h4 className="text-white font-medium text-[14px] ms-2 text-left">1. 컴포즈 ui 구현</h4>
+          <h4 className="text-white font-medium text-[14px] ms-2 text-left">2. 파이어베이스 연동, 로컬 Room DB 구현</h4>
+          <h4 className="text-white font-medium text-[14px] ms-2 text-left">3. 다양한 아키텍처 구현</h4>
+          <h4 className="text-white font-medium text-[14px] ms-2 text-left">4. 딥링크 구현</h4>
+          <h4 className="text-white font-medium text-[14px] ms-2 text-left">5. 배포 및 버전관리</h4>
           </div>
             </div>
           
         </Card>
-        <Card className="col-span-12 sm:col-span-6 h-[300px]">
+        <Card className="col-span-12 sm:col-span-6 h-[250px]">
           <CardHeader className="absolute z-10 top-1 flex-col !items-start">
             <p className="text-tiny text-white/60 uppercase font-bold">Plant a tree</p>
             <h4 className="text-white font-medium text-large">Contribute to the planet</h4>
@@ -43,7 +52,7 @@ export default function NoteContent() {
             src="https://nextui.org/images/card-example-3.jpeg"
           />
         </Card>
-        <Card className="w-full h-[300px] col-span-12 sm:col-span-4">
+        <Card className="w-full h-[250px] col-span-12 sm:col-span-4">
           <CardHeader className="absolute z-0 top-1 flex-col items-start">
             <p className="text-tiny text-white/60 uppercase font-bold">New</p>
             <h4 className="text-black font-medium text-2xl">Acme camera</h4>
@@ -64,7 +73,7 @@ export default function NoteContent() {
             </Button>
           </CardFooter>
         </Card>
-        <Card className="w-full h-[300px] col-span-12 sm:col-span-8">
+        <Card className="w-full h-[250px] col-span-12 sm:col-span-8">
           <CardHeader className="absolute z-0 top-1 flex-col items-start">
             <p className="text-tiny text-white/60 uppercase font-bold">Your day your way</p>
             <h4 className="text-white/90 font-medium text-xl">Your checklist for better sleep</h4>

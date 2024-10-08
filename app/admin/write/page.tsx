@@ -1,6 +1,6 @@
 import NoteComponent from "@/components/developmentNote/noteComponent";
 import { NoteStoreProvider } from "@/components/providers/editor-provider";
-import { allFetchEdtiorServer } from "@/lib/serverActions/edtorServerAction";
+import { allFetchEdtiorServer } from "@/lib/serverActions/editorServerAction";
 import { Note } from "@/store/editorSotre";
 
 
@@ -19,7 +19,7 @@ export default async function DevelopNoteWrite() {
 
   return (
     <NoteStoreProvider>
-      <div>
+      <div className="w-full">
         <NoteComponent fetchNotes={notes} editorType="add"/>
       </div>
     </NoteStoreProvider>

@@ -28,6 +28,7 @@ import { SearchIcon, ChevronDownIcon, PlusIcon, EyeIcon, EditIcon, DeleteIcon } 
 import { of, from, filter, find } from "rxjs";
 import { debounce } from "lodash";
 import { Note } from "@/store/editorSotre";
+import { useNoteStore } from "@/components/providers/editor-provider";
 
 const AdminNoteTable = ({ notes }: { notes: Note[] }) => {
 
@@ -47,6 +48,24 @@ const AdminNoteTable = ({ notes }: { notes: Note[] }) => {
     direction: "ascending",
   });
 
+  const { deleteToServer} = useNoteStore(state => state)
+
+  const notifySuccessEvent = (msg: string) => toast.success(msg);
+
+  const notifyfailedEvent = (msg: string) => toast.error(msg);
+
+  const handleNoteDelete = async (noteId) => {
+    const  result = await deleteToServer(noteId)
+
+    if(result) {
+      notifySuccessEvent('성공적으로 삭제되었습니다.')
+      router.refresh()
+    } else {
+
+      notifyfailedEvent('삭제가 실패되었습니다.')
+    }
+
+  }
 
   const router = useRouter();
 
@@ -67,7 +86,6 @@ const AdminNoteTable = ({ notes }: { notes: Note[] }) => {
       setVisibleColumns(new Set(INITIAL_VISIBLE_COLUMNS));
     }
   };
-
 
 
   useEffect(() => {
@@ -149,10 +167,7 @@ const AdminNoteTable = ({ notes }: { notes: Note[] }) => {
           );
       case "title":
         return (
-          <h1 className="flex justify-center cursor-pointer" key={note.id} onClick={(event) => {
-            
-          
-          }}>
+          <h1 className="flex justify-center cursor-pointer" key={note.id}>
             {note.title}
           </h1>
         );
@@ -178,8 +193,9 @@ const AdminNoteTable = ({ notes }: { notes: Note[] }) => {
             </Tooltip>
             <Tooltip color="danger" content="Delete Note">
               <span className="text-lg text-danger cursor-pointer active:opacity-50"
-                onClick={(event) => {
-                
+                onClick={ async (event) => {
+                  await handleNoteDelete(note.noteId)
+                  console.log('삭제눌렀다고')
                 }}
               >
                 <DeleteIcon />
