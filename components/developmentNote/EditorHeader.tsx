@@ -80,6 +80,8 @@ export const EditorHeader = ({
 
   const router = useRouter()
 
+  
+
   useEffect(()=> {
 
     switch (editType) {
@@ -94,11 +96,12 @@ export const EditorHeader = ({
         break;
     
       case "edit":
+
         const editSubCat: SubCategory = note.subCategory
 
         const editMainCat: NoteCategory = note.mainCategory
+        
 
-        console.log(editSubCat, "헤드")
         setSubCategories([editSubCat]);
         setContent({mainCategory: editMainCat})
         setContent({subCategory: editSubCat})
@@ -107,6 +110,19 @@ export const EditorHeader = ({
         setViewSubCategory(editSubCat)
         setViewMainCategory(new Set([editMainCat]))
         break;
+
+        case "read":
+
+        setSubCategories([editSubCat]);
+        setContent({mainCategory: editMainCat})
+        setContent({subCategory: editSubCat})
+        setContent({noteId: note.noteId})
+
+        setViewSubCategory(editSubCat)
+        setViewMainCategory(new Set([editMainCat]))
+
+
+          break
     
       default:
         // 기본 동작 (필요한 경우)

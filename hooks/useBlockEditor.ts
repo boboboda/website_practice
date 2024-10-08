@@ -18,7 +18,7 @@ declare global {
   }
 }
 
-export const useBlockEditor = ({ clientID }: { clientID:string }) => {
+export const useBlockEditor = ({ clientID, readState }: { clientID:string, readState: boolean }) => {
   // 에디터를 초기화하는 훅
 
   let { setContent, saveToLocal, content } = useNoteStore((state)=> state)
@@ -38,6 +38,7 @@ export const useBlockEditor = ({ clientID }: { clientID:string }) => {
     immediatelyRender: true, // 즉시 렌더링 여부
     shouldRerenderOnTransaction: false, // 트랜잭션마다 재렌더링 여부
     autofocus: true, // 자동 포커스
+    editable: readState,
     onCreate: ctx => {
       // 에디터가 비어있는지 확인 후, 초기 콘텐츠 설정
       if (ctx.editor.isEmpty) {
