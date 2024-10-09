@@ -15,6 +15,10 @@ body, html, #__next  {
   padding: 0;
 }
 
+body.loading {
+  cursor: wait; /* 기본 로딩 커서 */
+}
+
 .page-container {
   height: 100%;
   width: 100%;

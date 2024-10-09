@@ -1,6 +1,17 @@
 /** @type {import('next').NextConfig} */
 
 const nextConfig = {
+
+    // webpack: (config, { dev }) => {
+    //     if(dev) {
+    //         config.hotMideeleware = {
+    //             client: {
+    //                 overlay: false
+    //             }
+    //         }
+    //     }
+    // },
+
     reactStrictMode: false,
     async headers() {
         return [

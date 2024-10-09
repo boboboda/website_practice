@@ -29,7 +29,7 @@ import { NoteEditorType } from "@/types";
 
 
 
-export const BlockEditor = ({fetchNotes, editorType, note}: {note?:Note, fetchNotes: Note[], editorType: NoteEditorType}) => {
+export const BlockEditor = ({fetchNotes, editorType, note}: {note?:Note, fetchNotes?: Note[], editorType: NoteEditorType}) => {
   const menuContainerRef = useRef(null);
 
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
@@ -57,8 +57,11 @@ export const BlockEditor = ({fetchNotes, editorType, note}: {note?:Note, fetchNo
         console.error("Error loading data:", error);
       }
     };
+
+    if(editorType !== "read")  {
+      fetchData();
+    }
   
-    fetchData();
   }, []);
 
 

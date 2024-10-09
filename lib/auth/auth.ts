@@ -91,7 +91,7 @@ export const { handlers, signIn, signOut, auth, unstable_update: update }: NextA
             maxAge: 30 * 24 * 60 * 60 //30일
         },
     
-
+        trustHost: true,
         callbacks: {
           async signIn({ user, account, profile }) {
 

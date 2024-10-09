@@ -1,3 +1,4 @@
+import NavBar from "@/components/navBar";
 
 export default function ReleaseLayout({
     children,
@@ -5,9 +6,14 @@ export default function ReleaseLayout({
     children: React.ReactNode;
 }) {
     return (
-                <div className=" container mx-auto">
+
+        <div className="w-full">
+            <div className=" container mx-auto mt-3">
+                    
                     {children}
                 </div>
+        </div>
+                
     );
 }
 

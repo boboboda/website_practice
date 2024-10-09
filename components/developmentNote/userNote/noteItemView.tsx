@@ -1,50 +1,84 @@
 'use client'
 
 import { useEffect, useState } from "react";
-import BlockEditor from "../blockEditor";
-import { defaultInitContent, Note } from "@/store/editorSotre";
 import { ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/24/solid';
+import { Note, SubCategory } from "@/store/editorSotre";
+import ReadBlockEditor from "./readBlockEditor";
+import { Button } from "@nextui-org/react";
 
-export default function NoteItemView({fetchNotes, mainCategory}:{fetchNotes: Note[], mainCategory: string}) {
-    const [note, setNote] = useState<Note | null>(defaultInitContent);
+interface GroupedNotes {
+  [key: string]: Note[];
+}
+
+export default function NoteItemView({fetchNotes}: {fetchNotes: Note[]}) {
+    const [note, setNote] = useState<Note | null>(null);
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+    const [groupedNotes, setGroupedNotes] = useState<GroupedNotes>({});
 
     useEffect(() => {
         if (fetchNotes.length > 0) {
-            setNote(fetchNotes[0]);           
+            setNote(fetchNotes[0]);
+            const grouped = fetchNotes.reduce((acc, note) => {
+                const subCategoryName = note.subCategory?.name || 'Uncategorized';
+                if (!acc[subCategoryName]) {
+                    acc[subCategoryName] = [];
+                }
+                acc[subCategoryName].push(note);
+                return acc;
+            }, {} as GroupedNotes);
+            setGroupedNotes(grouped);
         }
     }, [fetchNotes]);
 
-    return (
-        <div className="flex justify-center relative w-full">
-            {/* 토글 버튼 */}
-            <button
-                className="fixed top-4 left-4 z-50 bg-blue-500 text-white p-2 rounded-full"
-                onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-            >
-                {isSidebarOpen ? <ChevronLeftIcon className="w-6 h-6" /> : <ChevronRightIcon className="w-6 h-6" />}
-            </button>
+    const toggleSidebar = () => setIsSidebarOpen(!isSidebarOpen);
 
-            {/* 사이드바 */}
-            <div className={`fixed left-0 top-0 h-full bg-gray-100 overflow-y-auto transition-all duration-300 ease-in-out ${isSidebarOpen ? 'w-64' : 'w-0'}`}>
-                {/* <div className="p-4">
-                    <h2 className="text-lg font-bold mb-4">목차</h2>
-                    <ul>
-                        {fetchNotes.map((note, index) => (
-                            <li key={index} className="mb-2 cursor-pointer hover:text-blue-500"
-                                onClick={() => setNote(note)}>
-                                {note.title}
-                            </li>
-                        ))}
-                    </ul>
-                </div> */}
+    return (
+        <div className="flex relative w-full">
+            {/* Sidebar */}
+            <div className={`fixed left-0 top-0 h-full bg-gray-100 transition-all duration-300 ease-in-out ${isSidebarOpen ? 'w-64' : 'w-0'} flex flex-col`}>
+                {isSidebarOpen && (
+                    <>
+                        <div className="flex-grow overflow-y-auto">
+                            <div className="p-4">
+                                <h2 className="text-black font-bold text-[25px] mb-4">{note?.mainCategory}</h2>
+                                <h3 className="text-black font-bold text-[20px] mb-2">목차</h3>
+                                {Object.entries(groupedNotes).map(([subCategoryName, notes]) => (
+                                    <div key={subCategoryName} className="mb-4">
+                                        <h4 className="text-black font-semibold mb-2">{subCategoryName}</h4>
+                                        <ul className="ml-3">
+                                            {notes.map((note, index) => (
+                                                <li key={index} 
+                                                    className="mb-2 cursor-pointer text-black hover:text-gray-600"
+                                                    onClick={() => setNote(note)}>
+                                                    {note.title}
+                                                </li>
+                                            ))}
+                                        </ul>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                        <div className="p-3 mb-[20px]">
+                            <Button className="w-full bg-slate-500">
+                                뒤로가기
+                            </Button>
+                        </div>
+                        <div className="h-[100px] bg-gray-200 flex items-center justify-center">
+                            <p className="text-gray-500">광고 영역</p>
+                        </div>
+                    </>
+                )}
             </div>
 
-            {/* 메인 콘텐츠 영역 */}
-            <div className={`w-[80%] transition-all duration-300 ease-in-out ${isSidebarOpen ? 'ml-64' : 'ml-0'}`}>
-                <div className="w-full flex justify-center">
-                    <BlockEditor fetchNotes={fetchNotes} note={note} editorType="read"/>
-                </div>
+            {/* Main Content */}
+            <div className={`w-full transition-all duration-300 ease-in-out ${isSidebarOpen ? 'ml-64' : 'ml-0'}`}>
+                <button
+                    className="m-2 bg-slate-700 hover:bg-slate-500 text-white p-2 rounded-[5px]"
+                    onClick={toggleSidebar}
+                >
+                    {isSidebarOpen ? <ChevronLeftIcon className="w-6 h-6" /> : <ChevronRightIcon className="w-6 h-6" />}
+                </button>
+                {note && <ReadBlockEditor note={note} />}
             </div>
         </div>
     );

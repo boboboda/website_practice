@@ -2,6 +2,7 @@ import "@/styles/globals.css";
 
 import Head from "next/head";
 import NavBar from "../components/navBar";
+import NavbarVisibilityWrapper from "@/lib/wrappers/NavbarWrapper";
 
 
 
@@ -21,9 +22,12 @@ export default function Header() {
         />
       </Head>
 
+      <NavbarVisibilityWrapper>
       <header className="w-full">
         <NavBar/>
       </header>
+      </NavbarVisibilityWrapper>
+      
     </>
   );
 }
