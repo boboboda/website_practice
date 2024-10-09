@@ -52,6 +52,8 @@ export async function allFetchEdtiorServer() {
   console.log("에디터서버 db 로드 실행")
 
 try {
+
+  console.time('서버')
   const db = (await client).db('buyoungsilDb');
     const usersCollection = db.collection('developNote');
 
@@ -61,7 +63,9 @@ try {
 
     const dataParsing: Note[] =  noteData.map(db => db.note)
 
-    console.log('서버', dataParsing)
+    // console.log('서버', dataParsing)
+
+    console.timeEnd('서버')
   
 
       return JSON.stringify(dataParsing)

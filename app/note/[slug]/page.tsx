@@ -16,7 +16,7 @@ export default async function NoteContentItemPage({ params }: { params: { slug: 
     return (
         <NoteStoreProvider>
             <div className="w-full">
-                <NoteItemView fetchNotes={filterNotes} mainCategory={params.slug} />
+                <NoteItemView fetchNotes={filterNotes} />
             </div>
         </NoteStoreProvider>
 

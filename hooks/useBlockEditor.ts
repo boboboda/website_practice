@@ -47,7 +47,9 @@ export const useBlockEditor = ({ clientID, readState }: { clientID:string, readS
       }
     },
     onUpdate: ctx =>{
-      debouncedUpdate(ctx.editor);
+      if(readState) {
+        debouncedUpdate(ctx.editor);
+      } 
     },
     extensions: [
       ...ExtensionKit({

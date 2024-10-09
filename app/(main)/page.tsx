@@ -1,5 +1,5 @@
 
-import Hero from "../components/home/hero";
+import Hero from "@/components/home/hero";
 
 export default function Home() {
   console.log("메인페이지로드");

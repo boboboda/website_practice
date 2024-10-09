@@ -15,8 +15,10 @@ export default function NoteContentCard() {
         <Card className="col-span-12 sm:col-span-6 h-[250px] flex justify-start bg-slate-800 gap-4 hover:cursor-pointer hover:bg-gray-600"
         isPressable
         onClick={()=>{
-          console.log('노트 누름')
+          // console.log('노트 누름')
           router.push("/note/react")
+
+          // window.location.href = "/note/react"
         }}
         >
             <div className="flex w-full h-[50px] items-center justify-center">

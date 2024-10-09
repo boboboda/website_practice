@@ -75,7 +75,7 @@ export default function Hero() {
     <>
       <div className="flex flex-col w-full md:h-[1500px] md:px-8 md:justify-start items-center">
      
-        <div className="container flex flex-col justify-center items-center md:flex-row md:h-[700px] w-[90%]">
+        <div className="flex flex-col justify-center items-center md:flex-row md:h-[700px] w-full">
         <div className="items-center flex flex-col mt-[130px] space-y-10 w-full md:w-[50%] text-left md:items-start justify-start">
           <h1 className={title({ size: "sm" })}>
             안녕하세요!!&nbsp;

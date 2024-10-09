@@ -67,7 +67,8 @@ export default async function RootLayout({
 								<UserStoreProvider>
 									<AppProvider>
 										<Providers themeProps={{ attribute: "class", defaultTheme: "dark" }}>
-											<div className="flex flex-1 flex-col h-screen w-full">
+											<div className="flex flex-col w-full justify-center items-center">
+												<div className="flex flex-col w-[1400px]">
 												<ToastContainer
 													className=" foo"
 													style={{ width: "450px" }}
@@ -83,13 +84,17 @@ export default async function RootLayout({
 													theme="dark"
 												/>
 												<Header />
-												<main className="flex-grow flex flex-1 flex-col w-full">
-													<div className="flex flex-1 flex-grow w-full">
+												<main className="max-w-full">
+													<div className="flex flex-1 w-full">
 														{children}
 													</div>
 													<Footer />
 												</main>
+												
+
+												</div>
 												<AdFooter />
+												
 											</div>
 										</Providers>
 									</AppProvider>
