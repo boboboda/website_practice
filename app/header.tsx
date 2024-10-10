@@ -22,19 +22,6 @@ export default function Header() {
           content="f71196e4dbe205d177e771af7db3602a74f06a6d"
         />
       </Head>
-
-      <NavbarVisibilityWrapper>
-      <header className="w-full">
-        <div className="max-w-[1400px w-full]">
-        <NavBar/>
-        </div>
-
-        <Divider className="w-full mt-4" />
-
-     
-        
-      </header>
-      </NavbarVisibilityWrapper>
       
     </>
   );

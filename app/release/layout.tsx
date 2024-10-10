@@ -8,7 +8,7 @@ export default function ReleaseLayout({
     return (
 
         <div className="w-full">
-            <div className=" container mx-auto mt-3">
+            <div className="max-w-[1400px] w-full mx-auto mt-3">
                     
                     {children}
                 </div>
