@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import CountUpComponent from './countUpComponent';
+import '@/styles/svg.css'
 
 interface CircularProgressProps {
   size: number;
@@ -12,7 +13,10 @@ interface CircularProgressProps {
   type: string;
   mounted: boolean;
   id: string;
+  // icon: React.ReactNode;
 }
+
+
 
 const CircularProgress: React.FC<CircularProgressProps> = ({
   size,
@@ -41,8 +45,14 @@ const CircularProgress: React.FC<CircularProgressProps> = ({
   const offset = circumference - (animatedProgress / 100) * circumference;
 
   return (
-    <div className={`relative size-[${size}px]`}>
-      <svg width={size} height={size}>
+    <div className={`relative w-[${size}px] h-[${size}px]`}>
+      <svg width={size} height={size} className="transform -rotate-90 circular-progress-svg">
+        <defs>
+          <linearGradient id={`gradient-${id}`} x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stopColor={color} stopOpacity="0.5" />
+            <stop offset="100%" stopColor={color} stopOpacity="1" />
+          </linearGradient>
+        </defs>
         <circle
           stroke={trackColor}
           fill="#000000"
@@ -52,7 +62,7 @@ const CircularProgress: React.FC<CircularProgressProps> = ({
           cy={size / 2}
         />
         <circle
-          stroke={color}
+          stroke={`url(#gradient-${id})`}
           fill="transparent"
           strokeWidth={strokeWidth}
           strokeDasharray={circumference}
@@ -60,27 +70,21 @@ const CircularProgress: React.FC<CircularProgressProps> = ({
           r={radius}
           cx={size / 2}
           cy={size / 2}
-          style={{ transition: 'stroke-dashoffset 0.75s ease-in-out', transform: 'rotate(-90deg)', transformOrigin: '50% 50%' }}
-        />
-        <circle
-          stroke="#4A4947"
-          fill='transparent'
-          strokeWidth='10'
-          r={85}
-          cx={size / 2}
-          cy={size / 2}
-          style={{
-            opacity: 0.8,
-            filter: 'blur(4px)'
+          strokeLinecap="butt"
+          style={{ 
+            transition: 'stroke-dashoffset 0.75s ease-in-out, filter 0.75s ease',
+            filter: 'drop-shadow(0px 0px 4px rgba(255, 255, 255, 0.5))'
           }}
         />
       </svg>
-      <div className='size-full absolute flex flex-col items-center justify-center gap-3 top-[-5px]'> 
-        <div className='flex flex-row gap-2 text-[25px]'>
-          <CountUpComponent id={id} start={0} end={visitors} duration={3} mounted={mounted}/>
-          <span>{type}</span>
+      <div className='absolute top-0 left-0 w-full h-full flex flex-col items-center justify-center'>
+        <div className='flex flex-col items-center justify-center gap-1'>
+          <div className='flex flex-row gap-1 text-3xl font-bold text-gray-500'>
+            <CountUpComponent color={color} id={id} start={0} end={visitors} duration={3} mounted={mounted}/>
+            <span>{type}</span>
+          </div>
+          <span className='text-sm text-white'>{label}</span>
         </div>
-        <span>{label}</span>
       </div>
     </div>
   );

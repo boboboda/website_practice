@@ -6,11 +6,18 @@ import VisitCalcurateView from "./visitCalcurateView";
 import CustomTyped from "./customTyped";
 import { useAuthStore, useAuthStoreSubscribe } from "@/components/providers/auth-store-provider";
 import {  toast } from "react-toastify";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-
+import HeroTyped from "./heroTyped";
+import TypedComponent from "./heroTyped";
 
 export default function Hero() {
+
+  const [startFirst, setStartFirst] = useState(false);
+  const [startSecond, setStartSecond] = useState(false);
+  const [startThird, setStartThird] = useState(false);
+  const [startFour, setStartFour] = useState(false);
+  const [startFive, setStartFive] = useState(false);
 
   const router = useRouter()
 
@@ -70,18 +77,60 @@ export default function Hero() {
   }, [signInStatus, signUpStatus, socialLoginStatus, logOutStatus, resetStatus, router])
 
 
+  useEffect(() => {
+    const timer1 = setTimeout(() => setStartFirst(true), 300);  // Start the first after 300ms
+    const timer2 = setTimeout(() => setStartSecond(true), 1000); // Start the second after 3400ms
+    const timer3 = setTimeout(() => setStartThird(true), 2500); 
+    const timer4 = setTimeout(() => setStartFour(true), 4500);
+    const timer5 = setTimeout(() => setStartFive(true), 7000); 
+
+    return () => {
+      clearTimeout(timer1);
+      clearTimeout(timer2);
+      clearTimeout(timer3);
+      clearTimeout(timer4);
+      clearTimeout(timer5);
+    };
+  }, []);
+
 
   return (
     <>
-      <div className="flex flex-col w-full md:h-[1500px] md:px-8 md:justify-start items-center">
+      <div className="flex flex-col w-full lg:h-[1500px] justify-start items-center">
      
-        <div className="flex flex-col justify-center items-center md:flex-row md:h-[700px] w-full">
-        <div className="items-center flex flex-col mt-[130px] space-y-10 w-full md:w-[50%] text-left md:items-start justify-start">
+        <div className="flex justify-start items-start flex-row lg:h-[700px] w-full">
+        
+        <div className="w-full lg:pl-[50px] w-[50%]">
+        <Animation />
+        </div>
+
+        <div className="w-full flex flex-col h-full items-start justify-center w-[50%]">
+        <TypedComponent text="프로필" showEndCursor="none" start={startFirst} className={title({size: "sm", color: "black"})}/> 
+      <br />
+      <TypedComponent text="이름: 부영실" showEndCursor="none" start={startSecond} className={title({size: "sm", color: "black"})}/>
+      <br />
+      <TypedComponent text="취미: 코딩, 게임 등" showEndCursor="none" start={startThird} className={title({size: "sm", color: "black"})}/>
+      <br />
+      <TypedComponent text="관심사: 재테크, 개발, 1인기업" showEndCursor="none" start={startFour} className={title({size: "sm", color: "black"})}/>
+      <br />
+      <TypedComponent text="할줄 아는 것: 안드로이드 개발, IOS 개발, 웹 개발" start={startFive} className={title({size: "sm", color: "black"})}/>
+        </div>
+
+        </div>
+        
+
+        <div className="w-full flex flex-col md:flex-row bg-slate-300 py-[80px]">
+          <div className="lg:w-[50%] w-full px-[40px] flex justify-center">
+
+          <VisitCalcurateView />
+          </div>
+          
+          <div className="items-center flex flex-col pl-[50px] h-full items-center justify-center space-y-10 w-full md:w-[50%] text-left md:items-start justify-start">
           <h1 className={title({ size: "sm" })}>
-            안녕하세요!!&nbsp;
+            안녕하세요!!
           </h1>
           <li className={title({ size: "sm" })}>
-            코딩천재 부영실입니다.&nbsp;
+            코딩천재 부영실입니다.
           </li>
           <li className={title({ size: "sm" })}>
             여러분은 꿈을 꾸십니까?
@@ -89,14 +138,7 @@ export default function Hero() {
           <CustomTyped />
 
         </div>
-        <div className="w-full md:w-[50%]">
-        <Animation />
-        </div>
-        </div>
-        
-
-        <div className="md:">
-          <VisitCalcurateView />
+         
         </div>
       </div>
 

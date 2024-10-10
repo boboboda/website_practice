@@ -22,8 +22,8 @@ export default function Animation() {
   }, []);
 
   return (
-    <Skeleton className="rounded-lg" isLoaded={isMounted}>
-      <div className='max-w-[600px]'>
+    <Skeleton className="rounded-lg m-5" isLoaded={isMounted}>
+      <div className='max-w-[200px] lg:max-w-[600px] h-full'>
         <Lottie
           play
           loop

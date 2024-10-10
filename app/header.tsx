@@ -3,6 +3,7 @@ import "@/styles/globals.css";
 import Head from "next/head";
 import NavBar from "../components/navBar";
 import NavbarVisibilityWrapper from "@/lib/wrappers/NavbarWrapper";
+import {Divider} from "@nextui-org/react";
 
 
 
@@ -24,7 +25,14 @@ export default function Header() {
 
       <NavbarVisibilityWrapper>
       <header className="w-full">
+        <div className="max-w-[1400px w-full]">
         <NavBar/>
+        </div>
+
+        <Divider className="w-full mt-4" />
+
+     
+        
       </header>
       </NavbarVisibilityWrapper>
       

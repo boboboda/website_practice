@@ -12,6 +12,7 @@ interface CountUpProps {
     suffix?: string;
     separator?: string;
     mounted?: boolean;
+    color: string;
   }
 
 
@@ -23,6 +24,7 @@ interface CountUpProps {
     prefix = '',
     suffix = '',
     separator = ',',
+    color,
     mounted = false
   }) => {
   
@@ -49,7 +51,7 @@ interface CountUpProps {
         
     }, [id,mounted, end, start, duration, prefix, suffix, separator]);
   
-    return <span id={id} className="text-white">{start}</span>;
+    return <span id={id} className="text-white" style={{color}}>{start}</span>;
   };
   
   export default CountUpComponent;

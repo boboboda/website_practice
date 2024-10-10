@@ -5,7 +5,7 @@ import Hero from "../../components/home/hero"
 
 export default function ReleaseAppPage() {
 	return (
-		<div>
+		<div className="h-screen">
 			추후 공개 예정
 		</div>
 	);

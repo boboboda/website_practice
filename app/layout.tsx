@@ -58,17 +58,16 @@ export default async function RootLayout({
 
 	return (
 		<html lang="en" className="dark">
-			<body>
+			 <body className="flex flex-col min-h-screen">
 
 
 				<QueryProviders>
-				<Providers themeProps={{ attribute: "class", defaultTheme: "dark" }}>
+				<Providers themeProps={{ attribute: "class", defaultTheme: "light" }}>
 							<AuthStoreProvider>
 								<UserStoreProvider>
 									<AppProvider>
-										<Providers themeProps={{ attribute: "class", defaultTheme: "dark" }}>
-											<div className="flex flex-col w-full justify-center items-center">
-												<div className="flex flex-col w-[1400px]">
+									<div className="flex-grow flex flex-col w-full justify-center items-center">
+												<div className="flex flex-col w-full h-full">
 												<ToastContainer
 													className=" foo"
 													style={{ width: "450px" }}
@@ -84,34 +83,19 @@ export default async function RootLayout({
 													theme="dark"
 												/>
 												<Header />
-												<main className="max-w-full">
-													<div className="flex flex-1 w-full">
-														{children}
-													</div>
-													<Footer />
+												<main className="w-full">
+												{children}
 												</main>
-												
-
+												<Footer />
 												</div>
-												<AdFooter />
-												
 											</div>
-										</Providers>
+											<AdFooter />
 									</AppProvider>
 								</UserStoreProvider>
 							</AuthStoreProvider>
 
 						</Providers>
 				</QueryProviders>
-
-
-
-
-
-
-
-
-
 			</body>
 
 		</html>
