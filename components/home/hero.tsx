@@ -98,13 +98,13 @@ export default function Hero() {
     <>
       <div className="flex flex-col w-full lg:h-[1500px] justify-start items-center">
      
-        <div className="flex justify-start items-start flex-row lg:h-[700px] w-full">
+        <div className="flex justify-start items-start flex-row lg:h-[700px] w-full max-w-[1400px]">
         
-        <div className="w-full lg:pl-[50px] w-[50%]">
+        <div className="w-full w-[50%] flex justify-center h-full">
         <Animation />
         </div>
 
-        <div className="w-full flex flex-col h-full items-start justify-center w-[50%]">
+        <div className="w-full flex flex-col h-full items-start justify-start w-[50%] pt-[150px] pr-[150px]">
         <TypedComponent text="프로필" showEndCursor="none" start={startFirst} className={title({size: "sm", color: "black"})}/> 
       <br />
       <TypedComponent text="이름: 부영실" showEndCursor="none" start={startSecond} className={title({size: "sm", color: "black"})}/>
@@ -119,7 +119,8 @@ export default function Hero() {
         </div>
         
 
-        <div className="w-full flex flex-col md:flex-row bg-slate-300 py-[80px]">
+        <div className="w-full bg-slate-300 flex justify-center">
+        <div className="w-full max-w-[1400px] flex flex-col md:flex-row bg-slate-300 py-[80px]">
           <div className="lg:w-[50%] w-full px-[40px] flex justify-center">
 
           <VisitCalcurateView />
@@ -140,6 +141,8 @@ export default function Hero() {
         </div>
          
         </div>
+        </div>
+       
       </div>
 
     </>

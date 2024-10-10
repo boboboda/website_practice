@@ -119,7 +119,7 @@ export default function NavBar() {
 
 
   return (
-    <div className="w-full flex flex-col md:flex-row mt-[20px] md:items-center justify-end md:justify-center">
+    <div className="w-full max-w-[1400px] flex flex-col md:flex-row mt-[20px] md:items-center justify-end md:justify-center">
       
       <NextNavbar maxWidth="full" className="w-full flex flex-col md:flex-row items-start">
         <NavbarContent className="justify-start">

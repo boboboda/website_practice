@@ -8,7 +8,7 @@ export default function AdminLayout({
     children: React.ReactNode;
 }) {
     return (
-                <div className="w-full">             
+                <div className="w-full max-w-[1400px]">             
                     {children}
                 </div>
     );

@@ -11,7 +11,7 @@ export default function Loading() {
 
   return (
     <div className="flex flex-col w-full h-screen items-center justify-center">
-      <h1 className="text-white">노트 로딩중...</h1>
+      <h1 className="text-black">노트 로딩중...</h1>
     </div>
   );
 }

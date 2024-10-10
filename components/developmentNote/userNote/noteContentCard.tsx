@@ -12,12 +12,27 @@ export default function NoteContentCard() {
     return (
       <div className="max-w-[1000px] px-4 mt-[20px]">
          <div className="w-full gap-2 grid grid-cols-12 grid-rows-2 ">
-          <Card className="col-span-12 h-[250px]">
-          <div className="flex w-full h-[50px] items-center justify-center">
-            <h4 className="text-white font-medium text-[24px]">Android Jetpack Compose</h4>
-            </div>
+         <Card className="col-span-12 h-[250px] pt-2 flex justify-start bg-slate-800 gap-4 hover:cursor-pointer hover:bg-gray-600"
+        isPressable
+        onClick={()=>{
+          // console.log('노트 누름')
+          router.push("/note/react")
 
-          </Card>
+          // window.location.href = "/note/react"
+        }}
+        >
+            <div className="flex w-full h-[50px] items-center justify-center">
+            <h4 className="text-white font-medium text-[24px]">코딩의 기초</h4>
+            </div>
+            <div className="flex flex-col w-[60%] h-full mt-[5px] justify-start gap-2">
+          <h4 className="text-white font-medium text-[14px] ms-2 text-left">1. 컴포즈 ui 구현</h4>
+          <h4 className="text-white font-medium text-[14px] ms-2 text-left">2. 파이어베이스 연동, 로컬 Room DB 구현</h4>
+          <h4 className="text-white font-medium text-[14px] ms-2 text-left">3. 다양한 아키텍처 구현</h4>
+          <h4 className="text-white font-medium text-[14px] ms-2 text-left">4. 딥링크 구현</h4>
+          <h4 className="text-white font-medium text-[14px] ms-2 text-left">5. 배포 및 버전관리</h4>
+          </div>
+          
+        </Card>
         <Card className="col-span-12 sm:col-span-6 h-[250px] flex justify-start bg-slate-800 gap-4 hover:cursor-pointer hover:bg-gray-600"
         isPressable
         onClick={()=>{
