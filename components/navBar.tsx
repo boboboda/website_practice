@@ -24,6 +24,8 @@ import { signOutWithForm } from "@/lib/serverActions/auth";
 import { useAuthStore } from "@/components/providers/auth-store-provider";
 import { ToastContainer, toast } from "react-toastify";
 
+import { UserCircleIcon } from "@heroicons/react/24/solid";
+
 export default function NavBar() {
 
   const { user, expires, fetchSession  } = useUserStore((state)=> state);
@@ -163,10 +165,10 @@ export default function NavBar() {
         </NavbarContent>
       </NextNavbar>
 
-      <div className="flex flex-row w-full md:w-fit justify-end pr-[20px] mr-[40px] gap-5">
+      <div className="flex flex-row w-full md:w-fit justify-end mr-[40px] gap-5">
       {isLoading ? 
         <div>
-        <Skeleton className="flex rounded-full w-12 h-12"/>
+        <Skeleton className="flex rounded-[5px] w-[100px] h-12"/>
       </div>  
         : !existsUserState ? (
           <div className="flex flex-row gap-3">
@@ -186,8 +188,9 @@ export default function NavBar() {
           <div>
             <Dropdown placement="bottom-end">
               <DropdownTrigger>
-                <div className="flex items-center justify-center bg-slate-600 size-[50px] rounded-full cursor-pointer">
-                  <p className="inline-block max-w-[100px] px-1 py-1 text-white truncate">{user?.name}</p>
+                <div className="flex w-[150px] items-center justify-center bg-white cursor-pointer">
+                  <UserCircleIcon className="w-6 h-6"></UserCircleIcon>
+                  <p className="inline-block max-w-[100px]  px-1 py-1 text-black truncate">{user?.name}</p>
                 </div>
               </DropdownTrigger>
               <DropdownMenu aria-label="Profile Actions" variant="flat">
@@ -224,7 +227,7 @@ export default function NavBar() {
           </div>
         )}
 
-<ThemeSwitch />
+{/* <ThemeSwitch /> */}
       </div>
     </div>
   );

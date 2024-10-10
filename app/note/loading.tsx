@@ -10,7 +10,7 @@ export default function Loading() {
   console.log('노트 로딩')
 
   return (
-    <div className="w-full h-full flex items-center justify-center">
+    <div className="flex flex-col w-full h-screen items-center justify-center">
       <h1 className="text-white">노트 로딩중...</h1>
     </div>
   );

@@ -12,6 +12,12 @@ export default function NoteContentCard() {
     return (
       <div className="max-w-[1000px] px-4 mt-[20px]">
          <div className="w-full gap-2 grid grid-cols-12 grid-rows-2 ">
+          <Card className="col-span-12 h-[250px]">
+          <div className="flex w-full h-[50px] items-center justify-center">
+            <h4 className="text-white font-medium text-[24px]">Android Jetpack Compose</h4>
+            </div>
+
+          </Card>
         <Card className="col-span-12 sm:col-span-6 h-[250px] flex justify-start bg-slate-800 gap-4 hover:cursor-pointer hover:bg-gray-600"
         isPressable
         onClick={()=>{
