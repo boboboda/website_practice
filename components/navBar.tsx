@@ -227,7 +227,7 @@ export default function NavBar() {
           </div>
         )}
 
-{/* <ThemeSwitch /> */}
+<ThemeSwitch />
       </div>
     </div>
   );
