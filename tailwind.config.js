@@ -49,8 +49,8 @@ module.exports = {
         },
         dark: {
           colors: {
-            background: '#ffffff',
-            text: '#333333', // NextUI의 light 테마 텍스트 색상
+            background: '#000000',
+            text: '#ffffff', // NextUI의 light 테마 텍스트 색상
           },
         },
       },

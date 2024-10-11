@@ -61,6 +61,7 @@ const CircularProgress: React.FC<CircularProgressProps> = ({
           cx={size / 2}
           cy={size / 2}
         />
+        
         <circle
           stroke={`url(#gradient-${id})`}
           fill="transparent"
