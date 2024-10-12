@@ -22,7 +22,7 @@ import { useUserStore, useUserStoreSubscribe  } from "@/components/providers/use
 import { User } from "next-auth";
 import { signOutWithForm } from "@/lib/serverActions/auth";
 import { useAuthStore } from "@/components/providers/auth-store-provider";
-import { ToastContainer, toast } from "react-toastify";
+import { toast } from "react-toastify";
 
 import { UserCircleIcon } from "@heroicons/react/24/solid";
 

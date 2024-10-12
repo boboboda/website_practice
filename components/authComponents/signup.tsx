@@ -138,8 +138,8 @@ export default function SignUpComponent() {
   };
 
   return (
-    <div className="flex justify-center w-full">
-      <div className="flex flex-col items-center w-[350px] rounded-[20px] bg-black py-[20px] gap-2">
+    <div className="flex justify-center w-full py-[20px]">
+      <div className="custom-shadow flex flex-col items-center w-[350px] rounded-[20px] bg-white dark:bg-black py-[25px] gap-2">
 
         <form
           className="flex flex-col w-full mx-0 px-0 justify-center items-center gap-2"

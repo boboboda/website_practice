@@ -108,7 +108,7 @@ export default function SignInComponent() {
   return (
     <div className="flex justify-center w-full">
       
-      <div className="flex flex-col items-center w-[350px] rounded-[20px] bg-black py-[20px] gap-2">
+      <div className="flex flex-col custom-shadow items-center w-[350px] rounded-[20px] dark:bg-black py-[20px] gap-2">
         <form
           className="w-full flex items-center justify-center"
           action={async () => {
