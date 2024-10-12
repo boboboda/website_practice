@@ -33,7 +33,7 @@ export default function Hero() {
 
       notifySuccessEvent("로그인 되었습니다.")
 
-      router.refresh()
+      // router.refresh()
 
       setTimeout(() => {
         resetStatus()
@@ -74,7 +74,7 @@ export default function Hero() {
     }
 
 
-  }, [signInStatus, signUpStatus, socialLoginStatus, logOutStatus, resetStatus, router])
+  }, [])
 
 
   useEffect(() => {
