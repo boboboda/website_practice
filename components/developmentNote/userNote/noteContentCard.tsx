@@ -12,24 +12,22 @@ export default function NoteContentCard() {
     return (
       <div className="max-w-[1000px] px-4 mt-[20px]">
          <div className="w-full gap-2 grid grid-cols-12 grid-rows-2 ">
-         <Card className="col-span-12 h-[250px] pt-2 flex justify-start bg-slate-800 gap-4 hover:cursor-pointer hover:bg-gray-600"
+         <Card className="col-span-12 h-[250px] pt-2 flex justify-start bg-white custom-shadow gap-4 hover:cursor-pointer hover:bg-slate-200 "
         isPressable
         onClick={()=>{
           // console.log('노트 누름')
-          router.push("/note/react")
+          router.push("/note/basics")
 
           // window.location.href = "/note/react"
         }}
         >
             <div className="flex w-full h-[50px] items-center justify-center">
-            <h4 className="text-white font-medium text-[24px]">코딩의 기초</h4>
+            <h4 className="text-black font-medium text-[24px]">개발자 되기 전 알아야 할 것</h4>
             </div>
             <div className="flex flex-col w-[60%] h-full mt-[5px] justify-start gap-2">
-          <h4 className="text-white font-medium text-[14px] ms-2 text-left">1. 컴포즈 ui 구현</h4>
-          <h4 className="text-white font-medium text-[14px] ms-2 text-left">2. 파이어베이스 연동, 로컬 Room DB 구현</h4>
-          <h4 className="text-white font-medium text-[14px] ms-2 text-left">3. 다양한 아키텍처 구현</h4>
-          <h4 className="text-white font-medium text-[14px] ms-2 text-left">4. 딥링크 구현</h4>
-          <h4 className="text-white font-medium text-[14px] ms-2 text-left">5. 배포 및 버전관리</h4>
+          <h4 className="text-black font-medium text-[16px] ms-2 text-left">1. 구체적인 계획 설정</h4>
+          <h4 className="text-black font-medium text-[16px] ms-2 text-left">2. 컴퓨터 작동원리</h4>
+          <h4 className="text-black font-medium text-[16px] ms-2 text-left">3. 프로그램 작동원리</h4>
           </div>
           
         </Card>

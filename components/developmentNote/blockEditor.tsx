@@ -76,6 +76,7 @@ export const BlockEditor = ({fetchNotes, editorType, note}: {note?:Note, fetchNo
       editor.commands.clearContent();
       editor.commands.setContent(note.content)
       setContent({title: note.title, content: note.content})
+      break
 
       case "read":
 
