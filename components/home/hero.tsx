@@ -44,7 +44,7 @@ export default function Hero() {
     if (signUpStatus === "success") {
       notifySuccessEvent("회원가입 되었습니다.")
       
-       router.refresh()
+      //  router.refresh()
 
        setTimeout(() => {
         resetStatus()
@@ -54,7 +54,7 @@ export default function Hero() {
     if (socialLoginStatus === "success") {
       notifySuccessEvent("소셜 로그인 되었습니다.")
 
-      router.refresh()
+      // router.refresh()
 
       setTimeout(() => {
         resetStatus()
@@ -65,7 +65,7 @@ export default function Hero() {
 
       notifySuccessEvent("로그아웃 되었습니다.")
 
-      router.refresh()
+      // router.refresh()
 
       setTimeout(() => {
         resetStatus()
