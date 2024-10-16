@@ -11,8 +11,8 @@ export default function NoteContentCard() {
   
     return (
       <div className="max-w-[1000px] px-4 mt-[20px]">
-         <div className="w-full gap-2 grid grid-cols-12 grid-rows-2 ">
-         <Card className="col-span-12 h-[250px] pt-2 flex justify-start bg-white custom-shadow gap-4 hover:cursor-pointer hover:bg-slate-200 "
+         <div className="w-full gap-3 grid grid-cols-12 grid-rows-2 ">
+         <Card className="col-span-12 h-[250px] pt-2 flex justify-start bg-slate-800 gap-4 hover:cursor-pointer hover:bg-gray-600"
         isPressable
         onClick={()=>{
           // console.log('노트 누름')
@@ -22,16 +22,29 @@ export default function NoteContentCard() {
         }}
         >
             <div className="flex w-full h-[50px] items-center justify-center">
-            <h4 className="text-black font-medium text-[24px]">개발자 되기 전 알아야 할 것</h4>
+            <h4 className=" text-white font-medium text-[24px]">개발자 되기 전 알아야 할 것</h4>
             </div>
-            <div className="flex flex-col w-[60%] h-full mt-[5px] justify-start gap-2">
-          <h4 className="text-black font-medium text-[16px] ms-2 text-left">1. 구체적인 계획 설정</h4>
-          <h4 className="text-black font-medium text-[16px] ms-2 text-left">2. 컴퓨터 작동원리</h4>
-          <h4 className="text-black font-medium text-[16px] ms-2 text-left">3. 프로그램 작동원리</h4>
+
+            <div className="flex flex-row w-full justify-center">
+            <div className="w-[50%] flex justify-end me-10">
+            <Image
+            removeWrapper
+            alt="Card background"
+            className="object-cover w-[200px]"
+            src="/cardImg_1.png"
+          />
+            </div>
+            <div className="flex flex-col w-[50%] h-full mt-[5px] justify-start gap-4">
+          <h4 className="text-white font-medium text-[17px] ms-2 text-left">1. 구체적인 계획 설정</h4>
+          <h4 className="text-white font-medium text-[17px] ms-2 text-left">2. 컴퓨터 작동원리</h4>
+          <h4 className="text-white font-medium text-[17px] ms-2 text-left">3. 프로그램 작동원리</h4>
           </div>
+</div>
+            
+           
           
         </Card>
-        <Card className="col-span-12 sm:col-span-6 h-[250px] flex justify-start bg-slate-800 gap-4 hover:cursor-pointer hover:bg-gray-600"
+        <Card className="custom-shadow col-span-12 sm:col-span-6 h-[250px] flex justify-start bg-slate-800 gap-4 hover:cursor-pointer hover:bg-gray-600"
         isPressable
         onClick={()=>{
           // console.log('노트 누름')
@@ -61,64 +74,34 @@ export default function NoteContentCard() {
             </div>
           
         </Card>
-        <Card className="col-span-12 sm:col-span-6 h-[250px]">
-          <CardHeader className="absolute z-10 top-1 flex-col !items-start">
-            <p className="text-tiny text-white/60 uppercase font-bold">Plant a tree</p>
-            <h4 className="text-white font-medium text-large">Contribute to the planet</h4>
-          </CardHeader>
-          <Image
+        <Card  className="custom-shadow col-span-12 sm:col-span-6 h-[250px] flex justify-start bg-slate-800 gap-4 hover:cursor-pointer hover:bg-gray-600">
+
+        <div className="flex w-full h-[50px] items-center justify-center">
+            <h4 className="text-white font-medium text-[24px]">Web Develop</h4>
+            </div>
+            <div className="flex flex-row">
+            <div className="flex w-[60%] items-center justify-center">
+            <Image
             removeWrapper
             alt="Card background"
-            className="z-0 w-full h-full object-cover"
-            src="https://nextui.org/images/card-example-3.jpeg"
-          />
-        </Card>
-        <Card className="w-full h-[250px] col-span-12 sm:col-span-4">
-          <CardHeader className="absolute z-0 top-1 flex-col items-start">
-            <p className="text-tiny text-white/60 uppercase font-bold">New</p>
-            <h4 className="text-black font-medium text-2xl">Acme camera</h4>
-          </CardHeader>
-          <Image
-            removeWrapper
-            alt="Card example background"
-            className="z-0 w-full h-full scale-125 -translate-y-6 object-cover"
-            src="https://nextui.org/images/card-example-6.jpeg"
-          />
-          <CardFooter className="absolute bg-white/30 bottom-0 border-t-1 border-zinc-100/50 z-0 justify-between">
-            <div>
-              <p className="text-black text-tiny">Available soon.</p>
-              <p className="text-black text-tiny">Get notified.</p>
+            className="w-[90%] object-cover"
+            src="/cardImg_2.png"
+          /></div>
+          <div className="flex flex-col w-[40%] h-full mt-[5px] justify-start gap-2">
+          <h4 className="text-white font-medium text-[14px] ms-2 text-left">1. 리액트 사용법</h4>
+          <h4 className="text-white font-medium text-[14px] ms-2 text-left">2. nextjs SSR, CSR</h4>
+          <h4 className="text-white font-medium text-[14px] ms-2 text-left">3. CSS 익히기</h4>
+          <h4 className="text-white font-medium text-[14px] ms-2 text-left">4. HTML 구조 익히기</h4>
+          <h4 className="text-white font-medium text-[14px] ms-2 text-left">5. 풀스택 개발</h4>
+          </div>
             </div>
-            <Button className="text-tiny" color="primary" radius="full" size="sm">
-              Notify Me
-            </Button>
-          </CardFooter>
+          
         </Card>
-        <Card className="w-full h-[250px] col-span-12 sm:col-span-8">
-          <CardHeader className="absolute z-0 top-1 flex-col items-start">
-            <p className="text-tiny text-white/60 uppercase font-bold">Your day your way</p>
-            <h4 className="text-white/90 font-medium text-xl">Your checklist for better sleep</h4>
-          </CardHeader>
-          <Image
-            removeWrapper
-            alt="Relaxing app background"
-            className="z-0 w-full h-full object-cover"
-            src="https://nextui.org/images/card-example-5.jpeg"
-          />
-          <CardFooter className="absolute bg-black/40 bottom-0 z-0 border-t-1 border-default-600 dark:border-default-100">
-            <div className="flex flex-grow gap-2 items-center">
-              <Image
-                alt="Breathing app icon"
-                className="rounded-full w-10 h-11 bg-black"
-                src="https://nextui.org/images/breathing-app-icon.jpeg"
-              />
-              <div className="flex flex-col">
-                <p className="text-tiny text-white/60">Breathing App</p>
-                <p className="text-tiny text-white/60">Get a good night</p>
-              </div>
-            </div>
-            <Button radius="full" size="sm">Get App</Button>
-          </CardFooter>
+        <Card className="custom-shadow w-full h-[250px] col-span-12 sm:col-span-4">
+          
+        </Card>
+        <Card className="custom-shadow w-full h-[250px] col-span-12 sm:col-span-8">
+         
         </Card> 
       </div>
 
