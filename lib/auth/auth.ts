@@ -1,6 +1,5 @@
-
-import client from "@/lib/mongodb";
-import { MongoDBAdapter } from "@auth/mongodb-adapter";
+import pool from "@/lib/postgres";
+import PgAdapter from "@auth/pg-adapter"
 import GithubProvider from "@auth/core/providers/github";
 import Google from "next-auth/providers/google"
 import CredentialsProvider from "@auth/core/providers/credentials";
@@ -9,13 +8,10 @@ import bcrypt from 'bcryptjs'
 import { JWT } from "@auth/core/jwt";
 import { Account, Session, User } from "@auth/core/types";
 import NextAuth, { NextAuthResult } from "next-auth"
-import { Collection} from "mongodb";
 
+// MongoDB 관련 코드는 제거
 
-
-
-
-export const { handlers, signIn, signOut, auth, unstable_update: update }: NextAuthResult  = NextAuth(
+export const { handlers, signIn, signOut, auth, unstable_update: update }: NextAuthResult = NextAuth(
     {
         providers: [
           Google({
@@ -27,65 +23,88 @@ export const { handlers, signIn, signOut, auth, unstable_update: update }: NextA
                 prompt: 'consent'
               }
             }
-          })
-          ,
-            GithubProvider({
-                clientId: 'Ov23libgyJ0ij1MsSEyS',
-                clientSecret: '9e2f46265e1185c75714f04850cb25c85e3f3c3b',
-                allowDangerousEmailAccountLinking: true,
-            }),
-           
-            CredentialsProvider({
-                //1. 로그인페이지 폼 자동생성해주는 코드 
-                name: "credentials",
-                credentials: {
-                    name: { label: "name", type: "text" },
-                    email: { label: "email", type: "email" },
-                    password: { label: "password", type: "password" },
-                    action: { label: "Action", type: "text" }
-                },
-    
-                //2. 로그인요청시 실행되는코드
-                //직접 DB에서 아이디,비번 비교하고 
-                //아이디,비번 맞으면 return 결과, 틀리면 return null 해야함
-                async authorize(credentials) {
-                  if (!credentials?.email || !credentials?.password || !credentials?.action) {
-                    throw new Error("Missing fields")
-                  }
-          
-                  const { email, password, action, name } = credentials
-                  const db = (await client).db('buyoungsilDb')
-                  const usersCollection = db.collection('user_cred')
-          
-                  if (action === 'register') {
-                    // 회원가입 로직
-                    const existingUser = await usersCollection.findOne({ email })
-                    if (existingUser) {
-                      throw new Error("User already exists")
-                    }
-                    const hashedPassword = await bcrypt.hash(password as string, 10)
-                    const result = await usersCollection.insertOne({ email, name, role: "user", password: hashedPassword })
-                    return { id: result.insertedId.toString(), name, role:"user", email }
-                  } else if (action === 'login') {
-                    // 로그인 로직
-                    const user = await usersCollection.findOne({ email })
-                    if (!user) {
-                      throw new Error("No user found")
-                    }
-                    const isValid = await bcrypt.compare(password as string, user.password)
-                    if (!isValid) {
-                      throw new Error("Invalid password")
-                    }
-                    return { id: user._id.toString(), name:user.name, role:user.role, email: user.email }
-                  }
-          
-                  throw new Error("Invalid action")
-                }
-              }),
+          }),
+          GithubProvider({
+            clientId: 'Ov23libgyJ0ij1MsSEyS',
+            clientSecret: '9e2f46265e1185c75714f04850cb25c85e3f3c3b',
+            allowDangerousEmailAccountLinking: true,
+          }),
+          CredentialsProvider({
+            // credentials 제공자 설정은 그대로 유지
+            name: "credentials",
+            credentials: {
+                name: { label: "name", type: "text" },
+                email: { label: "email", type: "email" },
+                password: { label: "password", type: "password" },
+                action: { label: "Action", type: "text" }
+            },
+
+            async authorize(credentials) {
+              if (!credentials?.email || !credentials?.password || !credentials?.action) {
+                throw new Error("Missing fields")
+              }
+      
+              const { email, password, action, name } = credentials
               
+              // PostgreSQL로 변경된 부분
+              if (action === 'register') {
+                try {
+                  // 이메일 중복 체크
+                  const existingUser = await pool.query(
+                    'SELECT * FROM users WHERE email = $1', 
+                    [email]
+                  );
+                  
+                  if (existingUser.rows.length > 0) {
+                    throw new Error("User already exists")
+                  }
+                  
+                  // 비밀번호 해싱
+                  const hashedPassword = await bcrypt.hash(password as string, 10)
+                  
+                  // 사용자 생성
+                  const result = await pool.query(
+                    'INSERT INTO users (name, email, password, role) VALUES ($1, $2, $3, $4) RETURNING id, name, email, role',
+                    [name, email, hashedPassword, 'user']
+                  );
+                  
+                  const newUser = result.rows[0];
+                  return { id: newUser.id, name: newUser.name, role: newUser.role, email: newUser.email }
+                } catch (error) {
+                  console.error("Register error:", error);
+                  throw error;
+                }
+              } else if (action === 'login') {
+                try {
+                  // 사용자 찾기
+                  const result = await pool.query(
+                    'SELECT * FROM users WHERE email = $1',
+                    [email]
+                  );
+                  
+                  const user = result.rows[0];
+                  if (!user) {
+                    throw new Error("No user found")
+                  }
+                  
+                  // 비밀번호 검증
+                  const isValid = await bcrypt.compare(password as string, user.password)
+                  if (!isValid) {
+                    throw new Error("Invalid password")
+                  }
+                  
+                  return { id: user.id, name: user.name, role: user.role, email: user.email }
+                } catch (error) {
+                  console.error("Login error:", error);
+                  throw error;
+                }
+              }
+      
+              throw new Error("Invalid action")
+            }
+          }),
         ],
         
-        //3. jwt 써놔야 잘됩니다 + jwt 만료일설정
         session: {
             strategy: 'jwt',
             maxAge: 30 * 24 * 60 * 60 //30일
@@ -94,7 +113,6 @@ export const { handlers, signIn, signOut, auth, unstable_update: update }: NextA
         trustHost: true,
         callbacks: {
           async signIn({ user, account, profile }) {
-
             console.log(account?.provider, "소셜")
 
             if(account?.provider === "credentials") {
@@ -102,102 +120,120 @@ export const { handlers, signIn, signOut, auth, unstable_update: update }: NextA
             }
 
             if(account?.provider === 'google' || 'github') {
-
-              const db = (await client).db("buyoungsilDb");
-            const usersCollection: Collection<User> = db.collection("user_cred");
-          
-            console.log(user, "signIn Uuser")
-            // 동일 이메일로 존재하는 사용자가 있는지 확인
-            const existingUser = await usersCollection.findOne({ email: user.email });
-
-            console.log('이메일 존재함', existingUser)
-          
-            if (existingUser) {
-              // 사용자가 존재하지만 해당 OAuth 계정이 연결되어 있지 않다면 연결 처리
-
-              console.log('사용자가 존재함.')
-              if (!existingUser.accounts) {
-                existingUser.accounts = [];
-              }
-
-              // 계정이 존재하면 OAuth 계정을 연결하는 로직
-              if (!existingUser.accounts.includes(account.provider)) {
-                await usersCollection.updateOne(
-                  { email: user.email },
-                  
-                  { 
-                    $set: { role: "user",},
-                    $push: { accounts: account.provider } }
+              try {
+                // 이메일로 기존 사용자 검색
+                const existingUserResult = await pool.query(
+                  'SELECT * FROM users WHERE email = $1',
+                  [user.email]
                 );
+                
+                const existingUser = existingUserResult.rows[0];
+                
+                if (existingUser) {
+                  console.log('사용자가 존재함.')
+                  
+                  // 계정 연결 확인
+                  const accountsResult = await pool.query(
+                    'SELECT * FROM accounts WHERE user_id = $1 AND provider = $2',
+                    [existingUser.id, account.provider]
+                  );
+                  
+                  if (accountsResult.rows.length === 0) {
+                    // 계정 연결이 없으면 추가
+                    await pool.query(
+                      'INSERT INTO accounts (user_id, provider, provider_account_id, refresh_token, access_token, expires_at) VALUES ($1, $2, $3, $4, $5, $6)',
+                      [
+                        existingUser.id, 
+                        account.provider, 
+                        account.providerAccountId,
+                        account.refresh_token,
+                        account.access_token,
+                        account.expires_at
+                      ]
+                    );
+                    
+                    // 사용자 역할 업데이트
+                    await pool.query(
+                      'UPDATE users SET role = $1 WHERE id = $2',
+                      ['user', existingUser.id]
+                    );
+                  }
+                  
+                  return true
+                } else {
+                  // 사용자가 없을 경우 새로 생성
+                  console.log('사용자가 없음. oauth로 추가')
+                  
+                  // 새 사용자 생성
+                  const newUserResult = await pool.query(
+                    'INSERT INTO users (name, email, role) VALUES ($1, $2, $3) RETURNING id',
+                    [user.name, user.email, 'user']
+                  );
+                  
+                  const newUserId = newUserResult.rows[0].id;
+                  
+                  // 계정 정보 추가
+                  await pool.query(
+                    'INSERT INTO accounts (user_id, provider, provider_account_id, refresh_token, access_token, expires_at) VALUES ($1, $2, $3, $4, $5, $6)',
+                    [
+                      newUserId, 
+                      account.provider, 
+                      account.providerAccountId,
+                      account.refresh_token,
+                      account.access_token,
+                      account.expires_at
+                    ]
+                  );
+                  
+                  return true
+                }
+              } catch (error) {
+                console.error('OAuth signIn error:', error);
+                return false
               }
-          
-              return true
-
-            } else {
-              // 사용자가 없을 경우 새 사용자 생성
-              console.log('사용자가 없음. oauth로 추가')
-              await usersCollection.insertOne({
-                email: user.email,
-                name: user.name,
-                accounts: [account.provider], // 새로 생성할 때 계정 추가
-              });
-
-              return true
-
             }
-              
-            }
+            
             return true
           },
-            jwt: async ({ token, account, user, trigger, session, isNewUser }: { isNewUser?:boolean, session?: any, account: Account, token: JWT, user?: User, trigger?: string }) => {
-              
-              if(account) {
-                token.provider = account.provider;
-              }
+          
+          // 나머지 콜백은 유지
+          jwt: async ({ token, account, user, trigger, session }) => {
+            // 기존 코드 유지
+            if(account) {
+              token.provider = account.provider;
+            }
 
-                if(user) {
-                    token.user = user;
-                }
+            if(user) {
+                token.user = user;
+            }
 
-                if (trigger === 'update') {
-                  console.log('세션 업데이트')
-                  console.log('jwt user', user)
-                  console.log('jwt account', account)
-                  console.log('jwt session', session)
-                  console.log('isNewUser', isNewUser)
+            if (trigger === 'update') {
+              console.log('세션 업데이트')
+              token= {...user, ...(session as User)}
+            }
 
-                  token= {...user, ...(session as User)}
-                }
-
-              return token;
-            },
-            
-            // 세션 생성 시 사용자 정보 추가
-            session: async ({ session, token }: { session: Session, token: JWT }) => {
-              if (token.user) {
-                // 세션에 토큰에서 가져온 사용자 정보 저장
-                session.user = token.user;
-              }
-              return session;
-            },
-
-            // redirect: async ({ url, baseUrl }) => {
-            //   if (url.startsWith('/')) return `${baseUrl}${url}`
-            //   if (url) {
-            //     const { search, origin } = new URL(url)
-            //     const callbackUrl = new URLSearchParams(search).get('callbackUrl')
-            //     if (callbackUrl)
-            //       return callbackUrl.startsWith('/')
-            //         ? `${baseUrl}${callbackUrl}`
-            //         : callbackUrl
-            //     if (origin === baseUrl) return url
-            //   }
-            //   return baseUrl
-            // }
+            return token;
           },
           
-        adapter: MongoDBAdapter(client),
+          session: async ({ session, token }: { session: any, token: JWT }) => {
+            if (token.user) {
+              // token.user에서 필요한 필드만 추출하여 session.user에 할당
+              session.user = {
+                ...session.user,
+                id: token.user.id,
+                name: token.user.name,
+                email: token.user.email,
+                role: token.user.role,
+                // 필요한 경우 emailVerified 필드 추가
+                emailVerified: token.user.emailVerified || null,
+              };
+            }
+            return session;
+          }
+        },
+        
+        // MongoDB 어댑터 대신 PostgreSQL 어댑터 사용
+        adapter: PgAdapter(pool),
         secret: process.env.NEXTAUTH_SECRET
     }
 )
-

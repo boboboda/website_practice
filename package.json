@@ -11,6 +11,7 @@
   "dependencies": {
     "@auth/core": "^0.35.3",
     "@auth/mongodb-adapter": "^3.5.3",
+    "@auth/pg-adapter": "^1.8.0",
     "@channel.io/channel-web-sdk-loader": "^2.0.0",
     "@emotion/babel-plugin": "^11.12.0",
     "@emotion/css": "^11.13.0",
@@ -105,6 +106,7 @@
     "next-themes": "^0.2.1",
     "npm": "^10.8.0",
     "path-to-regexp": "^8.2.0",
+    "pg": "^8.14.1",
     "postcss": "8.4.31",
     "prismjs": "^1.29.0",
     "prosemirror-commands": "^1.6.0",
