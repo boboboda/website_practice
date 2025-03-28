@@ -1,6 +1,7 @@
 import { createStore } from 'zustand/vanilla'
 import { subscribeWithSelector } from 'zustand/middleware'
-import { Session, User } from "@auth/core/types"
+// import { Session, User } from "@auth/core/types"
+import { Session, User } from "next-auth"
 import { getSession, updateSession } from "@/lib/serverActions/auth"
 import { fetchLatestUserData } from '@/lib/serverActions/fetchUser'
 
