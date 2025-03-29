@@ -1,239 +1,209 @@
-import pool from "@/lib/postgres";
-import PgAdapter from "@auth/pg-adapter"
-import GithubProvider from "@auth/core/providers/github";
-import Google from "next-auth/providers/google"
-import CredentialsProvider from "@auth/core/providers/credentials";
-import { NextRequest, NextResponse } from "next/server";
-import bcrypt from 'bcryptjs' 
-import { JWT } from "@auth/core/jwt";
-import { Account, Session, User } from "@auth/core/types";
-import NextAuth, { NextAuthResult } from "next-auth"
+// lib/auth/auth.ts
+import NextAuth from "next-auth"
+import { PrismaAdapter } from "@auth/prisma-adapter"
+import GithubProvider from "@auth/core/providers/github"
+import GoogleProvider from "next-auth/providers/google"
+import CredentialsProvider from "@auth/core/providers/credentials"
+import bcrypt from 'bcryptjs'
+import prisma from "@/lib/prisma"
 
-// MongoDB 관련 코드는 제거
+export const { handlers, signIn, signOut, auth, unstable_update: update } = NextAuth({
+  adapter: PrismaAdapter(prisma),
+  providers: [
+    GoogleProvider({
+      clientId: process.env.GOOGLE_ID,
+      clientSecret: process.env.GOOGLE_SECRET,
+      allowDangerousEmailAccountLinking: true,
+    }),
+    GithubProvider({
+      clientId: process.env.GITHUB_ID,
+      clientSecret: process.env.GITHUB_SECRET,
+      allowDangerousEmailAccountLinking: true,
+    }),
+    CredentialsProvider({
+      name: "credentials",
+      credentials: {
+        name: { label: "name", type: "text" },
+        email: { label: "email", type: "email" },
+        password: { label: "password", type: "password" },
+        action: { label: "Action", type: "text" }
+      },
+      async authorize(credentials) {
+        if (!credentials?.email || !credentials?.password || !credentials?.action) {
+          throw new Error("Missing fields")
+        }
 
-export const { handlers, signIn, signOut, auth, unstable_update: update }: NextAuthResult = NextAuth(
-    {
-        providers: [
-          Google({
-            clientId: process.env.GOOGLE_ID,
-            clientSecret: process.env.GOOGLE_SECRET,
-            allowDangerousEmailAccountLinking: true,
-            authorization: {
-              params: {
-                prompt: 'consent'
-              }
-            }
-          }),
-          GithubProvider({
-            clientId: 'Ov23libgyJ0ij1MsSEyS',
-            clientSecret: '9e2f46265e1185c75714f04850cb25c85e3f3c3b',
-            allowDangerousEmailAccountLinking: true,
-          }),
-          CredentialsProvider({
-            // credentials 제공자 설정은 그대로 유지
-            name: "credentials",
-            credentials: {
-                name: { label: "name", type: "text" },
-                email: { label: "email", type: "email" },
-                password: { label: "password", type: "password" },
-                action: { label: "Action", type: "text" }
-            },
+        const { email, password, action, name } = credentials as {
+          email: string;
+          password: string;
+          action: string;
+          name?: string;
+        };
 
-            async authorize(credentials) {
-              if (!credentials?.email || !credentials?.password || !credentials?.action) {
-                throw new Error("Missing fields")
-              }
-      
-              const { email, password, action, name } = credentials
-              
-              // PostgreSQL로 변경된 부분
-              if (action === 'register') {
-                try {
-                  // 이메일 중복 체크
-                  const existingUser = await pool.query(
-                    'SELECT * FROM users WHERE email = $1', 
-                    [email]
-                  );
-                  
-                  if (existingUser.rows.length > 0) {
-                    throw new Error("User already exists")
-                  }
-                  
-                  // 비밀번호 해싱
-                  const hashedPassword = await bcrypt.hash(password as string, 10)
-                  
-                  // 사용자 생성
-                  const result = await pool.query(
-                    'INSERT INTO users (name, email, password, role) VALUES ($1, $2, $3, $4) RETURNING id, name, email, role',
-                    [name, email, hashedPassword, 'user']
-                  );
-                  
-                  const newUser = result.rows[0];
-                  return { id: newUser.id, name: newUser.name, role: newUser.role, email: newUser.email }
-                } catch (error) {
-                  console.error("Register error:", error);
-                  throw error;
-                }
-              } else if (action === 'login') {
-                try {
-                  // 사용자 찾기
-                  const result = await pool.query(
-                    'SELECT * FROM users WHERE email = $1',
-                    [email]
-                  );
-                  
-                  const user = result.rows[0];
-                  if (!user) {
-                    throw new Error("No user found")
-                  }
-                  
-                  // 비밀번호 검증
-                  const isValid = await bcrypt.compare(password as string, user.password)
-                  if (!isValid) {
-                    throw new Error("Invalid password")
-                  }
-                  
-                  return { id: user.id, name: user.name, role: user.role, email: user.email }
-                } catch (error) {
-                  console.error("Login error:", error);
-                  throw error;
-                }
-              }
-      
-              throw new Error("Invalid action")
-            }
-          }),
-        ],
-        
-        session: {
-            strategy: 'jwt',
-            maxAge: 30 * 24 * 60 * 60 //30일
-        },
-    
-        trustHost: true,
-        callbacks: {
-          async signIn({ user, account, profile }) {
-            console.log(account?.provider, "소셜")
+        if (action === 'register') {
+          // 사용자 등록 로직
+          const existingUser = await prisma.user.findUnique({
+            where: { email }
+          });
 
-            if(account?.provider === "credentials") {
-              return true
-            }
-
-            if(account?.provider === 'google' || 'github') {
-              try {
-                // 이메일로 기존 사용자 검색
-                const existingUserResult = await pool.query(
-                  'SELECT * FROM users WHERE email = $1',
-                  [user.email]
-                );
-                
-                const existingUser = existingUserResult.rows[0];
-                
-                if (existingUser) {
-                  console.log('사용자가 존재함.')
-                  
-                  // 계정 연결 확인
-                  const accountsResult = await pool.query(
-                    'SELECT * FROM accounts WHERE user_id = $1 AND provider = $2',
-                    [existingUser.id, account.provider]
-                  );
-                  
-                  if (accountsResult.rows.length === 0) {
-                    // 계정 연결이 없으면 추가
-                    await pool.query(
-                      'INSERT INTO accounts (user_id, provider, provider_account_id, refresh_token, access_token, expires_at) VALUES ($1, $2, $3, $4, $5, $6)',
-                      [
-                        existingUser.id, 
-                        account.provider, 
-                        account.providerAccountId,
-                        account.refresh_token,
-                        account.access_token,
-                        account.expires_at
-                      ]
-                    );
-                    
-                    // 사용자 역할 업데이트
-                    await pool.query(
-                      'UPDATE users SET role = $1 WHERE id = $2',
-                      ['user', existingUser.id]
-                    );
-                  }
-                  
-                  return true
-                } else {
-                  // 사용자가 없을 경우 새로 생성
-                  console.log('사용자가 없음. oauth로 추가')
-                  
-                  // 새 사용자 생성
-                  const newUserResult = await pool.query(
-                    'INSERT INTO users (name, email, role) VALUES ($1, $2, $3) RETURNING id',
-                    [user.name, user.email, 'user']
-                  );
-                  
-                  const newUserId = newUserResult.rows[0].id;
-                  
-                  // 계정 정보 추가
-                  await pool.query(
-                    'INSERT INTO accounts (user_id, provider, provider_account_id, refresh_token, access_token, expires_at) VALUES ($1, $2, $3, $4, $5, $6)',
-                    [
-                      newUserId, 
-                      account.provider, 
-                      account.providerAccountId,
-                      account.refresh_token,
-                      account.access_token,
-                      account.expires_at
-                    ]
-                  );
-                  
-                  return true
-                }
-              } catch (error) {
-                console.error('OAuth signIn error:', error);
-                return false
-              }
-            }
-            
-            return true
-          },
-          
-          // 나머지 콜백은 유지
-          jwt: async ({ token, account, user, trigger, session }) => {
-            // 기존 코드 유지
-            if(account) {
-              token.provider = account.provider;
-            }
-
-            if(user) {
-                token.user = user;
-            }
-
-            if (trigger === 'update') {
-              console.log('세션 업데이트')
-              token= {...user, ...(session as User)}
-            }
-
-            return token;
-          },
-          
-          session: async ({ session, token }: { session: any, token: JWT }) => {
-            if (token.user) {
-              // token.user에서 필요한 필드만 추출하여 session.user에 할당
-              session.user = {
-                ...session.user,
-                id: token.user.id,
-                name: token.user.name,
-                email: token.user.email,
-                role: token.user.role,
-                // 필요한 경우 emailVerified 필드 추가
-                emailVerified: token.user.emailVerified || null,
-              };
-            }
-            return session;
+          if (existingUser) {
+            throw new Error("User already exists")
           }
-        },
-        
-        // MongoDB 어댑터 대신 PostgreSQL 어댑터 사용
-        adapter: PgAdapter(pool),
-        secret: process.env.NEXTAUTH_SECRET
+
+          const hashedPassword = await bcrypt.hash(password, 10)
+
+          const newUser = await prisma.user.create({
+            data: {
+              name,
+              email,
+              password: hashedPassword,
+              role: 'user'
+            }
+          });
+
+          return {
+            id: newUser.id,
+            name: newUser.name,
+            role: newUser.role,
+            email: newUser.email
+          }
+        } else if (action === 'login') {
+          // 로그인 로직
+          const user = await prisma.user.findUnique({
+            where: { email }
+          });
+
+          if (!user || !user.password) {
+            throw new Error("No user found")
+          }
+
+          const isValid = await bcrypt.compare(password, user.password)
+          if (!isValid) {
+            throw new Error("Invalid password")
+          }
+
+          return {
+            id: user.id,
+            name: user.name,
+            role: user.role,
+            email: user.email
+          }
+        }
+
+        throw new Error("Invalid action")
+      }
+    }),
+  ],
+  session: {
+    strategy: 'jwt',
+    maxAge: 30 * 24 * 60 * 60 // 30일
+  },
+  callbacks: {
+    async signIn({ user, account, profile }) {
+      if (account?.provider === "credentials") {
+        return true
+      }
+
+      if (account?.provider === 'google' || account?.provider === 'github') {
+        try {
+          const existingUser = await prisma.user.findUnique({
+            where: { email: user.email },
+            include: { accounts: true }
+          });
+
+          if (existingUser) {
+            // 계정 연결 확인 및 추가
+            const linkedAccount = existingUser.accounts.find(
+              acc => acc.provider === account.provider
+            );
+
+            if (!linkedAccount) {
+              await prisma.account.create({
+                data: {
+                  userId: existingUser.id,
+                  type: account.type,
+                  provider: account.provider,
+                  providerAccountId: account.providerAccountId,
+                  refresh_token: account.refresh_token as string | null,
+                  access_token: account.access_token as string | null,
+                  expires_at: account.expires_at as number | null,
+                  token_type: account.token_type as string | null,
+                  scope: account.scope as string | null,
+                  id_token: account.id_token as string | null,
+                  session_state: account.session_state as string | null,
+                }
+              });
+
+              // 사용자 역할 업데이트
+              await prisma.user.update({
+                where: { id: existingUser.id },
+                data: { role: 'user' }
+              });
+            }
+          } else {
+            // 새 사용자 생성
+            const newUser = await prisma.user.create({
+              data: {
+                name: user.name,
+                email: user.email,
+                role: 'user',
+                accounts: {
+                  create: {
+                    type: account.type || 'oauth',
+                    provider: account.provider,
+                    providerAccountId: account.providerAccountId,
+                    refresh_token: account.refresh_token ? String(account.refresh_token) : null,
+                    access_token: account.access_token ? String(account.access_token) : null,
+                    expires_at: account.expires_at || null,
+                    token_type: account.token_type ? String(account.token_type) : null,
+                    scope: account.scope ? String(account.scope) : null,
+                    id_token: account.id_token ? String(account.id_token) : null,
+                    session_state: account.session_state ? String(account.session_state) : null
+                  }
+                }
+              }
+            });
+          }
+
+          return true
+        } catch (error) {
+          console.error('OAuth signIn error:', error);
+          return false
+        }
+      }
+
+      return true
+    },
+
+    jwt: async ({ token, account, user, trigger, session }) => {
+      if (account) {
+        token.provider = account.provider;
+      }
+
+      if (user) {
+        token.user = user;
+      }
+
+      if (trigger === 'update') {
+        token = { ...token, ...session };
+      }
+
+      return token;
+    },
+
+    session: async ({ session, token }) => {
+      if (token.user) {
+        session.user = {
+          ...session.user,
+          id: token.user.id,
+          name: token.user.name,
+          email: token.user.email,
+          role: token.user.role,
+          // emailVerified: token.emailVerified || null,
+        };
+      }
+      return session;
     }
-)
+  },
+  secret: process.env.NEXTAUTH_SECRET
+})
