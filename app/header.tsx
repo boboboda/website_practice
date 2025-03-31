@@ -21,7 +21,12 @@ export default function Header() {
           name="naver-site-verification"
           content="f71196e4dbe205d177e771af7db3602a74f06a6d"
         />
+      
+       <meta 
+       name="google-adsense-account" 
+       content="ca-pub-8596470561558049"/>
       </Head>
+      
       
     </>
   );

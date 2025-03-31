@@ -1,5 +1,5 @@
 "use client"
-import{ CountUp} from "countup.js";
+import{ CountUp } from "countup.js";
 import { useEffect, useRef } from "react";
 
 

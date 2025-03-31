@@ -8,7 +8,7 @@ export async function middleware(request: NextRequest) {
 
   console.log("미들웨어 엔드포인트", request.nextUrl.pathname)
 
-    const session = await getToken({ req: request, secret: process.env.AUTH_SECRET })
+    const session = await getToken({ req: request, secret: process.env.NEXTAUTH_SECRET })
 
     if (session && (request.nextUrl.pathname === '/signup' || request.nextUrl.pathname === '/signin')) {
         // 메인 페이지나 다른 페이지로 리다이렉트
