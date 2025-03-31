@@ -229,8 +229,8 @@ const NoticeCustomModal = ({
 
     const CommentsList = ({ comment, noticeId }: { comment: Comment, noticeId: any }) => {
 
-        const date = new Date(comment.created_at.seconds * 1000 + comment.created_at.nanoseconds / 1000000);
-        const formattedDate = `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()} ${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}`;
+        // const date = new Date(comment.created_at.seconds * 1000 + comment.created_at.nanoseconds / 1000000);
+        // const formattedDate = `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()} ${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}`;
         return (
             <>
                 <Card key={comment.id} className="">
@@ -238,7 +238,7 @@ const NoticeCustomModal = ({
                         <div className="flex h-auto w-full items-center space-x-4 text-small">
                             <div className=" w-1/5 items-start">{comment.writer}</div>
 
-                            <div className="w-3/5 h-auto text-center">{formattedDate}</div>
+                            <div className="w-3/5 h-auto text-center">{comment.created_at}</div>
 
                             <Button variant="faded" className=" w-1/5 cursor-pointer" onClick={() => {
                                 ondeleteComment?.(

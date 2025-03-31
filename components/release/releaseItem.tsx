@@ -33,7 +33,7 @@ export default function ReleaseItem({ data }: {data: any }) {
     const noticeHandleClick = () => {
       return (
         <DropdownItem key={noticeHref} onPress={()=>(
-          router.push(`release/noticeBoard/${noticeHref}`)
+          router.push(`release/notice/${noticeHref}`)
         )}>공지사항</DropdownItem>
       );
     };
@@ -41,7 +41,7 @@ export default function ReleaseItem({ data }: {data: any }) {
     const postHandleClick = () => {
       return (
         <DropdownItem key={postHref} onPress={()=>(
-          router.push(`release/postBoard/${postHref}`)
+          router.push(`release/post/${postHref}`)
         )}>문의게시판</DropdownItem>
       );
     };

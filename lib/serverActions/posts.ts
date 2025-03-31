@@ -4,6 +4,7 @@
 import prisma from "@/lib/prisma"
 import { revalidatePath } from 'next/cache';
 import moment from 'moment';
+import { Post, Comment } from "@/types";
 
 
 
@@ -71,7 +72,10 @@ export async function addAPost({
 
 
 // 모든 게시글 가져오기
-export async function fetchPosts(appName, postType) {
+export async function fetchPosts(
+  appName: string, 
+  postType: string
+): Promise<{ posts: Post[] }> {
   try {
     const posts = await prisma.post.findMany({
       where: {
@@ -90,10 +94,10 @@ export async function fetchPosts(appName, postType) {
       }
     });
 
-    // 날짜 포맷 및 데이터 구조 변환
-    const formattedPosts = posts.map(post => ({
+    // 날짜를 모두 문자열로 변환
+    const formattedPosts: Post[] = posts.map(post => ({
       id: post.id,
-      listNumber: post.listNumber,
+      listNumber: post.listNumber.toString(),
       password: post.password,
       writer: post.writer,
       title: post.title,
@@ -103,10 +107,11 @@ export async function fetchPosts(appName, postType) {
         content: comment.content,
         writer: comment.writer,
         password: comment.password,
+        // 문자열로 변환
         created_at: moment(comment.createdAt).format("YYYY-MM-DD HH:mm:ss"),
         replys: comment.replies.map(reply => ({
           id: reply.id,
-          personId: reply.personId,
+          personId: reply.personId || '',
           writer: reply.writer,
           content: reply.content,
           password: reply.password,
@@ -116,13 +121,14 @@ export async function fetchPosts(appName, postType) {
       created_at: moment(post.createdAt).format("YYYY-MM-DD HH:mm:ss")
     }));
 
-    return formattedPosts;
+    return {
+      posts: formattedPosts
+    };
   } catch (error) {
     console.error('게시글 목록 조회 실패:', error);
-    return [];
+    return { posts: [] };
   }
 }
-
 // // 댓글 추가하기
 // export async function addAComment({ appName, postType, postId, commentPassword, commentWriter, commentContent }) {
 //   try {

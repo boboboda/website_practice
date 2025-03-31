@@ -33,7 +33,7 @@ export type Comment = {
   writer: string;
   content: string;
   password: string;
-  created_at: Timestamp;
+  created_at: string;
   replys: Reply[];
 }
 
