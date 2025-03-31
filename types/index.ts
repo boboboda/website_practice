@@ -17,6 +17,17 @@ export type Post = {
   comments: Comment[];
 }
 
+// export type Notice = {
+//   id: string;
+//   listNumber: string;
+//   writer: string;
+//   password: string;
+//   title: string;
+//   content: string;
+//   created_at: string;
+//   comments: any[];
+// }
+
 export type Comment = {
   id: string;
   writer: string;
@@ -35,16 +46,7 @@ export type Reply = {
   created_at: string
 }
 
-export type Notice = {
-  id: string;
-  listNumber: string;
-  writer: string;
-  password: string;
-  title: string;
-  content: string;
-  created_at: string;
-  comments: any[];
-}
+
 
 
 const columns = [
@@ -74,7 +76,7 @@ export type FocusedPostType = {
 }
 
 export type FocusedNoticeType = {
-  focusedNotice: Notice | null,
+  focusedNotice: Post | null,
   modalType: CustomModalType,
   appName?: string
 }

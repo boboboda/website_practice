@@ -16,7 +16,7 @@ import {
   ModalFooter,
   Tooltip,
 } from "@nextui-org/react";
-import { Notice, FocusedNoticeType, CustomModalType } from "@/types";
+import { Post, FocusedNoticeType, CustomModalType } from "@/types";
 import { useRouter, usePathname } from "next/navigation"
 import React from 'react';
 import { ToastContainer, toast } from 'react-toastify';
@@ -29,11 +29,12 @@ import { SearchIcon, ChevronDownIcon, PlusIcon, EyeIcon, EditIcon, DeleteIcon } 
 import { of, from, filter, find } from "rxjs";
 import { debounce } from "lodash";
 import PasswordModal from "../postComponent/password-modal";
+import { addAPost } from "@/lib/serverActions/posts"
 
 type ModalSize = "sm" | "md" | "lg" | "xl" | "2xl" | "full" | "xs" | "3xl" | "4xl" | "5xl";
 
 
-const NoticesTable = ({ notices, appName }: { notices: Notice[], appName: string }) => {
+const NoticesTable = ({ notices, appName }: { notices: Post[], appName: string }) => {
 
 
   const [filterValue, setFilterValue] = React.useState("");
@@ -62,7 +63,7 @@ const NoticesTable = ({ notices, appName }: { notices: Notice[], appName: string
     appName: ""
   });
 
-  const [currentNotice, setCurrentNotice] = useState<Notice>({
+  const [currentNotice, setCurrentNotice] = useState<Post>({
     id: "",
     listNumber: "",
     writer: "",
@@ -177,9 +178,9 @@ const NoticesTable = ({ notices, appName }: { notices: Notice[], appName: string
 
   // 정렬관련- 날짜 관련 cmp 수정 필요
   const sortedItems = React.useMemo(() => {
-    return [...items].sort((a: Notice, b: Notice) => {
-      const first = a[sortDescriptor.column as keyof Notice] as string;
-      const second = b[sortDescriptor.column as keyof Notice] as string;
+    return [...items].sort((a: Post, b: Post) => {
+      const first = a[sortDescriptor.column as keyof Post] as string;
+      const second = b[sortDescriptor.column as keyof Post] as string;
       const cmp = first < second ? -1 : first > second ? 1 : 0;
 
       return sortDescriptor.direction === "descending" ? -cmp : cmp;
@@ -187,7 +188,7 @@ const NoticesTable = ({ notices, appName }: { notices: Notice[], appName: string
   }, [sortDescriptor, items]);
 
   const renderCell = React.useCallback((notice: any, columnKey: any) => {
-    const cellValue = notice[columnKey as keyof Notice];
+    const cellValue = notice[columnKey as keyof Post];
 
     switch (columnKey) {
       case "listNumber":
@@ -405,16 +406,40 @@ const NoticesTable = ({ notices, appName }: { notices: Notice[], appName: string
     // setIsLoading(true);
 
     await new Promise(f => setTimeout(f, 600));
-    await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/notices/${appName}`, {
-      method: 'post',
-      body: JSON.stringify({
+
+    try{
+
+      const addedPost = await addAPost({
+        appName: appName,
+        postType: "notice",
         title: title,
-        writer: writer,
         password: password,
+        writer: writer,
         content: content
-      }),
-      cache: 'no-store'
-    });
+      });
+
+
+      const response = {
+        message: `게시글 추가 성공`,
+        data: addedPost
+      }
+
+    } catch (error) {
+      console.error('공지사항 작성 실패:', error);
+      notifySuccessEvent(`작성이 실패되었습니다!`);
+    }
+
+
+    // await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/notices/${appName}`, {
+    //   method: 'post',
+    //   body: JSON.stringify({
+    //     title: title,
+    //     writer: writer,
+    //     password: password,
+    //     content: content
+    //   }),
+    //   cache: 'no-store'
+    // });
 
     router.refresh();
 

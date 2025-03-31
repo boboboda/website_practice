@@ -5,7 +5,7 @@ import {
     ModalFooter, Button, Input, checkbox, Switch, CircularProgress, ScrollShadow, Textarea, useDisclosure, Accordion, AccordionItem, Divider, Card, CardHeader, CardBody, CardFooter
 } from "@nextui-org/react";
 import React from 'react';
-import { Post, FocusedPostType, CustomModalType, Notice, Comment, Reply } from "@/types";
+import { Post, FocusedPostType, CustomModalType, Comment, Reply } from "@/types";
 import { EyeSlashFilledIcon, EyeFilledIcon } from "../../icons";
 import { deleteAComment, fetchAPost } from "@/lib/data/firebase";
 import { useRouter, usePathname } from "next/navigation"
@@ -29,7 +29,7 @@ const NoticeCustomModal = ({
     onAddReply,
     onDeleteReply,
     onAdd }: {
-        focusedNotice?: Notice,
+        focusedNotice?: Post,
         appName?: string,
         modalType: CustomModalType,
         onDeleteAuth?: (notice: Post) => void,

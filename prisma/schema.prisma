@@ -66,3 +66,49 @@ model DevelopNote {
 
   @@map("developNote")
 }
+
+
+// 게시글 모델
+model Post {
+  id         String    @id @default(uuid())
+  listNumber Int
+  password   String
+  writer     String
+  title      String
+  content    String
+  createdAt  DateTime  @default(now()) @map("created_at")
+  appName    String    // 앱 이름 (예: main, sub 등)
+  postType   String    // 게시글 타입 (notice, post)
+  comments   Comment[]
+
+  @@map("posts")
+  @@index([appName, postType]) // 검색 성능 향상을 위한 인덱스
+}
+
+// 댓글 모델
+model Comment {
+  id        String   @id @default(uuid())
+  password  String
+  writer    String
+  content   String
+  createdAt DateTime @default(now()) @map("created_at")
+  postId    String   @map("post_id")
+  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  replies   Reply[]
+
+  @@map("comments")
+}
+
+// 답글 모델
+model Reply {
+  id        String   @id @default(uuid())
+  personId  String?  @map("person_id")
+  password  String
+  writer    String
+  content   String
+  createdAt DateTime @default(now()) @map("created_at")
+  commentId String   @map("comment_id")
+  comment   Comment  @relation(fields: [commentId], references: [id], onDelete: Cascade)
+
+  @@map("replies")
+}
