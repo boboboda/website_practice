@@ -48,7 +48,7 @@ export default function NoteContentCard() {
         isPressable
         onClick={()=>{
           // console.log('노트 누름')
-          router.push("/note/react")
+          router.push("/note/android")
 
           // window.location.href = "/note/react"
         }}

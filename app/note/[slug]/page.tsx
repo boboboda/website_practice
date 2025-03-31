@@ -11,7 +11,8 @@ export default async function NoteContentItemPage({ params }: { params: { slug: 
 
     const filterNotes = notes.filter((note) => note.mainCategory === params.slug)
 
-    console.log('write', notes)
+    console.log('유저노트리스트-페이지', notes)
+    console.log('유저노트리스트-페이지-필터터', filterNotes)
 
     return (
         <NoteStoreProvider>

@@ -392,7 +392,7 @@ const NoticeCustomModal = ({
                 <div className="flex w-full flex-col py-1 space-x-4 space-y-3 items-center justify-center">
                     <div className="flex w-full flex-row space-x-5 justify-end items-end">
 
-                        <h1 className="flex flex-row space-x-2 text-white cursor-pointer" onClick={() => {
+                        <h1 className="flex flex-row space-x-2 text-black dark:text-white cursor-pointer" onClick={() => {
                             addCommentToggle()
                         }}>
                             댓글쓰기

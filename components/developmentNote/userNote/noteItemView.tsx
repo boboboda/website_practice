@@ -5,18 +5,21 @@ import { ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/24/solid';
 import { Note, SubCategory } from "@/store/editorSotre";
 import ReadBlockEditor from "./readBlockEditor";
 import { Button } from "@nextui-org/react";
+import { useRouter } from "next/navigation";
 
 interface GroupedNotes {
   [key: string]: Note[];
 }
 
 export default function NoteItemView({fetchNotes}: {fetchNotes: Note[]}) {
+    const router = useRouter(); // 컴포넌트 최상위 레벨에서 호출
     const [note, setNote] = useState<Note | null>(null);
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     const [groupedNotes, setGroupedNotes] = useState<GroupedNotes>({});
 
     useEffect(() => {
-        if (fetchNotes.length > 0) {
+        if (fetchNotes && fetchNotes.length > 0) {
+            console.log("Setting first note:", fetchNotes[0]);
             setNote(fetchNotes[0]);
             const grouped = fetchNotes.reduce((acc, note) => {
                 const subCategoryName = note.subCategory?.name || 'Uncategorized';
@@ -59,7 +62,7 @@ export default function NoteItemView({fetchNotes}: {fetchNotes: Note[]}) {
                             </div>
                         </div>
                         <div className="p-3 mb-[20px]">
-                            <Button className="w-full bg-slate-500">
+                            <Button className="w-full bg-slate-500" onClick={() => router.back()}>
                                 뒤로가기
                             </Button>
                         </div>

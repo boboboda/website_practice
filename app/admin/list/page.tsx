@@ -8,7 +8,9 @@ import { Note } from "@/store/editorSotre";
 
 
 
+
 export default async function DevelopNoteList() {
+
 
   const noteRes = await allFetchEdtiorServer()
 

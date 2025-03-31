@@ -6,7 +6,6 @@ import {
   NavbarContent,
   Image,
   Button,
-  NavbarItem,
   Dropdown,
   DropdownTrigger,
   DropdownMenu,
@@ -188,9 +187,9 @@ export default function NavBar() {
           <div>
             <Dropdown placement="bottom-end">
               <DropdownTrigger>
-                <div className="flex w-[150px] items-center justify-center bg-white cursor-pointer">
+                <div className="flex w-[150px] items-center justify-center bg-transparent cursor-pointer">
                   <UserCircleIcon className="w-6 h-6"></UserCircleIcon>
-                  <p className="inline-block max-w-[100px]  px-1 py-1 text-black truncate">{user?.name}</p>
+                  <p className="inline-block max-w-[100px]  px-1 py-1 text-black dark:text-white bg-transparent truncate">{user?.name}</p>
                 </div>
               </DropdownTrigger>
               <DropdownMenu aria-label="Profile Actions" variant="flat">

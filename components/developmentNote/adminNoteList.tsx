@@ -1,8 +1,10 @@
 import { Note } from "@/store/editorSotre";
 import AdminNoteTable from "./table/noteTable";
-
+import { unstable_noStore as noStore } from 'next/cache';
 
 export default function AdminNoteList({fetchNotes}: {fetchNotes: Note[]}) {
+
+    noStore();
 
     return(
         <div className="w-full pt-3">
