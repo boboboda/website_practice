@@ -50,3 +50,4 @@ export const createAuthStore = (initState: AuthState = defaultInitAuthState) => 
   }))
   )
 }
+// src/stores/index.ts
