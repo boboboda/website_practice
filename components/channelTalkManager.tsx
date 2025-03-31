@@ -25,7 +25,7 @@ const AppProvider = ({ children }: PropsWithChildren) => {
   useEffect(() => {
     ChannelService.loadScript();
     ChannelService.boot({
-      pluginKey: "c904884f-0dc2-48df-b9c2-9ef002727b21" || "",
+      pluginKey: "c904884f-0dc2-48df-b9c2-9ef002727b21",
     });
   }, []);
 

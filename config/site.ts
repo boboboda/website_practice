@@ -16,10 +16,10 @@ export const siteConfig = {
 			label: "출시어플",
 			href: "/release",
 		},
-		{
-			label: "제작의뢰",
-			href: "/makeorder",
-		},
+		// {
+		// 	label: "제작의뢰",
+		// 	href: "/makeorder",
+		// },
 		{
 			label: "연락하기",
 			href: "https://open.kakao.com/o/ss0BBmVb",

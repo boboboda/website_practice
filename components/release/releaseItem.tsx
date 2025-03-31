@@ -32,7 +32,7 @@ export default function ReleaseItem({ data }: {data: any }) {
 
     const noticeHandleClick = () => {
       return (
-        <DropdownItem onPress={()=>(
+        <DropdownItem key={noticeHref} onPress={()=>(
           router.push(`release/noticeBoard/${noticeHref}`)
         )}>공지사항</DropdownItem>
       );
@@ -40,7 +40,7 @@ export default function ReleaseItem({ data }: {data: any }) {
 
     const postHandleClick = () => {
       return (
-        <DropdownItem onPress={()=>(
+        <DropdownItem key={postHref} onPress={()=>(
           router.push(`release/postBoard/${postHref}`)
         )}>문의게시판</DropdownItem>
       );
@@ -129,7 +129,7 @@ export default function ReleaseItem({ data }: {data: any }) {
               <DropdownMenu>
                 {noticeHandleClick()}
                 {postHandleClick()}
-                <DropdownItem href="">개인정보처리방침</DropdownItem>
+                <DropdownItem key="secret" href="">개인정보처리방침</DropdownItem>
               </DropdownMenu>
             </Dropdown>
                 </div>

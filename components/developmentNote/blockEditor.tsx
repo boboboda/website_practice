@@ -47,9 +47,9 @@ export const BlockEditor = ({fetchNotes, editorType, note}: {note?:Note, fetchNo
       try {
       const localNote: Note = await loadFromLocal();
 
-      console.log('로컬데이터 있어요', localNote)
-
       if(localNote.title !== "") {
+        console.log('로컬데이터 있어요', localNote)
+
         onOpen()
       }
 
@@ -75,7 +75,7 @@ export const BlockEditor = ({fetchNotes, editorType, note}: {note?:Note, fetchNo
 
       editor.commands.clearContent();
       editor.commands.setContent(note.content)
-      setContent({title: note.title, content: note.content})
+      setContent({noteId: note.noteId, title: note.title, content: note.content})
       break
 
       case "read":

@@ -13,6 +13,7 @@ import { useNoteStore, useNoteStoreSubscribe } from "../providers/editor-provide
 import { Note, SubCategory } from "@/store/editorSotre";
 import { useRouter } from "next/navigation";
 import { toast } from "react-toastify";
+import { revalidatePath } from 'next/cache';
 
 export type EditorHeaderProps = {
   isSidebarOpen?: boolean;
@@ -232,6 +233,7 @@ export const EditorHeader = ({
           notifySuccessEvent("서버에 저장되었습니다.");
 
           router.push('/')
+          router.refresh()
         }
 
       } catch (error) {
@@ -249,6 +251,7 @@ export const EditorHeader = ({
           notifySuccessEvent("문서가 수정되었습니다.");
 
           router.push('/')
+          router.refresh()
         }
 
       } catch (error) {

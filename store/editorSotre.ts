@@ -37,7 +37,7 @@ export interface EditorActions {
 export const defaultInitContent: Note = {
     noteId: null,
     title: '',
-    mainCategory: "Android",
+    mainCategory: "android",
     subCategory: null,
     content: [
         {
@@ -149,7 +149,7 @@ export const createEditorStore = (initState: Note = defaultInitContent) => {
 
                 let note = get();
 
-                console.log('스토어 노트아이디', note.noteId)
+                console.log('수정 노트 정보', note)
 
 
                 const newData = {
