@@ -10,12 +10,30 @@ export type Post = {
   id: string;
   listNumber: string;
   writer: string;
-  password: string;
   title: string;
   content: string;
   created_at: string;
   comments: Comment[];
 }
+
+
+
+export type Comment = {
+  id: string;
+  writer: string;
+  content: string;
+  created_at: string;
+  replys: Reply[];
+}
+
+export type Reply = {
+  id: string;
+  writer: string;
+  personId: string;
+  content: string;
+  created_at: string
+}
+
 
 // export type Notice = {
 //   id: string;
@@ -27,25 +45,6 @@ export type Post = {
 //   created_at: string;
 //   comments: any[];
 // }
-
-export type Comment = {
-  id: string;
-  writer: string;
-  content: string;
-  password: string;
-  created_at: string;
-  replys: Reply[];
-}
-
-export type Reply = {
-  id: string;
-  writer: string;
-  personId: string;
-  content: string;
-  password: string;
-  created_at: string
-}
-
 
 
 

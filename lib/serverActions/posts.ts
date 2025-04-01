@@ -12,13 +12,11 @@ import { Post, Comment } from "@/types";
 export async function addAPost({ 
     appName, 
     postType, 
-    password, 
     title, 
     writer, 
     content }: {
         appName: string;
         postType: string;
-        password: string;
         title: string;
         writer: string;
         content: string;
@@ -41,7 +39,6 @@ export async function addAPost({
       // 새 게시글 생성
       const newPost = await prisma.post.create({
         data: {
-          password,
           title,
           listNumber: newListNumber,
           writer,
@@ -55,7 +52,6 @@ export async function addAPost({
   
       return {
         id: newPost.id,
-        password: newPost.password,
         title: newPost.title,
         listNumber: newPost.listNumber,
         writer: newPost.writer,
@@ -98,7 +94,6 @@ export async function fetchPosts(
     const formattedPosts: Post[] = posts.map(post => ({
       id: post.id,
       listNumber: post.listNumber.toString(),
-      password: post.password,
       writer: post.writer,
       title: post.title,
       content: post.content,
@@ -106,7 +101,6 @@ export async function fetchPosts(
         id: comment.id,
         content: comment.content,
         writer: comment.writer,
-        password: comment.password,
         // 문자열로 변환
         created_at: moment(comment.createdAt).format("YYYY-MM-DD HH:mm:ss"),
         replys: comment.replies.map(reply => ({
@@ -114,7 +108,6 @@ export async function fetchPosts(
           personId: reply.personId || '',
           writer: reply.writer,
           content: reply.content,
-          password: reply.password,
           created_at: moment(reply.createdAt).format("YYYY-MM-DD HH:mm:ss")
         }))
       })),
@@ -129,95 +122,216 @@ export async function fetchPosts(
     return { posts: [] };
   }
 }
-// // 댓글 추가하기
-// export async function addAComment({ appName, postType, postId, commentPassword, commentWriter, commentContent }) {
-//   try {
-//     // 게시글 존재 여부 확인
-//     const post = await prisma.post.findUnique({
-//       where: { id: postId }
-//     });
 
-//     if (!post) {
-//       throw new Error('게시글을 찾을 수 없습니다.');
-//     }
 
-//     // 댓글 추가
-//     const newComment = await prisma.comment.create({
-//       data: {
-//         password: commentPassword,
-//         writer: commentWriter,
-//         content: commentContent,
-//         postId: postId
-//       }
-//     });
+// 단일 게시글 삭제
+export async function deleteAPost({appName, postType, id}:{appName: string, postType: string, id: string}) {
+  try {
+    // 게시글 찾기
+    const post = await prisma.post.findFirst({
+      where: { 
+        id,
+        appName,
+        postType 
+      }
+    });
 
-//     revalidatePath(`/${appName}/${postType}/${postId}`);
+    if (!post) {
+      return null;
+    }
 
-//     // 업데이트된 게시글 정보 반환
-//     const updatedPost = await prisma.post.findUnique({
-//       where: { id: postId },
-//       include: {
-//         comments: {
-//           include: {
-//             replies: true
-//           }
-//         }
-//       }
-//     });
+    // 게시글 삭제 (관계된 댓글과 답글은 cascade로 자동 삭제)
+    await prisma.post.delete({
+      where: { id }
+    });
 
-//     return {
-//       id: updatedPost.id,
-//       title: updatedPost.title,
-//       created_at: updatedPost.createdAt,
-//       listNumber: updatedPost.listNumber,
-//       writer: updatedPost.writer,
-//       content: updatedPost.content,
-//       password: updatedPost.password,
-//       comments: updatedPost.comments
-//     };
-//   } catch (error) {
-//     console.error('댓글 추가 실패:', error);
-//     throw new Error('댓글을 추가하는 중 오류가 발생했습니다.');
-//   }
-// }
+    revalidatePath(`/${appName}/${postType}`);
 
-// // 댓글 삭제
-// export async function deleteAComment(appName, postType, postId, commentId) {
-//   try {
-//     // 댓글 삭제
-//     await prisma.comment.delete({
-//       where: { id: commentId }
-//     });
+    return post;
+  } catch (error) {
+    console.error('게시글 삭제 실패:', error);
+    return null;
+  }
+}
 
-//     revalidatePath(`/${appName}/${postType}/${postId}`);
 
-//     // 업데이트된 게시글 정보 반환
-//     const updatedPost = await prisma.post.findUnique({
-//       where: { id: postId },
-//       include: {
-//         comments: {
-//           include: {
-//             replies: true
-//           }
-//         }
-//       }
-//     });
+// 단일 게시글 수정
+export async function editAPost({appName, postType, id, title, content} :{appName: string, postType: string, id: string, title: string, content: string}) {
+  try {
+    // 게시글 존재 여부 확인
+    const existingPost = await prisma.post.findFirst({
+      where: { 
+        id,
+        appName,
+        postType 
+      }
+    });
 
-//     return {
-//       id: updatedPost.id,
-//       title: updatedPost.title,
-//       created_at: updatedPost.createdAt,
-//       listNumber: updatedPost.listNumber,
-//       writer: updatedPost.writer,
-//       content: updatedPost.content,
-//       password: updatedPost.password,
-//       comments: updatedPost.comments
-//     };
-//   } catch (error) {
-//     console.error('댓글 삭제 실패:', error);
-//     return null;
-//   }
-// }
+    if (!existingPost) {
+      return null;
+    }
+
+    // 게시글 업데이트
+    const updatedPost = await prisma.post.update({
+      where: { id },
+      data: {
+        title,
+        content
+      }
+    });
+
+    revalidatePath(`/${appName}/${postType}`);
+    revalidatePath(`/${appName}/${postType}/${id}`);
+
+    return {
+      id,
+      created_at: updatedPost.createdAt,
+      title,
+      content
+    };
+  } catch (error) {
+    console.error('게시글 수정 실패:', error);
+    return null;
+  }
+}
+
+
+// 댓글 추가하기
+export async function addAComment({
+    appName,
+    postType,
+    postId,
+    commentWriter,
+    commentPassword,
+    commentContent
+  }: {
+    appName: string;
+    postType: string;
+    postId: string;
+    commentWriter: string;
+    commentPassword: string;
+    commentContent: string;
+  }): Promise<Post> {
+    try {
+      // 댓글 추가
+      await prisma.comment.create({
+        data: {
+          writer: commentWriter,
+          content: commentContent,
+          postId: postId
+        }
+      });
+      
+      // 업데이트된 게시글 정보 가져오기
+      const updatedPost = await prisma.post.findUnique({
+        where: { id: postId },
+        include: {
+          comments: {
+            include: {
+              replies: true
+            },
+            orderBy: {
+              createdAt: 'desc'
+            }
+          }
+        }
+      });
+  
+      if (!updatedPost) {
+        throw new Error('게시글을 찾을 수 없습니다.');
+      }
+      
+      // Post 타입으로 변환
+      const formattedPost: Post = {
+        id: updatedPost.id,
+        listNumber: updatedPost.listNumber.toString(), // int → string 변환
+        writer: updatedPost.writer,
+        title: updatedPost.title,
+        content: updatedPost.content,
+        created_at: new Date(updatedPost.createdAt).toISOString(),
+        comments: updatedPost.comments.map(comment => ({
+          id: comment.id,
+          writer: comment.writer,
+          content: comment.content,
+          created_at: new Date(comment.createdAt).toISOString(),
+          replys: comment.replies.map(reply => ({
+            id: reply.id,
+            personId: reply.personId || '',
+            writer: reply.writer,
+            content: reply.content,
+            created_at: new Date(reply.createdAt).toISOString()
+          }))
+        }))
+      };
+      
+      return formattedPost;
+    } catch (error) {
+      console.error('댓글 추가 실패:', error);
+      throw new Error('댓글을 추가하는 중 오류가 발생했습니다.');
+    }
+  }
+
+// 댓글 삭제
+export async function deleteAComment(
+    {appName, 
+    postType, 
+    postId, 
+    commentId}: {appName: string, postType: string, postId: string, commentId: string}
+  ): Promise<Post> {
+    try {
+      // 댓글 삭제
+      await prisma.comment.delete({
+        where: { id: commentId }
+      });
+  
+      revalidatePath(`/${appName}/${postType}/${postId}`);
+  
+      // 업데이트된 게시글 정보 반환
+      const updatedPost = await prisma.post.findUnique({
+        where: { id: postId },
+        include: {
+          comments: {
+            include: {
+              replies: true
+            },
+            orderBy: {
+              createdAt: 'desc'
+            }
+          }
+        }
+      });
+  
+      if (!updatedPost) {
+        throw new Error('게시글을 찾을 수 없습니다.');
+      }
+      
+      // Post 타입으로 변환
+      return {
+        id: updatedPost.id,
+        listNumber: updatedPost.listNumber.toString(),
+        writer: updatedPost.writer,
+        title: updatedPost.title,
+        content: updatedPost.content,
+        created_at: new Date(updatedPost.createdAt).toISOString(),
+        comments: updatedPost.comments.map(comment => ({
+          id: comment.id,
+          writer: comment.writer,
+          content: comment.content,
+          created_at: new Date(comment.createdAt).toISOString(),
+          replys: comment.replies.map(reply => ({
+            id: reply.id,
+            personId: reply.personId || '',
+            writer: reply.writer,
+            content: reply.content,
+            created_at: new Date(reply.createdAt).toISOString()
+          }))
+        }))
+      };
+    } catch (error) {
+      console.error('댓글 삭제 실패:', error);
+      throw new Error('댓글을 삭제하는 중 오류가 발생했습니다.');
+    }
+  }
 
 // // 답글 추가하기
 // export async function addAReply({ appName, postType, postId, commentId, personId, replyPassword, replyWriter, replyContent }) {
@@ -352,74 +466,5 @@ export async function fetchPosts(
 //   }
 // }
 
-// // 단일 게시글 삭제
-// export async function deleteAPost(appName, postType, id) {
-//   try {
-//     // 게시글 찾기
-//     const post = await prisma.post.findFirst({
-//       where: { 
-//         id,
-//         appName,
-//         postType 
-//       }
-//     });
 
-//     if (!post) {
-//       return null;
-//     }
 
-//     // 게시글 삭제 (관계된 댓글과 답글은 cascade로 자동 삭제)
-//     await prisma.post.delete({
-//       where: { id }
-//     });
-
-//     revalidatePath(`/${appName}/${postType}`);
-
-//     return post;
-//   } catch (error) {
-//     console.error('게시글 삭제 실패:', error);
-//     return null;
-//   }
-// }
-
-// // 단일 게시글 수정
-// export async function editAPost(appName, postType, id, { title, password, content }) {
-//   try {
-//     // 게시글 존재 여부 확인
-//     const existingPost = await prisma.post.findFirst({
-//       where: { 
-//         id,
-//         appName,
-//         postType 
-//       }
-//     });
-
-//     if (!existingPost) {
-//       return null;
-//     }
-
-//     // 게시글 업데이트
-//     const updatedPost = await prisma.post.update({
-//       where: { id },
-//       data: {
-//         title,
-//         password,
-//         content
-//       }
-//     });
-
-//     revalidatePath(`/${appName}/${postType}`);
-//     revalidatePath(`/${appName}/${postType}/${id}`);
-
-//     return {
-//       id,
-//       created_at: updatedPost.createdAt,
-//       title,
-//       password,
-//       content
-//     };
-//   } catch (error) {
-//     console.error('게시글 수정 실패:', error);
-//     return null;
-//   }
-// }
