@@ -11,6 +11,7 @@ import ReplyList from "./ReplyList";
 
 // 댓글 작성 컴포넌트
 const CommentAdd = ({
+  user,
   addedCommentWriterInput, setAddedCommentWriterInput,
   addedCommentPasswordInput, setAddedCommentPasswordInput,
   addedCommentContentInput, setAddedCommentContentInput,
@@ -29,9 +30,9 @@ const CommentAdd = ({
     // 댓글 추가 처리
     onAddComment?.({
       noticeId: localNoticeData?.id ?? "",
-      writer: addedCommentWriterInput,
+      writer: user.name,
+      email: user.email,
       content: addedCommentContentInput,
-      password: addedCommentPasswordInput
     });
     
     // 입력 필드 초기화
@@ -42,48 +43,37 @@ const CommentAdd = ({
     setIsLoading(false);
   };
 
+  // 로그인 여부에 따라 다른 UI 표시
+  if (!user.email) {
+    return (
+      <Card className="w-full mb-4">
+        <CardBody>
+          <div className="flex items-center justify-center py-4">
+            <p className="text-center text-gray-500">로그인 후 사용할 수 있습니다.</p>
+          </div>
+        </CardBody>
+      </Card>
+    );
+  }
+
   return (
     <Card className="w-full mb-4">
       <CardBody>
         <h3 className="text-lg font-semibold mb-2">댓글 작성</h3>
-        <div className="flex flex-row items-center space-x-4">
-          <div className="flex flex-col w-full space-x-1">
-            <Input
-              isRequired
-              type="text"
-              label="닉네임"
-              placeholder="닉네임을 입력해주세요"
-              variant="bordered"
-              value={addedCommentWriterInput}
-              onValueChange={setAddedCommentWriterInput}
-            />
-            <Input
-              isRequired
-              label="비밀번호"
-              placeholder="비밀번호을 입력해주세요"
-              variant="bordered"
-              type="password"
-              value={addedCommentPasswordInput}
-              onValueChange={setAddedCommentPasswordInput}
-            />
-          </div>
-
-          <div className="flex w-full">
-            <Textarea
-              label="댓글"
-              type="text"
-              placeholder="댓글을 입력해주세요"
-              variant="bordered"
-              value={addedCommentContentInput}
-              onValueChange={setAddedCommentContentInput}
-            />
-          </div>
-        </div>
-        <div className="flex w-full justify-end mt-2">
+        <div className="flex flex-row items-center space-x-2">
+          <Input
+            type="text"
+            placeholder="댓글을 입력해주세요"
+            variant="bordered"
+            className="w-full"
+            value={addedCommentContentInput}
+            onValueChange={setAddedCommentContentInput}
+          />
           <Button 
             color="warning" 
             variant="flat" 
             onPress={handleSubmit}
+            className="ml-2"
           >
             {isLoading ? 
               <CircularProgress size="sm" color="warning" aria-label="Loading..." /> : 
@@ -141,6 +131,7 @@ const CommentEdit = ({
 
 // 댓글 섹션 컴포넌트
 const CommentSection = ({
+  user,
   localNoticeData,
   addedCommentWriterInput, setAddedCommentWriterInput,
   addedCommentPasswordInput, setAddedCommentPasswordInput,
@@ -173,6 +164,7 @@ const CommentSection = ({
 
         {/* 댓글 입력 영역 - 리스트 최상단에 배치 */}
         <CommentAdd
+          user={user}
           addedCommentWriterInput={addedCommentWriterInput}
           setAddedCommentWriterInput={setAddedCommentWriterInput}
           addedCommentPasswordInput={addedCommentPasswordInput}

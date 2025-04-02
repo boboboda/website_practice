@@ -173,6 +173,7 @@ const NoticeCustomModal = ({
 
         {/* 댓글 섹션 */}
         <CommentSection
+          user={user}
           localNoticeData={localNoticeData}
           addedCommentWriterInput={addedCommentWriterInput}
           setAddedCommentWriterInput={setAddedCommentWriterInput}

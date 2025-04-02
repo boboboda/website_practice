@@ -1,5 +1,5 @@
 import { title } from "@/components/primitives";
-import NoticesTable from "@/components/release/noticeComponent/noticeBoard-table";
+import NoticesTable from "@/components/release/noticeComponent/NoticeBoard-table";
 import { fetchPosts } from "@/lib/serverActions/posts";
 
 
