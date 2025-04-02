@@ -13,12 +13,14 @@ export async function addAPost({
     appName, 
     postType, 
     title, 
-    writer, 
+    writer,
+    email, 
     content }: {
         appName: string;
         postType: string;
         title: string;
         writer: string;
+        email: string;
         content: string;
     }) {
     try {
@@ -42,6 +44,7 @@ export async function addAPost({
           title,
           listNumber: newListNumber,
           writer,
+          email,
           content,
           appName,
           postType
@@ -95,18 +98,21 @@ export async function fetchPosts(
       id: post.id,
       listNumber: post.listNumber.toString(),
       writer: post.writer,
+      email: post.email,
       title: post.title,
       content: post.content,
       comments: post.comments.map(comment => ({
         id: comment.id,
         content: comment.content,
         writer: comment.writer,
+        email: comment.email,
         // 문자열로 변환
         created_at: moment(comment.createdAt).format("YYYY-MM-DD HH:mm:ss"),
         replys: comment.replies.map(reply => ({
           id: reply.id,
           personId: reply.personId || '',
           writer: reply.writer,
+          email: reply.email,
           content: reply.content,
           created_at: moment(reply.createdAt).format("YYYY-MM-DD HH:mm:ss")
         }))
@@ -203,7 +209,8 @@ export async function addAComment({
     postId,
     commentWriter,
     commentPassword,
-    commentContent
+    commentContent,
+    email
   }: {
     appName: string;
     postType: string;
@@ -211,6 +218,7 @@ export async function addAComment({
     commentWriter: string;
     commentPassword: string;
     commentContent: string;
+    email: string
   }): Promise<Post> {
     try {
       // 댓글 추가
@@ -218,6 +226,7 @@ export async function addAComment({
         data: {
           writer: commentWriter,
           content: commentContent,
+          email: email,
           postId: postId
         }
       });
@@ -246,18 +255,21 @@ export async function addAComment({
         id: updatedPost.id,
         listNumber: updatedPost.listNumber.toString(), // int → string 변환
         writer: updatedPost.writer,
+        email: updatedPost.email,
         title: updatedPost.title,
         content: updatedPost.content,
         created_at: new Date(updatedPost.createdAt).toISOString(),
         comments: updatedPost.comments.map(comment => ({
           id: comment.id,
           writer: comment.writer,
+          email: comment.email,
           content: comment.content,
           created_at: new Date(comment.createdAt).toISOString(),
           replys: comment.replies.map(reply => ({
             id: reply.id,
             personId: reply.personId || '',
             writer: reply.writer,
+            email: reply.email,
             content: reply.content,
             created_at: new Date(reply.createdAt).toISOString()
           }))
@@ -311,17 +323,20 @@ export async function deleteAComment(
         listNumber: updatedPost.listNumber.toString(),
         writer: updatedPost.writer,
         title: updatedPost.title,
+        email: updatedPost.email,
         content: updatedPost.content,
         created_at: new Date(updatedPost.createdAt).toISOString(),
         comments: updatedPost.comments.map(comment => ({
           id: comment.id,
           writer: comment.writer,
+          email: comment.email,
           content: comment.content,
           created_at: new Date(comment.createdAt).toISOString(),
           replys: comment.replies.map(reply => ({
             id: reply.id,
             personId: reply.personId || '',
             writer: reply.writer,
+            email: reply.email,
             content: reply.content,
             created_at: new Date(reply.createdAt).toISOString()
           }))
@@ -332,6 +347,74 @@ export async function deleteAComment(
       throw new Error('댓글을 삭제하는 중 오류가 발생했습니다.');
     }
   }
+
+// 댓글 수정
+export async function editComment(
+  {appName, 
+   postType, 
+   postId, 
+   commentId, 
+   content}: {appName: string, postType: string, postId: string, commentId: string, content: string}
+): Promise<Post> {
+  try {
+    // 댓글 수정
+    await prisma.comment.update({
+      where: { id: commentId },
+      data: { content }
+    });
+
+    revalidatePath(`/${appName}/${postType}/${postId}`);
+
+    // 업데이트된 게시글 정보 반환
+    const updatedPost = await prisma.post.findUnique({
+      where: { id: postId },
+      include: {
+        comments: {
+          include: {
+            replies: true
+          },
+          orderBy: {
+            createdAt: 'desc'
+          }
+        }
+      }
+    });
+
+    if (!updatedPost) {
+      throw new Error('게시글을 찾을 수 없습니다.');
+    }
+    
+    // Post 타입으로 변환
+    return {
+      id: updatedPost.id,
+      listNumber: updatedPost.listNumber.toString(),
+      writer: updatedPost.writer,
+      title: updatedPost.title,
+      email: updatedPost.email,
+      content: updatedPost.content,
+      created_at: new Date(updatedPost.createdAt).toISOString(),
+      comments: updatedPost.comments.map(comment => ({
+        id: comment.id,
+        writer: comment.writer,
+        email: comment.email,
+        content: comment.content,
+        created_at: new Date(comment.createdAt).toISOString(),
+        replys: comment.replies.map(reply => ({
+          id: reply.id,
+          personId: reply.personId || '',
+          writer: reply.writer,
+          email: reply.email,
+          content: reply.content,
+          created_at: new Date(reply.createdAt).toISOString()
+        }))
+      }))
+    };
+  } catch (error) {
+    console.error('댓글 수정 실패:', error);
+    throw new Error('댓글을 수정하는 중 오류가 발생했습니다.');
+  }
+}
+
 
 // // 답글 추가하기
 // export async function addAReply({ appName, postType, postId, commentId, personId, replyPassword, replyWriter, replyContent }) {

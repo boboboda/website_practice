@@ -73,6 +73,7 @@ model Post {
   id         String    @id @default(uuid())
   listNumber Int
   writer     String
+  email     String 
   title      String
   content    String
   createdAt  DateTime  @default(now()) @map("created_at")
@@ -88,6 +89,7 @@ model Post {
 model Comment {
   id        String   @id @default(uuid())
   writer    String
+  email     String 
   content   String
   createdAt DateTime @default(now()) @map("created_at")
   postId    String   @map("post_id")
@@ -102,6 +104,7 @@ model Reply {
   id        String   @id @default(uuid())
   personId  String?  @map("person_id")
   writer    String
+  email     String
   content   String
   createdAt DateTime @default(now()) @map("created_at")
   commentId String   @map("comment_id")

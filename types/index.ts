@@ -10,6 +10,7 @@ export type Post = {
   id: string;
   listNumber: string;
   writer: string;
+  email: string;
   title: string;
   content: string;
   created_at: string;
@@ -21,6 +22,7 @@ export type Post = {
 export type Comment = {
   id: string;
   writer: string;
+  email: string;
   content: string;
   created_at: string;
   replys: Reply[];
@@ -29,6 +31,7 @@ export type Comment = {
 export type Reply = {
   id: string;
   writer: string;
+  email: string;
   personId: string;
   content: string;
   created_at: string

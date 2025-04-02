@@ -11,31 +11,9 @@ import CommentSection from "./CommnetSection";
 import { CustomModalType, Post } from "@/types";
 import { User } from "next-auth";
 
-// 비밀번호 입력 컴포넌트
-const PasswordInput = ({ value, onChange, visible, toggleVisibility, label = "비밀번호", defaultValue = "" }) => (
-  <Input
-    isRequired
-    label={label}
-    placeholder="비밀번호를 입력해주세요"
-    variant="bordered"
-    defaultValue={defaultValue}
-    endContent={
-      <button className="focus:outline-none" type="button" onClick={toggleVisibility}>
-        {visible ? (
-          <EyeSlashFilledIcon className="text-2xl text-default-400 pointer-events-none" />
-        ) : (
-          <EyeFilledIcon className="text-2xl text-default-400 pointer-events-none" />
-        )}
-      </button>
-    }
-    type={visible ? "text" : "password"}
-    value={value}
-    onValueChange={onChange}
-  />
-);
 
 const NoticeCustomModal = ({
-  user,
+    user,
     focusedNotice,
     modalType,
     appName,
@@ -48,7 +26,8 @@ const NoticeCustomModal = ({
     onDelete,
     onAddReply,
     onDeleteReply,
-    onAdd }: {
+    onAdd,
+    onEditComment, }: {
       user: User,
         focusedNotice?: Post,
         appName?: string,
@@ -66,10 +45,18 @@ const NoticeCustomModal = ({
                 password: string;
             }
         ) => void
+        onEditComment?: (
+          values:{
+            noticeId: string;
+            commentId: string;
+            email: string;
+            content: string;}
+           ) => void
         ondeleteComment?: (
             values: {
                 noticeId: string;
                 commentId: string;
+                commentEmail: string;
             }
         ) => void
         onAdd?: (values: {
@@ -112,15 +99,7 @@ const NoticeCustomModal = ({
   const [addedIsVisible, setAddedIsVisible] = useState(false);
 
   // 댓글 관련 상태
-  const [addedCommentPasswordInput, setAddedCommentPasswordInput] = useState("");
-  const [addedCommentWriterInput, setAddedCommentWriterInput] = useState("");
-  const [addedCommentContentInput, setAddedCommentContentInput] = useState("");
-  const [hiddenComment, setHiddenComment] = useState(false);
-  const [hiddenAddComment, setHiddenAddComment] = useState(false);
   const [selectedComment, setSelectedComment] = useState("");
-  const [editingCommentId, setEditingCommentId] = useState(null);
-  const [editCommentContent, setEditCommentContent] = useState("");
-  const [editCommentPassword, setEditCommentPassword] = useState("");
   const [hiddenReplies, setHiddenReplies] = useState({});
   const [hiddenAddReply, setHiddenAddReply] = useState(false);
   const [replyId, setReplyId] = useState("");
@@ -133,13 +112,14 @@ const NoticeCustomModal = ({
   // 토글 함수들
   const editedToggleVisibility = () => setEditedIsVisible(!editedIsVisible);
   const addedToggleVisibility = () => setAddedIsVisible(!addedIsVisible);
-  const addCommentToggle = () => setHiddenAddComment(!hiddenAddComment);
+
+  const [hiddenComment, setHiddenComment] = useState(false);
   const commentToggleOpen = () => setHiddenComment(!hiddenComment);
 
   const replyAddToggle = ({ commentId, replyId }) => {
     setHiddenAddReply(!hiddenAddReply);
     replyId ? setReplyId(replyId) : setReplyId("");
-    setSelectedComment(commentId);
+    // setSelectedComment(commentId);
   };
 
   const replyToggleOpen = (commentId) => {
@@ -175,18 +155,7 @@ const NoticeCustomModal = ({
         <CommentSection
           user={user}
           localNoticeData={localNoticeData}
-          addedCommentWriterInput={addedCommentWriterInput}
-          setAddedCommentWriterInput={setAddedCommentWriterInput}
-          addedCommentPasswordInput={addedCommentPasswordInput}
-          setAddedCommentPasswordInput={setAddedCommentPasswordInput}
-          addedCommentContentInput={addedCommentContentInput}
-          setAddedCommentContentInput={setAddedCommentContentInput}
-          editingCommentId={editingCommentId}
-          setEditingCommentId={setEditingCommentId}
-          editCommentContent={editCommentContent}
-          setEditCommentContent={setEditCommentContent}
-          editCommentPassword={editCommentPassword}
-          setEditCommentPassword={setEditCommentPassword}
+          onEditComment={onEditComment}
           isLoading={isLoading}
           setIsLoading={setIsLoading}
           onAddComment={onAddComment}
@@ -196,7 +165,6 @@ const NoticeCustomModal = ({
           hiddenReplies={hiddenReplies}
           replyToggleOpen={replyToggleOpen}
           hiddenAddReply={hiddenAddReply}
-          selectedComment={selectedComment}
           replyId={replyId}
           replyAddToggle={replyAddToggle}
           notifySuccessEvent={notifySuccessEvent}
@@ -215,7 +183,7 @@ const NoticeCustomModal = ({
     </>
   );
 
-  // 모달 컨텐츠 - 관리자 확인인
+  // 모달 컨텐츠 - 관리자 확인
   const CheckAdminHandler = (modalType) => {
     // 관리자인 경우 바로 작업 수행
     if (user?.role === "admin") {
@@ -225,12 +193,6 @@ const NoticeCustomModal = ({
           break;
         case 'editAuth':
           onEditAuth?.(localNoticeData);
-          break;
-        case 'passwordModal':
-          ondeleteComment?.({
-            noticeId: localNoticeData?.id ?? "",
-            commentId: localNoticeData?.id ?? "",
-          });
           break;
         default:
           break;

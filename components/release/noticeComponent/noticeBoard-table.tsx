@@ -45,8 +45,8 @@ import {
 import { of, from, filter, find } from "rxjs";
 import { debounce } from "lodash";
 import PasswordModal from "../postComponent/password-modal";
-import { addAPost, deleteAPost, editAPost, addAComment, deleteAComment } from "@/lib/serverActions/posts";
-import { useUserStore } from "@/components/providers/user-store-provider";
+import { addAPost, deleteAPost, editAPost, addAComment, deleteAComment, editComment } from "@/lib/serverActions/posts";
+import { useUserStore   } from "@/components/providers/user-store-provider";
 
 type ModalSize =
   | "sm"
@@ -69,7 +69,7 @@ const NoticesTable = ({
 }) => {
 
 
-  const {user} = useUserStore((state) => state);
+  const { user } = useUserStore((state)=> state);
 
   const isAdmin = user?.role === 'admin';
 
@@ -113,6 +113,7 @@ const NoticesTable = ({
     id: "",
     listNumber: "",
     writer: "",
+    email: "",
     title: "",
     content: "",
     created_at: "",
@@ -151,9 +152,35 @@ const NoticesTable = ({
     onClose: oneOneClose,
   } = useDisclosure();
 
-  const [passwordInput, setPasswordInput] = useState("");
+  const validateUserAndConfirm = (value, actionType, callback) => {
+    // 객체 속성 이름 통일을 위한 정규화
+    const userEmail = user?.email;
+    const commentEmail = value.commentEmail || value.email; // 두 가지 가능한 속성 이름 처리
+    
+    console.log(`${actionType} 작성자:`, value);
+    console.log(`${actionType} 이메일:`, commentEmail);
+    console.log(`${actionType} 사용자:`, userEmail);
+    
+    // 이메일 검증
+    if (userEmail !== commentEmail) {
+      const action = actionType === 'edit' ? '수정' : '삭제';
+      notifyErrorEvent(`자신이 작성한 댓글만 ${action}할 수 있습니다.`);
+      return false;
+    }
+    
+    // 확인 모달 설정 및 표시
+    setConfirmType(actionType);
+    setConfirmAction(() => () => callback(value));
+    onConfirmOpen();
+    return true;
+  };
 
-  const adminPassword = "wnsdnr12";
+  const [confirmType, setConfirmType] = useState('delete');
+  
+  const [confirmAction, setConfirmAction] = useState(null);
+
+  const { isOpen: isConfirmOpen, onOpen: onConfirmOpen, onOpenChange: onConfirmChange } = useDisclosure();
+
 
   const notifySuccessEvent = (msg: string) => toast.success(msg);
 
@@ -510,6 +537,7 @@ const NoticesTable = ({
         postType: "notice",
         title: title,
         writer: writer,
+        email: user?.email,
         content: content,
       });
 
@@ -588,6 +616,7 @@ const NoticesTable = ({
         postType: "notice",
         postId: noticeId,
         commentWriter: writer,
+        email: user?.email,
         commentPassword: password,
         commentContent: content,
       });
@@ -612,35 +641,56 @@ const NoticesTable = ({
    
   };
 
-  const deleteAcommentHandler = async (noticeId: string, commentId: string) => {
-    
-    
-    try{
-
-      await new Promise((f) => setTimeout(f, 600));
-
+  const deleteAcommentHandler = async (noticeId, commentId, commentEmail) => {
+    try {
+      // 현재 로그인한 사용자 이메일과 댓글 작성자 이메일 비교
+      if (user?.email !== commentEmail) {
+        notifyErrorEvent("자신이 작성한 댓글만 삭제할 수 있습니다.");
+        return;
+      }
+  
+      await new Promise(f => setTimeout(f, 600));
+  
       await deleteAComment({
         appName: appName,
         postType: "notice",
         postId: noticeId,
         commentId: commentId,
       });
-
+  
       router.refresh();
-
-    notifySuccessEvent(`댓글이 삭제되었습니다!`);
-
-    console.log(`댓글 삭제완료`);
-
-    }catch(error) { 
-
+      notifySuccessEvent(`댓글이 삭제되었습니다!`);
+      console.log(`댓글 삭제완료`);
+  
+    } catch (error) {
       notifyErrorEvent(`댓글 삭제 실패`);
-
-      console.log(`댓글 삭제 실패패`);
+      console.log(`댓글 삭제 실패`);
     }
-
-    
   };
+
+  const editAcommentHandler = async (noticeId, commentId, content) => {
+
+    try {
+      await new Promise(f => setTimeout(f, 600));
+  
+      const updatedPost = await editComment({
+        appName,
+        postType: "notice",
+        postId: noticeId,
+        commentId,
+        content
+      });
+  
+      setCurrentNotice(updatedPost);
+      notifySuccessEvent("댓글이 수정되었습니다!");
+      console.log(`댓글 수정 완료료`);
+  
+    } catch (error) {
+      notifyErrorEvent(`댓글 수정 실패`);
+      console.log(`댓글 수정 실패`);
+    }
+  }
+  
 
   const addAreplyHandler = async (
     noticeId: string,
@@ -711,156 +761,8 @@ const NoticesTable = ({
 
   const [deleteReplyId, setDeleteReplyId] = useState("");
 
-  const {
-    isOpen: isTwoOpen,
-    onOpen: TwoOnOpen,
-    onOpenChange: onTwoChange,
-    onClose: twoOnClose,
-  } = useDisclosure();
 
-  const handlePasswordSubmit = async ({
-    type,
-    password,
-  }: {
-    type: number;
-    password: string;
-  }) => {
-    switch (type) {
-      case 1:
-        if (deletePassword === password) {
-          deleteAcommentHandler(deleteNoticeId, deleteCommentId);
-          await new Promise((f) => setTimeout(f, 600));
-          setDeletePassword("");
-          setDeleteCommentId("");
-          setDeleteNoticeId("");
-          oneOneClose();
-        } else {
-          alert(`비밀번호가 틀렸습니다.`);
-        }
-        break;
-      case 2:
-        if (deletePassword === password) {
-          deleteReplyHandler(deleteNoticeId, deleteCommentId, deleteReplyId);
-
-          await new Promise((f) => setTimeout(f, 600));
-          setDeletePassword("");
-          setDeleteCommentId("");
-          setDeleteNoticeId("");
-          setDeleteReplyId("");
-          oneOneClose();
-        } else {
-          alert(`비밀번호가 틀렸습니다.`);
-        }
-    }
-  };
-
-  // 삭제 비번 확인 모달
-  const SubModalComponent = () => {
-    return (
-      <div>
-        <Modal
-          isOpen={isOneOpen}
-          size={modalSize}
-          classNames={{
-            backdrop:
-              "bg-gradient-to-t from-zinc-900 to-zinc-900/10 backdrop-opacity-20",
-          }}
-          onOpenChange={onOneChange}
-          placement="center"
-        >
-          <ModalContent>
-            {(onClose) => (
-              <PasswordModal
-                deleteType={passwordModalType}
-                onClose={onClose}
-                selectedDelete={async (value) => {
-                  handlePasswordSubmit({
-                    type: value.deleteType,
-                    password: value.password,
-                  });
-                }}
-              />
-            )}
-          </ModalContent>
-        </Modal>
-      </div>
-    );
-  };
-
-  const adminPasswordComponent = () => {
-    const handlePasswordSubmit = async () => {
-      if (adminPassword === passwordInput) {
-        setCurrentModalData({
-          focusedNotice: null,
-          modalType: "add",
-        });
-        onOpen();
-
-        await new Promise((f) => setTimeout(f, 600));
-        setPasswordInput("");
-        twoOnClose();
-      } else {
-        alert(`비밀번호가 틀렸습니다.`);
-      }
-    };
-    return (
-      <div>
-        <Modal
-          isOpen={isTwoOpen}
-          size={modalSize}
-          classNames={{
-            backdrop:
-              "bg-gradient-to-t from-zinc-900 to-zinc-900/10 backdrop-opacity-20",
-          }}
-          onOpenChange={onTwoChange}
-          placement="center"
-        >
-          <ModalContent>
-            {(onClose) => (
-              <>
-                <ModalHeader className="flex flex-col gap-1">
-                  관라자 모드
-                </ModalHeader>
-                <ModalBody>
-                  <Input
-                    isRequired
-                    autoFocus
-                    label="비밀번호"
-                    placeholder="관리자 모드"
-                    variant="bordered"
-                    type="password"
-                    value={passwordInput}
-                    onValueChange={setPasswordInput}
-                  />
-                </ModalBody>
-                <ModalFooter>
-                  <Button
-                    color="danger"
-                    variant="flat"
-                    onPress={() => {
-                      handlePasswordSubmit();
-                    }}
-                  >
-                    확인
-                  </Button>
-                  <Button
-                    color="default"
-                    onPress={() => {
-                      twoOnClose();
-                      setPasswordInput("");
-                    }}
-                  >
-                    닫기
-                  </Button>
-                </ModalFooter>
-              </>
-            )}
-          </ModalContent>
-        </Modal>
-      </div>
-    );
-  };
-
+ 
   const ModalComponent = () => {
     return (
       <div>
@@ -891,12 +793,22 @@ const NoticesTable = ({
                       value.content
                     );
                   }}
-                  ondeleteComment={async (value) => {
-                    setDeleteCommentId(value.commentId);
-                    setDeleteNoticeId(value.noticeId);
-                    setPasswordModalType(1);
-                    oneOnOpen();
+                  onEditComment={async (value) => {
+                    validateUserAndConfirm(
+                      value, 
+                      'edit',
+                      (val) => editAcommentHandler(val.noticeId, val.commentId, val.content)
+                    );
                   }}
+                  
+                  ondeleteComment={async (value) => {
+                    validateUserAndConfirm(
+                      value, 
+                      'delete',
+                      (val) => deleteAcommentHandler(val.noticeId, val.commentId, val.commentEmail || val.email)
+                    );
+                  }}
+
                   onAddReply={async (value) => {
                     await addAreplyHandler(
                       value.noticeId,
@@ -964,11 +876,55 @@ const NoticesTable = ({
     );
   };
 
+
+
+
+  const ConfirmActionModal = () => {
+    const modalTitle = confirmType === 'edit' ? '댓글 수정 확인' : '댓글 삭제 확인';
+    const actionText = confirmType === 'edit' ? '수정' : '삭제';
+    const btnColor = confirmType === 'edit' ? 'primary' : 'danger';
+    
+    return (
+      <Modal
+        isOpen={isConfirmOpen}
+        size="sm"
+        onOpenChange={onConfirmChange}
+        placement="center"
+      >
+        <ModalContent>
+          {(onClose) => (
+            <>
+              <ModalHeader className="flex flex-col gap-1">{modalTitle}</ModalHeader>
+              <ModalBody>
+                <p>정말 이 댓글을 {actionText}하시겠습니까?</p>
+              </ModalBody>
+              <ModalFooter>
+                <Button
+                  color={btnColor}
+                  variant="flat"
+                  onPress={() => {
+                    if (confirmAction) confirmAction();
+                    onClose();
+                  }}
+                >
+                  {actionText}
+                </Button>
+                <Button color="default" onPress={onClose}>
+                  취소
+                </Button>
+              </ModalFooter>
+            </>
+          )}
+        </ModalContent>
+      </Modal>
+    );
+  };
+
   return (
     <>
-      {adminPasswordComponent()}
+      {/* {adminPasswordComponent()} */}
       {ModalComponent()}
-      {SubModalComponent()}
+      {ConfirmActionModal()}
 
       <ToastContainer
         className=" foo"
