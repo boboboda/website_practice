@@ -8,16 +8,15 @@ import {
 } from "@nextui-org/react";
 import { AngleDownIcon, AngleUpIcon } from "@/components/icons";
 import ModalInput from "../postComponent/modal-Input";
-import ReplyList from "./ReplyList";
+import { set } from "lodash";
 
 
 const ReplySection = ({
   user,
-  localNoticeData,
+  comment,
   isLoading, setIsLoading,
   onAddReply, onDeleteReply,
-  hiddenReplies, replyToggleOpen, hiddenAddReply, selectedComment, replyId, replyAddToggle,
-  notifySuccessEvent,
+  hiddenReplies, replyToggleOpen,
 }) => {
   return (
     <div className="flex w-full flex-col py-1 space-y-3 items-center justify-center">
@@ -28,54 +27,34 @@ const ReplySection = ({
           onClick={hiddenReplies}
         >
           <p>답글</p>
-          {hiddenComment ? <AngleDownIcon size={15} /> : <AngleUpIcon size={15} />}
+          {hiddenReplies ? <AngleDownIcon size={15} /> : <AngleUpIcon size={15} />}
         </h1>
       </div>
 
       {/* 댓글 목록 및 입력 영역 */}
-      <div className={`flex w-full flex-col justify-end items-end ${hiddenComment ? 'block' : 'hidden'}`}>
+      <div className={`flex w-full flex-col justify-end items-end ${hiddenReplies ? 'block' : 'hidden'}`}>
         <Divider className="my-4" />
 
         {/* 댓글 입력 영역 - 리스트 최상단에 배치 */}
-        <CommentAdd
+        <ReplyAdd
           user={user}
-          addedCommentContentInput={addedCommentContentInput}
-          setAddedCommentContentInput={setAddedCommentContentInput}
-          onAddComment={onAddComment}
-          localNoticeData={localNoticeData}
-          notifySuccessEvent={notifySuccessEvent}
+          comment={comment}
           isLoading={isLoading}
           setIsLoading={setIsLoading}
-        />
+          onAddReply={onAddReply}/>
 
         {/* 댓글 리스트 */}
         <div className="w-full">
           <div className="flex flex-col w-full max-h-[600px] items-center overflow-auto">
             <div className="flex flex-col space-y-1 w-[95%] mr-3">
               <div className="space-y-3 w-full">
-                {localNoticeData?.comments && localNoticeData.comments.length > 0 ? (
-                  localNoticeData.comments.map((comment) => (
-                    <CommentsList
-                      key={comment.id}
-                      user={user}
-                      comment={comment}
-                      noticeId={localNoticeData.id}
-                      editingCommentId={editingCommentId}
-                      setEditingCommentId={setEditingCommentId}
-                      editCommentContent={editCommentContent}
-                      setEditCommentContent={setEditCommentContent}
-                      onEditComment={onEditComment}
-                      ondeleteComment={ondeleteComment}
-                      onAddReply={onAddReply}
+                {comment?.replys && comment.replys.length > 0 ? (
+                  comment.replys.map((reply) => (
+                    <ReplyList
+                      key={reply.id}
+                      reply={reply}
+                      commentId={comment.id}
                       onDeleteReply={onDeleteReply}
-                      hiddenReplies={hiddenReplies}
-                      replyToggleOpen={replyToggleOpen}
-                      hiddenAddReply={hiddenAddReply}
-                      selectedComment={selectedComment}
-                      replyId={replyId}
-                      replyAddToggle={replyAddToggle}
-                      notifySuccessEvent={notifySuccessEvent}
-                      localNoticeData={localNoticeData}
                     />
                   ))
                 ) : (
@@ -92,24 +71,26 @@ const ReplySection = ({
 
 
 const ReplyAdd = ({
-    user,
-
+  user,
+  onAddReply, comment, isLoading, setIsLoading
   }) => {
+
+    const [addReplyContentInput, setAddReplyContentInput] = useState("");
+
     const handleSubmit = () => {
       setIsLoading(true);
       
-      
-      // 댓글 추가 처리
-      onAddComment?.({
-        noticeId: localNoticeData?.id ?? "",
+
+      onAddReply?.({
+        commentId: comment?.id ?? "",
         writer: user.name,
         email: user.email,
-        content: addedCommentContentInput,
+        content: addReplyContentInput,
       });
       
       // 입력 필드 초기화
       new Promise(f => setTimeout(f, 1000)); // 약간의 지연
-      setAddedCommentContentInput("");
+      setAddReplyContentInput("");
       setIsLoading(false);
     };
   
@@ -136,8 +117,8 @@ const ReplyAdd = ({
               placeholder="댓글을 입력해주세요"
               variant="bordered"
               className="w-full"
-              value={addedCommentContentInput}
-              onValueChange={setAddedCommentContentInput}
+              value={addReplyContentInput}
+              onValueChange={setAddReplyContentInput}
             />
             <Button 
               color="warning" 
@@ -155,3 +136,129 @@ const ReplyAdd = ({
       </Card>
     );
   };
+
+
+
+// 댓글 수정 컴포넌트
+const ReplyEdit = ({ 
+  editReplyContent, setEditReplyContent,
+  onCancelEdit, onSaveEdit 
+}) => (
+  <div className="flex flex-col w-full space-y-3">
+    <Textarea
+      label="댓글 내용"
+      value={editReplyContent}
+      onValueChange={setEditReplyContent}
+      variant="bordered"
+    />
+    <div className="flex space-x-3 items-center justify-end">
+      <div className="flex space-x-2">
+        <Button 
+          color="primary" 
+          size="sm"
+          onClick={onSaveEdit}
+        >
+          저장
+        </Button>
+        <Button 
+          variant="flat" 
+          size="sm"
+          onClick={onCancelEdit}
+        >
+          취소
+        </Button>
+      </div>
+    </div>
+  </div>
+);
+
+
+  // 답글 컴포넌트
+
+const ReplyList = ({
+  reply, 
+  commentId,
+  onDeleteReply
+}) => {
+const [editingReplyId, setEditingReplyId] = useState(null);
+  const [editReplyContent, setEditReplyContent] = useState("");
+
+  const isEditing = editingReplyId === reply.id;
+
+  // 수정 모드 토글
+  const toggleEditMode = () => {
+    if (isEditing) {
+      setEditingReplyId(null);
+    } else {
+      setEditingReplyId(reply.id);
+      setEditReplyContent(reply.content);
+      
+    }
+  };
+
+  return (
+    <>
+      <Card key={reply.id} className="custom-shadow">
+        <CardBody className="flex flex-col w-full overflow-auto items-center space-x-3">
+          <div className="flex h-auto w-full items-center space-x-4 text-small">
+            <div className="w-1/5 items-start">{reply.writer}</div>
+            <div className="w-3/5 h-auto text-center">{reply.created_at}</div>
+            <div className="w-1/5 flex justify-end space-x-2">
+              {!isEditing && (
+                <>
+                  <Button 
+                    variant="faded" 
+                    size="sm"
+                    onClick={toggleEditMode}
+                  >
+                    수정
+                  </Button>
+                  <Button 
+                    variant="faded" 
+                    size="sm" 
+                    onClick={() => {
+
+                      // ondeleteComment?.({
+                      //   userId: user.id,
+                      //   noticeId,
+                      //   commentId: comment.id,
+                      //   commentEmail: comment.email,
+                      // });
+                    }}
+                  >
+                    삭제
+                  </Button>
+                </>
+              )}
+            </div>
+          </div>
+        </CardBody>
+        <CardFooter>
+          {isEditing ? (
+            <ReplyEdit
+              editReplyContent={editReplyContent}
+              setEditReplyContent={setEditReplyContent}
+              onCancelEdit={() => setEditingReplyId(null)}
+              onSaveEdit={() => {
+                // onEditComment?.({
+                //   noticeId,
+                //   commentId: comment.id,
+                //   content: editCommentContent,
+                //   email: comment.email});
+                
+                // 수정 모드 종료
+                setEditingReplyId(null);
+              }}
+            />
+          ) : (
+            <div className="flex w-full h-auto">{reply.content}</div>
+          )}
+
+        </CardFooter>
+      </Card>
+    </>
+  );
+};
+
+
+export default ReplySection;

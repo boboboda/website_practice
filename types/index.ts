@@ -32,7 +32,6 @@ export type Reply = {
   id: string;
   writer: string;
   email: string;
-  personId: string;
   content: string;
   created_at: string
 }

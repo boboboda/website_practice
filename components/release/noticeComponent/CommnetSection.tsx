@@ -7,7 +7,9 @@ import {
 } from "@nextui-org/react";
 import { AngleDownIcon, AngleUpIcon } from "@/components/icons";
 import ModalInput from "../postComponent/modal-Input";
-import ReplyList from "./ReplyList";
+import { Reply } from "lucide-react";
+import ReplySection from "./ReplySection";
+
 
 
 
@@ -22,7 +24,6 @@ const CommentSection = ({
   ondeleteComment, 
   onAddReply, 
   onDeleteReply,
-  hiddenReplies, replyToggleOpen, hiddenAddReply,  replyId, replyAddToggle,
   notifySuccessEvent,
   hiddenComment, commentToggleOpen
 }) => {
@@ -49,7 +50,6 @@ const CommentSection = ({
           user={user}
           onAddComment={onAddComment}
           localNoticeData={localNoticeData}
-          notifySuccessEvent={notifySuccessEvent}
           isLoading={isLoading}
           setIsLoading={setIsLoading}
         />
@@ -66,16 +66,12 @@ const CommentSection = ({
                       user={user}
                       comment={comment}
                       noticeId={localNoticeData.id}
+                      isLoading={isLoading}
+                      setIsLoading={setIsLoading}
                       onEditComment={onEditComment}
                       ondeleteComment={ondeleteComment}
                       onAddReply={onAddReply}
                       onDeleteReply={onDeleteReply}
-                      hiddenReplies={hiddenReplies}
-                      replyToggleOpen={replyToggleOpen}
-                      hiddenAddReply={hiddenAddReply}
-                      replyId={replyId}
-                      replyAddToggle={replyAddToggle}
-                      localNoticeData={localNoticeData}
                     />
                   ))
                 ) : (
@@ -94,7 +90,7 @@ const CommentSection = ({
 // 댓글 작성 컴포넌트
 const CommentAdd = ({
   user,
-  onAddComment, localNoticeData, notifySuccessEvent, isLoading, setIsLoading
+  onAddComment, localNoticeData, isLoading, setIsLoading
 }) => {
 
   const [addedCommentContentInput, setAddedCommentContentInput] = useState("");
@@ -202,17 +198,15 @@ const CommentsList = ({
   noticeId,
   onEditComment,
   ondeleteComment,
-  hiddenReplies,
-  replyToggleOpen,
-  hiddenAddReply,
-  replyId,
-  replyAddToggle,
   onAddReply,
-  localNoticeData,
-  onDeleteReply
+  onDeleteReply,
+  isLoading, setIsLoading,
 }) => {
 const [editingCommentId, setEditingCommentId] = useState(null);
   const [editCommentContent, setEditCommentContent] = useState("");
+
+  const [hiddenReplies, setHiddenReplies] = useState(false);
+  const replyToggleOpen = () => setHiddenReplies(!hiddenReplies);
 
   const isEditing = editingCommentId === comment.id;
 
@@ -287,70 +281,20 @@ const [editingCommentId, setEditingCommentId] = useState(null);
             <div className="flex w-full h-auto">{comment.content}</div>
           )}
 
-
-
+          {/*답글 섹션*/}
+            <ReplySection
+            user={user}
+            comment={comment}
+            isLoading={isLoading}
+            setIsLoading={setIsLoading}
+            onAddReply={onAddReply}
+            onDeleteReply={onDeleteReply}
+            hiddenReplies={hiddenReplies}
+            replyToggleOpen={replyToggleOpen}/>
 
 
         </CardFooter>
       </Card>
-
-      {/* 답글 관련 UI */}
-      <div className="flex w-full flex-row space-x-5 justify-end items-end">
-        {/* <h1 
-          className="flex flex-row space-x-2 text-white cursor-pointer" 
-          onClick={() => replyAddToggle({ commentId: comment.id })}
-        >
-          답글쓰기
-        </h1> */}
-
-        <h1 
-          className="flex flex-row space-x-2 text-blue-500 cursor-pointer" 
-          onClick={() => replyToggleOpen(comment.id)}
-        >
-          <p>답글</p>
-          {hiddenReplies[comment.id] ? <AngleDownIcon size={15} /> : <AngleUpIcon size={15} />}
-        </h1>
-      </div>
-
-      {/* 답글 목록 및 입력 */}
-      <div className="flex w-full flex-col space-y-3 justify-end items-end">
-        <div className={`flex w-full flex-col space-y-5 justify-center items-center content ${hiddenReplies[comment.id] ? 'open' : ''}`}>
-          <ScrollShadow 
-            className="flex flex-col pl-8 w-full max-h-[400px] min-h-[120px] items-center"
-            isEnabled={false}
-          >
-            {comment?.replys?.map((reply) => (
-              <ReplyList 
-                key={reply.id} 
-                reply={reply} 
-                commentId={comment.id} 
-                noticeId={noticeId}
-                onDeleteReply={onDeleteReply}
-                replyAddToggle={replyAddToggle}
-              />
-            ))}
-          </ScrollShadow>
-          <Divider className="my-4" />
-        </div>
-
-        <div className={`flex w-full flex-col space-y-5 justify-center items-center content ${hiddenAddReply ? 'open' : ''}`}>
-          <div className="flex flex-col w-full pt-3">
-            <ModalInput
-              personId={replyId}
-              writed={async (values) => {
-                onAddReply?.({
-                  noticeId: localNoticeData?.id ?? "",
-                  personId: replyId ?? "",
-                  commentId: comment.id,
-                  writer: values.replyWirter,
-                  content: values.replyContent,
-                  password: values.replyPassword
-                });
-              }}
-            />
-          </div>
-        </div>
-      </div>
     </>
   );
 };

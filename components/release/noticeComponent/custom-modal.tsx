@@ -42,7 +42,7 @@ const NoticeCustomModal = ({
                 noticeId: string;
                 writer: string;
                 content: string;
-                password: string;
+                email: string;
             }
         ) => void
         onEditComment?: (
@@ -66,12 +66,10 @@ const NoticeCustomModal = ({
         }) => void
         onAddReply?: (
             values: {
-                noticeId: string;
-                personId: string;
                 commentId: string;
                 writer: string;
                 content: string;
-                password: string;
+                email: string;
             }
         ) => void
         onDeleteReply?: (
@@ -98,36 +96,25 @@ const NoticeCustomModal = ({
   const [addedNoticeContentInput, setAddedNoticeContentInput] = useState("");
   const [addedIsVisible, setAddedIsVisible] = useState(false);
 
-  // 댓글 관련 상태
-  const [selectedComment, setSelectedComment] = useState("");
-  const [hiddenReplies, setHiddenReplies] = useState({});
-  const [hiddenAddReply, setHiddenAddReply] = useState(false);
-  const [replyId, setReplyId] = useState("");
+ 
+  
+
+
 
   // 포커스된 공지사항이 변경될 때 로컬 상태 업데이트
   useEffect(() => {
     setLocalNoticeData(focusedNotice);
   }, [focusedNotice]);
 
-  // 토글 함수들
-  const editedToggleVisibility = () => setEditedIsVisible(!editedIsVisible);
-  const addedToggleVisibility = () => setAddedIsVisible(!addedIsVisible);
-
+ 
+ // 댓글 관련 상태
   const [hiddenComment, setHiddenComment] = useState(false);
   const commentToggleOpen = () => setHiddenComment(!hiddenComment);
 
-  const replyAddToggle = ({ commentId, replyId }) => {
-    setHiddenAddReply(!hiddenAddReply);
-    replyId ? setReplyId(replyId) : setReplyId("");
-    // setSelectedComment(commentId);
-  };
+  
 
-  const replyToggleOpen = (commentId) => {
-    setHiddenReplies(prevState => ({
-      ...prevState,
-      [commentId]: !prevState[commentId]
-    }));
-  };
+
+  
 
   const notifySuccessEvent = (msg) => toast.success(msg);
 
@@ -161,17 +148,10 @@ const NoticeCustomModal = ({
           onAddComment={onAddComment}
           ondeleteComment={ondeleteComment}
           onAddReply={onAddReply}
-          onDeleteReply={onDeleteReply}
-          hiddenReplies={hiddenReplies}
-          replyToggleOpen={replyToggleOpen}
-          hiddenAddReply={hiddenAddReply}
-          replyId={replyId}
-          replyAddToggle={replyAddToggle}
+          onDeleteReply={onDeleteReply} 
           notifySuccessEvent={notifySuccessEvent}
           hiddenComment={hiddenComment}
           commentToggleOpen={commentToggleOpen}
-        //   hiddenAddComment={hiddenAddComment}
-        //   addCommentToggle={addCommentToggle}
         />
       </ModalBody>
 

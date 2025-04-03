@@ -110,7 +110,6 @@ export async function fetchPosts(
         created_at: moment(comment.createdAt).format("YYYY-MM-DD HH:mm:ss"),
         replys: comment.replies.map(reply => ({
           id: reply.id,
-          personId: reply.personId || '',
           writer: reply.writer,
           email: reply.email,
           content: reply.content,
@@ -204,24 +203,18 @@ export async function editAPost({appName, postType, id, title, content} :{appNam
 
 // 댓글 추가하기
 export async function addAComment({
-    appName,
-    postType,
     postId,
     commentWriter,
-    commentPassword,
     commentContent,
     email
   }: {
-    appName: string;
-    postType: string;
     postId: string;
-    commentWriter: string;
-    commentPassword: string;
+    commentWriter: string; 
     commentContent: string;
     email: string
   }): Promise<Post> {
     try {
-      // 댓글 추가
+      
       await prisma.comment.create({
         data: {
           writer: commentWriter,
@@ -267,7 +260,6 @@ export async function addAComment({
           created_at: new Date(comment.createdAt).toISOString(),
           replys: comment.replies.map(reply => ({
             id: reply.id,
-            personId: reply.personId || '',
             writer: reply.writer,
             email: reply.email,
             content: reply.content,
@@ -334,7 +326,6 @@ export async function deleteAComment(
           created_at: new Date(comment.createdAt).toISOString(),
           replys: comment.replies.map(reply => ({
             id: reply.id,
-            personId: reply.personId || '',
             writer: reply.writer,
             email: reply.email,
             content: reply.content,
@@ -401,7 +392,6 @@ export async function editComment(
         created_at: new Date(comment.createdAt).toISOString(),
         replys: comment.replies.map(reply => ({
           id: reply.id,
-          personId: reply.personId || '',
           writer: reply.writer,
           email: reply.email,
           content: reply.content,
@@ -416,58 +406,70 @@ export async function editComment(
 }
 
 
-// // 답글 추가하기
-// export async function addAReply({ appName, postType, postId, commentId, personId, replyPassword, replyWriter, replyContent }) {
-//   try {
-//     // 댓글 존재 여부 확인
-//     const comment = await prisma.comment.findUnique({
-//       where: { id: commentId }
-//     });
+// 답글 추가하기
+export async function addAReply({ postId, email, commentId, replyWriter, replyContent }): Promise<Post> {
+  try {
+    // 댓글 존재 여부 확인
+    const comment = await prisma.comment.findUnique({
+      where: { id: commentId }
+    });
 
-//     if (!comment) {
-//       throw new Error('댓글을 찾을 수 없습니다.');
-//     }
+    if (!comment) {
+      throw new Error('댓글을 찾을 수 없습니다.');
+    }
 
-//     // 답글 추가
-//     await prisma.reply.create({
-//       data: {
-//         personId,
-//         password: replyPassword,
-//         writer: replyWriter,
-//         content: replyContent,
-//         commentId
-//       }
-//     });
+    // 답글 추가
+    await prisma.reply.create({
+      data: {
+        writer: replyWriter,
+        content: replyContent,
+        commentId: commentId,
+        email: email
+      }
+    });
 
-//     revalidatePath(`/${appName}/${postType}/${postId}`);
+    // revalidatePath(`/${appName}/${postType}/${postId}`);
 
-//     // 업데이트된 게시글 정보 반환
-//     const updatedPost = await prisma.post.findUnique({
-//       where: { id: postId },
-//       include: {
-//         comments: {
-//           include: {
-//             replies: true
-//           }
-//         }
-//       }
-//     });
+    // 업데이트된 게시글 정보 반환
+    const updatedPost = await prisma.post.findUnique({
+      where: { id: postId },
+      include: {
+        comments: {
+          include: {
+            replies: true
+          }
+        }
+      }
+    });
 
-//     return {
-//       id: updatedPost.id,
-//       title: updatedPost.title,
-//       created_at: updatedPost.createdAt,
-//       listNumber: updatedPost.listNumber,
-//       writer: updatedPost.writer,
-//       content: updatedPost.content,
-//       password: updatedPost.password,
-//       comments: updatedPost.comments
-//     };
-//   } catch (error) {
-//     console.error('답글 추가 실패:', error);
-//     throw new Error('답글을 추가하는 중 오류가 발생했습니다.');
-//   }
-// }
+    return {
+      id: updatedPost.id,
+      listNumber: updatedPost.listNumber.toString(),
+      writer: updatedPost.writer,
+      title: updatedPost.title,
+      email: updatedPost.email,
+      content: updatedPost.content,
+      created_at: new Date(updatedPost.createdAt).toISOString(),
+      comments: updatedPost.comments.map(comment => ({
+        id: comment.id,
+        writer: comment.writer,
+        email: comment.email,
+        content: comment.content,
+        created_at: new Date(comment.createdAt).toISOString(),
+        replys: comment.replies.map(reply => ({
+          id: reply.id,
+          writer: reply.writer,
+          email: reply.email,
+          content: reply.content,
+          created_at: new Date(reply.createdAt).toISOString()
+        }))
+      }))
+    };
+  } catch (error) {
+    console.error('답글 추가 실패:', error);
+    throw new Error('답글을 추가하는 중 오류가 발생했습니다.');
+  }
+}
 
 // // 답글 삭제
 // export async function deleteAReply(appName, postType, postId, commentId, replyId) {

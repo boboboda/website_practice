@@ -602,23 +602,25 @@ const NoticesTable = ({
     }
   };
 
-  const addAcommentHandler = async (
+  const addAcommentHandler = async ({
+    noticeId,
+    writer,
+    content,
+    email,
+  }: {
     noticeId: string,
     writer: string,
-    password: string,
-    content: string
-  ) => {
+    content: string,
+    email: string
+  }) => {
     await new Promise((f) => setTimeout(f, 600));
 
     try {
       const updatedPost = await addAComment({
-        appName: appName,
-        postType: "notice",
         postId: noticeId,
         commentWriter: writer,
-        email: user?.email,
-        commentPassword: password,
         commentContent: content,
+        email: email,
       });
 
       if(updatedPost) {
@@ -692,40 +694,48 @@ const NoticesTable = ({
   }
   
 
-  const addAreplyHandler = async (
-    noticeId: string,
-    personId: string,
+  const addAreplyHandler = async ({
+commendId,
+writer,
+content,
+email
+  }: {
     commendId: string,
     writer: string,
     content: string,
-    password: string
+    email: string
+  }
+    
   ) => {
     await new Promise((f) => setTimeout(f, 600));
-    await fetch(
-      `${process.env.NEXT_PUBLIC_BASE_URL}/api/notices/comments/reply/${appName}Notice`,
-      {
-        method: "post",
-        body: JSON.stringify({
-          noticeId,
-          personId,
-          commendId,
-          writer,
-          password,
-          content,
-        }),
-        cache: "no-store",
-      }
-    );
 
+    try {
+      const updatedreply = await addAComment({
+        postId: noticeId,
+        commentWriter: writer,
+        commentContent: content,
+        email: email,
+      });
+
+      if(updatedreply) {
+        setCurrentNotice(updatedPost);
+
+        router.refresh();
+
+        notifySuccessEvent(`성공적으로 작성되었습니다!`);
+  
+        console.log(`답글 추가완료`);
+
+      }
+  
+    }catch (error) {
+
+      notifyErrorEvent(`답글 작성에 실패했습니다.`);
+      console.error(error);
+    }
+  
     router.refresh();
 
-    const noticeToUpdate = notices.find((notice) => notice.id === noticeId);
-
-    if (noticeToUpdate !== undefined) setCurrentNotice(noticeToUpdate);
-
-    notifySuccessEvent(`성공적으로 작성되었습니다!`);
-
-    console.log(`답글 추가완료`);
   };
 
   const deleteReplyHandler = async (
@@ -786,12 +796,12 @@ const NoticesTable = ({
                   appName={currentModalData.appName}
                   onClose={onClose}
                   onAddComment={async (value) => {
-                    await addAcommentHandler(
-                      value.noticeId,
-                      value.writer,
-                      value.password,
-                      value.content
-                    );
+                    await addAcommentHandler({
+                      noticeId: value.noticeId,
+                      writer: value.writer,
+                      content: value.content,
+                      email: value.email
+                    });
                   }}
                   onEditComment={async (value) => {
                     validateUserAndConfirm(
@@ -811,11 +821,8 @@ const NoticesTable = ({
 
                   onAddReply={async (value) => {
                     await addAreplyHandler(
-                      value.noticeId,
-                      value.personId,
                       value.commentId,
                       value.writer,
-                      value.password,
                       value.content
                     );
                   }}

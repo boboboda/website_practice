@@ -102,7 +102,6 @@ model Comment {
 // 답글 모델
 model Reply {
   id        String   @id @default(uuid())
-  personId  String?  @map("person_id")
   writer    String
   email     String
   content   String
