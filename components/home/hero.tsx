@@ -5,14 +5,12 @@ import { title } from "@/components/primitives";
 import VisitCalcurateView from "./visitCalcurateView";
 import CustomTyped from "./customTyped";
 import { useAuthStore, useAuthStoreSubscribe } from "@/components/providers/auth-store-provider";
-import {  toast } from "react-toastify";
+import { toast } from "react-toastify";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import HeroTyped from "./heroTyped";
 import TypedComponent from "./heroTyped";
 
 export default function Hero() {
-
   const [startFirst, setStartFirst] = useState(false);
   const [startSecond, setStartSecond] = useState(false);
   const [startThird, setStartThird] = useState(false);
@@ -21,68 +19,48 @@ export default function Hero() {
 
   const router = useRouter()
 
-  const { signInStatus, signUpStatus, socialLoginStatus, logOutStatus, resetStatus } = useAuthStore((state)=> state)
+  const { signInStatus, signUpStatus, socialLoginStatus, logOutStatus, resetStatus } = useAuthStore((state) => state)
 
   const notifySuccessEvent = (msg: string) => toast.success(msg);
 
-  useEffect(()=>{
-
+  useEffect(() => {
     console.log(logOutStatus, '로그아웃 상태')
 
     if (signInStatus === "success") {
-
       notifySuccessEvent("로그인 되었습니다.")
-
-      // router.refresh()
-
       setTimeout(() => {
         resetStatus()
       }, 500)
-
-    } 
+    }
 
     if (signUpStatus === "success") {
       notifySuccessEvent("회원가입 되었습니다.")
-      
-      //  router.refresh()
-
-       setTimeout(() => {
+      setTimeout(() => {
         resetStatus()
       }, 500)
-    } 
+    }
 
     if (socialLoginStatus === "success") {
       notifySuccessEvent("소셜 로그인 되었습니다.")
-
-      // router.refresh()
-
       setTimeout(() => {
         resetStatus()
       }, 500)
-    } 
-
-    if (logOutStatus === "success") {
-
-      notifySuccessEvent("로그아웃 되었습니다.")
-
-      // router.refresh()
-
-      setTimeout(() => {
-        resetStatus()
-      }, 500)
-      
     }
 
-
+    if (logOutStatus === "success") {
+      notifySuccessEvent("로그아웃 되었습니다.")
+      setTimeout(() => {
+        resetStatus()
+      }, 500)
+    }
   }, [])
 
-
   useEffect(() => {
-    const timer1 = setTimeout(() => setStartFirst(true), 300);  // Start the first after 300ms
-    const timer2 = setTimeout(() => setStartSecond(true), 1000); // Start the second after 3400ms
-    const timer3 = setTimeout(() => setStartThird(true), 2500); 
+    const timer1 = setTimeout(() => setStartFirst(true), 300);
+    const timer2 = setTimeout(() => setStartSecond(true), 1000);
+    const timer3 = setTimeout(() => setStartThird(true), 2500);
     const timer4 = setTimeout(() => setStartFour(true), 4500);
-    const timer5 = setTimeout(() => setStartFive(true), 7000); 
+    const timer5 = setTimeout(() => setStartFive(true), 7000);
 
     return () => {
       clearTimeout(timer1);
@@ -93,58 +71,54 @@ export default function Hero() {
     };
   }, []);
 
-
   return (
     <>
       <div className="flex flex-col w-full lg:h-[1500px] justify-start items-center">
-     
-        <div className="flex justify-start items-start flex-row lg:h-[700px] w-full max-w-[1400px]">
-        
-        <div className="w-full w-[50%] flex justify-center h-full">
-        <Animation />
-        </div>
-
-        <div className="w-full flex flex-col h-full items-start justify-start w-[50%] pt-[150px] pr-[150px]">
-        <TypedComponent text="프로필" showEndCursor="none" start={startFirst} className={title({size: "sm", color: "black"})}/> 
-      <br />
-      <TypedComponent text="이름: 부영실" showEndCursor="none" start={startSecond} className={title({size: "sm", color: "black"})}/>
-      <br />
-      <TypedComponent text="취미: 코딩, 게임 등" showEndCursor="none" start={startThird} className={title({size: "sm", color: "black"})}/>
-      <br />
-      <TypedComponent text="관심사: 재테크, 개발, 1인기업" showEndCursor="none" start={startFour} className={title({size: "sm", color: "black"})}/>
-      <br />
-      <TypedComponent text="할줄 아는 것: 안드로이드 개발, IOS 개발, 웹 개발" start={startFive} className={title({size: "sm", color: "black"})}/>
-        </div>
-
-        </div>
-        
-
-        <div className="w-full bg-slate-300 flex justify-center">
-        <div className="w-full max-w-[1400px] flex flex-col md:flex-row bg-slate-300 py-[80px]">
-          <div className="lg:w-[50%] w-full px-[40px] flex justify-center">
-
-          <VisitCalcurateView />
+        {/* 상단 섹션: 애니메이션(왼쪽)과 프로필 텍스트(오른쪽) */}
+        <div className="flex flex-row w-full max-w-[1400px] lg:h-[700px] justify-center items-center px-4 lg:px-0">
+          {/* 애니메이션 섹션 - 항상 왼쪽에 배치 */}
+          <div className="w-1/2 flex justify-center items-center py-4 lg:py-0 scale-75 sm:scale-90 lg:scale-100">
+            <Animation />
           </div>
-          
-          <div className="items-center flex flex-col pl-[50px] h-full items-center justify-center space-y-10 w-full md:w-[50%] text-left md:items-start justify-start">
-          <h1 className={title({ size: "sm" })}>
-            안녕하세요!!
-          </h1>
-          <li className={title({ size: "sm" })}>
-            코딩천재 부영실입니다.
-          </li>
-          <li className={title({ size: "sm" })}>
-            여러분은 꿈을 꾸십니까?
-          </li>
-          <CustomTyped />
 
+          {/* 프로필 텍스트 섹션 - 항상 오른쪽에 배치 */}
+          <div className="w-1/2 flex flex-col items-start justify-start pt-[50px] lg:pt-[150px] pr-[10px] lg:pr-[150px] scale-75 sm:scale-90 lg:scale-100">
+            <TypedComponent text="프로필" showEndCursor="none" start={startFirst} className={title({ size: "smd", color: "black" })} />
+            <br />
+            <TypedComponent text="이름: 부영실" showEndCursor="none" start={startSecond} className={title({ size: "sm", color: "black" })} />
+            <br />
+            <TypedComponent text="취미: 코딩, 게임 등" showEndCursor="none" start={startThird} className={title({ size: "sm", color: "black" })} />
+            <br />
+            <TypedComponent text="관심사: 재테크, 개발, 1인기업" showEndCursor="none" start={startFour} className={title({ size: "sm", color: "black" })} />
+            <br />
+            <TypedComponent text="할줄 아는 것: 안드로이드 개발, IOS 개발, 웹 개발" start={startFive} className={title({ size: "sm", color: "black" })} />
+          </div>
         </div>
-         
+
+        {/* 하단 섹션: 방문자 카운터와 소개글 */}
+        <div className="w-full bg-slate-300 dark:bg-slate-900 flex justify-center">
+          <div className="w-full max-w-[1400px] flex flex-col lg:flex-row bg-slate-300 dark:bg-slate-900 py-8 lg:py-[80px] px-4 lg:px-0">
+            {/* 방문자 계산 뷰 섹션 */}
+            <div className="w-full lg:w-1/2 flex justify-center mb-10 lg:mb-0">
+              <VisitCalcurateView />
+            </div>
+            
+            {/* 소개글 섹션 */}
+            <div className="flex flex-col w-full lg:w-1/2 lg:pl-[50px] space-y-6 lg:space-y-10 text-center lg:text-left items-center lg:items-start px-4 lg:px-0">
+              <h1 className={title({ size: "sm" })}>
+                안녕하세요!!
+              </h1>
+              <li className={title({ size: "sm" })}>
+                코딩천재 부영실입니다.
+              </li>
+              <li className={title({ size: "sm" })}>
+                여러분은 꿈을 꾸십니까?
+              </li>
+              <CustomTyped />
+            </div>
+          </div>
         </div>
-        </div>
-       
       </div>
-
     </>
   )
 }

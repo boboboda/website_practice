@@ -16,6 +16,7 @@ const VisitCalculateView: React.FC = () => {
   });
 
   const animationTriggeredRef = useRef(false);
+  const containerRef = useRef<HTMLDivElement>(null);
 
   const handleScroll = () => {
     setScrollY(window.scrollY);
@@ -41,21 +42,61 @@ const VisitCalculateView: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    if (scrollY > 250 && !animationTriggeredRef.current) {
-      const timer = setTimeout(() => {
-        setIsVisible(true);
-        setProgress(75);
-        setIsMounted(true);
-        animationTriggeredRef.current = true; // 애니메이션이 트리거되었음을 표시
-      }, 100);
-
-      return () => clearTimeout(timer);
+    // Check if component is in viewport without requiring significant scrolling
+    const checkVisibility = () => {
+      if (animationTriggeredRef.current) return;
+      
+      const containerElement = containerRef.current;
+      if (!containerElement) return;
+      
+      const rect = containerElement.getBoundingClientRect();
+      const windowHeight = window.innerHeight;
+      
+      // Element is in viewport or page is too short to scroll much
+      const isShortPage = document.body.scrollHeight < windowHeight + 300;
+      const isInViewport = rect.top < windowHeight;
+      
+      if ((scrollY > 250 || isShortPage || isInViewport) && !animationTriggeredRef.current) {
+        const timer = setTimeout(() => {
+          setIsVisible(true);
+          setProgress(75);
+          setIsMounted(true);
+          animationTriggeredRef.current = true;
+        }, 100);
+        
+        return () => clearTimeout(timer);
+      }
+    };
+    
+    checkVisibility();
+    
+    // Set up an intersection observer as a fallback method
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting && !animationTriggeredRef.current) {
+          setIsVisible(true);
+          setProgress(75);
+          setIsMounted(true);
+          animationTriggeredRef.current = true;
+          observer.disconnect();
+        }
+      },
+      { threshold: 0.1 }
+    );
+    
+    if (containerRef.current) {
+      observer.observe(containerRef.current);
     }
+    
+    return () => {
+      observer.disconnect();
+    };
   }, [scrollY]);
 
   return (
     <div
-      className="w-full grid grid-cols-1 md:grid-cols-2 gap-y-5 gap-x-0 justify-items-center"
+      ref={containerRef}
+      className="w-full grid grid-cols-2 dark:bg-slate-900 md:grid-cols-2 gap-y-5 gap-x-2 justify-items-center"
       style={{
         opacity: isVisible ? 1 : 0,
         transform: `translateY(${isVisible ? 0 : "50px"})`,
@@ -63,9 +104,9 @@ const VisitCalculateView: React.FC = () => {
       }}
     >
       <CircularProgress
-        size={200}
+        size={window.innerWidth < 640 ? 150 : 200}
         progress={progress}
-        strokeWidth={15}
+        strokeWidth={window.innerWidth < 640 ? 10 : 15}
         color="#624E88"
         trackColor="#d9d9d9"
         visitors={visitData.dailyVisitCount}
@@ -75,9 +116,9 @@ const VisitCalculateView: React.FC = () => {
         id="daily-visitors"
       />
       <CircularProgress
-        size={200}
+        size={window.innerWidth < 640 ? 150 : 200}
         progress={progress}
-        strokeWidth={15}
+        strokeWidth={window.innerWidth < 640 ? 10 : 15}
         color="#C96868"
         trackColor="#d9d9d9"
         visitors={visitData.totalVisitCount}
@@ -87,9 +128,9 @@ const VisitCalculateView: React.FC = () => {
         id="total-visitors"
       />
       <CircularProgress
-        size={200}
+        size={window.innerWidth < 640 ? 150 : 200}
         progress={progress}
-        strokeWidth={15}
+        strokeWidth={window.innerWidth < 640 ? 10 : 15}
         color="#FF885B"
         trackColor="#d9d9d9"
         visitors={visitData.operatingDays}
@@ -99,9 +140,9 @@ const VisitCalculateView: React.FC = () => {
         id="operating-days"
       />
       <CircularProgress
-        size={200}
+        size={window.innerWidth < 640 ? 150 : 200}
         progress={progress}
-        strokeWidth={15}
+        strokeWidth={window.innerWidth < 640 ? 10 : 15}
         color="#7695FF"
         trackColor="#d9d9d9"
         visitors={visitData.operatingDays}

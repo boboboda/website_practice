@@ -76,12 +76,6 @@ export type FocusedPostType = {
   appName?: string
 }
 
-export type FocusedNoticeType = {
-  focusedNotice: Post | null,
-  modalType: CustomModalType,
-  appName?: string
-}
-
 export type NoteCategory = 'basics' |'android' | 'Ios' | 'react' | 'python';
 
 export const noteCategories: NoteCategory[] = ['basics','android', 'Ios', 'react', 'python'];

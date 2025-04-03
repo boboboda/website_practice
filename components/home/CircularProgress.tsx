@@ -16,8 +16,6 @@ interface CircularProgressProps {
   // icon: React.ReactNode;
 }
 
-
-
 const CircularProgress: React.FC<CircularProgressProps> = ({
   size,
   progress,
@@ -31,6 +29,22 @@ const CircularProgress: React.FC<CircularProgressProps> = ({
   id,
 }) => {
   const [animatedProgress, setAnimatedProgress] = useState(0);
+  const [windowWidth, setWindowWidth] = useState(typeof window !== 'undefined' ? window.innerWidth : 0);
+
+  useEffect(() => {
+    const handleResize = () => {
+      setWindowWidth(window.innerWidth);
+    };
+    
+    window.addEventListener('resize', handleResize);
+    
+    // 초기값 설정
+    setWindowWidth(window.innerWidth);
+    
+    return () => {
+      window.removeEventListener('resize', handleResize);
+    };
+  }, []);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -44,8 +58,12 @@ const CircularProgress: React.FC<CircularProgressProps> = ({
   const circumference = radius * 2 * Math.PI;
   const offset = circumference - (animatedProgress / 100) * circumference;
 
+  // 반응형 텍스트 크기 조정
+  const textSizeClass = windowWidth < 640 ? 'text-xl' : 'text-3xl';
+  const labelSizeClass = windowWidth < 640 ? 'text-xs' : 'text-sm';
+
   return (
-    <div className={`relative w-[${size}px] h-[${size}px]`}>
+    <div className="relative flex items-center justify-center" style={{ width: size, height: size }}>
       <svg width={size} height={size} className="transform -rotate-90 circular-progress-svg">
         <defs>
           <linearGradient id={`gradient-${id}`} x1="0%" y1="0%" x2="100%" y2="0%">
@@ -80,11 +98,11 @@ const CircularProgress: React.FC<CircularProgressProps> = ({
       </svg>
       <div className='absolute top-0 left-0 w-full h-full flex flex-col items-center justify-center'>
         <div className='flex flex-col items-center justify-center gap-1'>
-          <div className='flex flex-row gap-1 text-3xl font-bold text-gray-500'>
+          <div className={`flex flex-row gap-1 ${textSizeClass} font-bold text-gray-500`}>
             <CountUpComponent color={color} id={id} start={0} end={visitors} duration={3} mounted={mounted}/>
             <span>{type}</span>
           </div>
-          <span className='text-sm text-white'>{label}</span>
+          <span className={`${labelSizeClass} text-white`}>{label}</span>
         </div>
       </div>
     </div>

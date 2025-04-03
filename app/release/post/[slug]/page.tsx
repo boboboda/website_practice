@@ -1,5 +1,6 @@
 import { title } from "@/components/primitives";
-import PostsTable from "@/components/release/postComponent/postBoard-table";
+import PostTable from "@/components/release/postComponent/PostTable";
+import { fetchPosts } from "@/lib/serverActions/posts";
 
 
 
@@ -27,15 +28,18 @@ export default async function postBoardPage({ params }: { params: { slug: string
 
 
     const appName = params.slug ?? ""
+    
+        const response = await fetchPosts(appName, "post");
+        
+    
+        const fetchedPosts = response?.posts ?? [];
 
-    const response = await  fetchPostsApiCall(appName);
-
-    const fetchedPosts = response?.data ?? [];
+      
 
     return (<>
     <div className="container flex pl-5 py-5 flex-col h-[100%] items-center justify-center gap-y-3">
         <h1 className={title()}>문의사항</h1>
-        <PostsTable posts={fetchedPosts} appName={appName} />
+        <PostTable posts={fetchedPosts} appName={appName} postType="post"/>
     </div>
     </>)
 }

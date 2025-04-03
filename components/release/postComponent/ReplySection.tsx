@@ -7,15 +7,16 @@ import {
   CircularProgress, Divider, ScrollShadow 
 } from "@nextui-org/react";
 import { AngleDownIcon, AngleUpIcon } from "@/components/icons";
-import ModalInput from "../postComponent/modal-Input";
+import ModalInput from "../postComponent-dummy/modal-Input";
 import { set } from "lodash";
 
 
 const ReplySection = ({
   user,
   comment,
+  postId,
   isLoading, setIsLoading,
-  onAddReply, onDeleteReply,
+  onAddReply, onDeleteReply, onEditReply,
   hiddenReplies, replyToggleOpen,
 }) => {
   return (
@@ -24,7 +25,7 @@ const ReplySection = ({
       <div className="flex w-full flex-row justify-end items-end">
         <h1 
           className="flex flex-row space-x-2 text-blue-500 cursor-pointer" 
-          onClick={hiddenReplies}
+          onClick={replyToggleOpen}
         >
           <p>답글</p>
           {hiddenReplies ? <AngleDownIcon size={15} /> : <AngleUpIcon size={15} />}
@@ -39,6 +40,7 @@ const ReplySection = ({
         <ReplyAdd
           user={user}
           comment={comment}
+           postId={postId}
           isLoading={isLoading}
           setIsLoading={setIsLoading}
           onAddReply={onAddReply}/>
@@ -47,14 +49,16 @@ const ReplySection = ({
         <div className="w-full">
           <div className="flex flex-col w-full max-h-[600px] items-center overflow-auto">
             <div className="flex flex-col space-y-1 w-[95%] mr-3">
-              <div className="space-y-3 w-full">
+              <div className="space-y-3 w-full mb-3">
                 {comment?.replys && comment.replys.length > 0 ? (
                   comment.replys.map((reply) => (
                     <ReplyList
                       key={reply.id}
                       reply={reply}
+                      postId={postId}
                       commentId={comment.id}
                       onDeleteReply={onDeleteReply}
+                      onEditReply={onEditReply} // 수정 기능 추가
                     />
                   ))
                 ) : (
@@ -72,7 +76,7 @@ const ReplySection = ({
 
 const ReplyAdd = ({
   user,
-  onAddReply, comment, isLoading, setIsLoading
+  onAddReply, postId, comment, isLoading, setIsLoading
   }) => {
 
     const [addReplyContentInput, setAddReplyContentInput] = useState("");
@@ -83,6 +87,7 @@ const ReplyAdd = ({
 
       onAddReply?.({
         commentId: comment?.id ?? "",
+        postId: postId,
         writer: user.name,
         email: user.email,
         content: addReplyContentInput,
@@ -110,11 +115,11 @@ const ReplyAdd = ({
     return (
       <Card className="w-full mb-4">
         <CardBody>
-          <h3 className="text-lg font-semibold mb-2">댓글 작성</h3>
+          {/* <h3 className="text-lg font-semibold mb-2">댓글 작성</h3> */}
           <div className="flex flex-row items-center space-x-2">
             <Input
               type="text"
-              placeholder="댓글을 입력해주세요"
+              placeholder="답글을 입력해주세요"
               variant="bordered"
               className="w-full"
               value={addReplyContentInput}
@@ -177,8 +182,10 @@ const ReplyEdit = ({
 
 const ReplyList = ({
   reply, 
+  postId,
   commentId,
-  onDeleteReply
+  onDeleteReply,
+  onEditReply,
 }) => {
 const [editingReplyId, setEditingReplyId] = useState(null);
   const [editReplyContent, setEditReplyContent] = useState("");
@@ -217,13 +224,12 @@ const [editingReplyId, setEditingReplyId] = useState(null);
                     variant="faded" 
                     size="sm" 
                     onClick={() => {
+                      onDeleteReply?.({
+                        postId: postId,
+                        commentId: commentId,
+                        replyId: reply.id,
+                        replyEmail: reply.email})
 
-                      // ondeleteComment?.({
-                      //   userId: user.id,
-                      //   noticeId,
-                      //   commentId: comment.id,
-                      //   commentEmail: comment.email,
-                      // });
                     }}
                   >
                     삭제
@@ -240,11 +246,14 @@ const [editingReplyId, setEditingReplyId] = useState(null);
               setEditReplyContent={setEditReplyContent}
               onCancelEdit={() => setEditingReplyId(null)}
               onSaveEdit={() => {
-                // onEditComment?.({
-                //   noticeId,
-                //   commentId: comment.id,
-                //   content: editCommentContent,
-                //   email: comment.email});
+                onEditReply?.({
+                  postId,
+                  replyId: reply.id,
+                  content: editReplyContent,
+                  email: reply.email});
+
+
+
                 
                 // 수정 모드 종료
                 setEditingReplyId(null);

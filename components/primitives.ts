@@ -17,6 +17,7 @@ export const title = tv({
 			xxs: "text-[0.3rem] lg:text-[1rem] leading-9",
 			xs: "text-2xl lg:text-3xl",
 			sm: "text-[13px] lg:text-4xl",
+			smd: "text-[20px] lg:text-[32px]", // sm과 md 사이의 새로운 크기
 			md: "text-[2.3rem] lg:text-5xl leading-9",
 			lg: "text-4xl lg:text-6xl",
 		},

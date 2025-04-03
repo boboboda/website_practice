@@ -6,17 +6,14 @@ import {
   CircularProgress, Divider, ScrollShadow 
 } from "@nextui-org/react";
 import { AngleDownIcon, AngleUpIcon } from "@/components/icons";
-import ModalInput from "../postComponent/modal-Input";
+import ModalInput from "../postComponent-dummy/modal-Input";
 import { Reply } from "lucide-react";
 import ReplySection from "./ReplySection";
-
-
-
 
 // 댓글 섹션 컴포넌트
 const CommentSection = ({
   user,
-  localNoticeData,
+  localPostData,
   onEditComment,
   isLoading, 
   setIsLoading,
@@ -24,9 +21,12 @@ const CommentSection = ({
   ondeleteComment, 
   onAddReply, 
   onDeleteReply,
+  onEditReply,
   notifySuccessEvent,
   hiddenComment, commentToggleOpen
 }) => {
+
+  console.log("댓글 섹션", localPostData?.comments);
 
   return (
     <div className="flex w-full flex-col py-1 space-y-3 items-center justify-center">
@@ -49,7 +49,7 @@ const CommentSection = ({
         <CommentAdd
           user={user}
           onAddComment={onAddComment}
-          localNoticeData={localNoticeData}
+          localPostData={localPostData}
           isLoading={isLoading}
           setIsLoading={setIsLoading}
         />
@@ -58,20 +58,22 @@ const CommentSection = ({
         <div className="w-full">
           <div className="flex flex-col w-full max-h-[600px] items-center overflow-auto">
             <div className="flex flex-col space-y-1 w-[95%] mr-3">
-              <div className="space-y-3 w-full">
-                {localNoticeData?.comments && localNoticeData.comments.length > 0 ? (
-                  localNoticeData.comments.map((comment) => (
+              <div className="space-y-3 w-full mb-2">              
+                {
+                localPostData?.comments && localPostData.comments.length > 0 ? (
+                  localPostData.comments.map((comment) => (
                     <CommentsList
                       key={comment.id}
                       user={user}
                       comment={comment}
-                      noticeId={localNoticeData.id}
+                      PostId={localPostData.id}
                       isLoading={isLoading}
                       setIsLoading={setIsLoading}
                       onEditComment={onEditComment}
                       ondeleteComment={ondeleteComment}
                       onAddReply={onAddReply}
                       onDeleteReply={onDeleteReply}
+                      onEditReply={onEditReply} 
                     />
                   ))
                 ) : (
@@ -90,18 +92,17 @@ const CommentSection = ({
 // 댓글 작성 컴포넌트
 const CommentAdd = ({
   user,
-  onAddComment, localNoticeData, isLoading, setIsLoading
+  onAddComment, localPostData, isLoading, setIsLoading
 }) => {
 
   const [addedCommentContentInput, setAddedCommentContentInput] = useState("");
 
   const handleSubmit = () => {
     setIsLoading(true);
-    
-    
+
     // 댓글 추가 처리
     onAddComment?.({
-      noticeId: localNoticeData?.id ?? "",
+      postId: localPostData?.id ?? "",
       writer: user.name,
       email: user.email,
       content: addedCommentContentInput,
@@ -129,7 +130,7 @@ const CommentAdd = ({
   return (
     <Card className="w-full mb-4">
       <CardBody>
-        <h3 className="text-lg font-semibold mb-2">댓글 작성</h3>
+        {/* <h3 className="text-lg font-semibold mb-2">댓글 작성</h3> */}
         <div className="flex flex-row items-center space-x-2">
           <Input
             type="text"
@@ -195,11 +196,12 @@ const CommentEdit = ({
 const CommentsList = ({
   user,
   comment,
-  noticeId,
+  PostId,
   onEditComment,
   ondeleteComment,
   onAddReply,
   onDeleteReply,
+  onEditReply,
   isLoading, setIsLoading,
 }) => {
 const [editingCommentId, setEditingCommentId] = useState(null);
@@ -243,11 +245,11 @@ const [editingCommentId, setEditingCommentId] = useState(null);
                     size="sm" 
                     onClick={() => {
 
-                      console.log("삭제 클릭", comment.id, noticeId, comment.email);
+                      console.log("삭제 클릭", comment.id, PostId, comment.email);
 
                       ondeleteComment?.({
                         userId: user.id,
-                        noticeId,
+                        PostId,
                         commentId: comment.id,
                         commentEmail: comment.email,
                       });
@@ -260,7 +262,7 @@ const [editingCommentId, setEditingCommentId] = useState(null);
             </div>
           </div>
         </CardBody>
-        <CardFooter>
+        <CardFooter className="flex flex-col items-start w-full">
           {isEditing ? (
             <CommentEdit 
               editCommentContent={editCommentContent}
@@ -268,7 +270,7 @@ const [editingCommentId, setEditingCommentId] = useState(null);
               onCancelEdit={() => setEditingCommentId(null)}
               onSaveEdit={() => {
                 onEditComment?.({
-                  noticeId,
+                  PostId,
                   commentId: comment.id,
                   content: editCommentContent,
                   email: comment.email});
@@ -278,21 +280,24 @@ const [editingCommentId, setEditingCommentId] = useState(null);
               }}
             />
           ) : (
-            <div className="flex w-full h-auto">{comment.content}</div>
+            <div className="flex w-full h-auto mb-3">{comment.content}</div>
           )}
 
           {/*답글 섹션*/}
+          <div className="w-full mt-2">
             <ReplySection
-            user={user}
-            comment={comment}
-            isLoading={isLoading}
-            setIsLoading={setIsLoading}
-            onAddReply={onAddReply}
-            onDeleteReply={onDeleteReply}
-            hiddenReplies={hiddenReplies}
-            replyToggleOpen={replyToggleOpen}/>
-
-
+              user={user}
+              postId={PostId}
+              comment={comment}
+              isLoading={isLoading}
+              setIsLoading={setIsLoading}
+              onAddReply={onAddReply}
+              onDeleteReply={onDeleteReply}
+              onEditReply={onEditReply}
+              hiddenReplies={hiddenReplies}
+              replyToggleOpen={replyToggleOpen}
+            />
+          </div>
         </CardFooter>
       </Card>
     </>

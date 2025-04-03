@@ -1,6 +1,6 @@
 import { title } from "@/components/primitives";
 import Head from "next/head"
-import PostsTable from "@/components/release/postComponent/postBoard-table";
+import PostsTable from "@/components/release/postComponent-dummy/postBoard-table";
 import { Post } from "@/types";
 
 

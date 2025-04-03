@@ -25,13 +25,13 @@ import {
   ModalFooter,
   Tooltip,
 } from "@nextui-org/react";
-import { Post, FocusedNoticeType, CustomModalType } from "@/types";
+import { Post, FocusedPostType, CustomModalType } from "@/types";
 import { useRouter, usePathname } from "next/navigation";
 import React from "react";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { VerticalDotsIcon } from "../../icons";
-import NoticeCustomModal from "./Custom-modal";
+import PostCustomModal from "./Custom-modal";
 import { capitalize } from "@/lib/utils";
 import { columns } from "@/types";
 import {
@@ -44,9 +44,19 @@ import {
 } from "../../icons";
 import { of, from, filter, find } from "rxjs";
 import { debounce } from "lodash";
-import PasswordModal from "../postComponent/password-modal";
-import { addAPost, deleteAPost, editAPost, addAComment, deleteAComment, editComment } from "@/lib/serverActions/posts";
-import { useUserStore   } from "@/components/providers/user-store-provider";
+import PasswordModal from "../postComponent-dummy/password-modal";
+import {
+  addAPost,
+  deleteAPost,
+  editAPost,
+  addAComment,
+  deleteAComment,
+  editComment,
+  addAReply,
+  deleteAReply,
+  editReply,
+} from "@/lib/serverActions/posts";
+import { useUserStore } from "@/components/providers/user-store-provider";
 
 type ModalSize =
   | "sm"
@@ -60,18 +70,18 @@ type ModalSize =
   | "4xl"
   | "5xl";
 
-const NoticesTable = ({
-  notices,
+const PostTable = ({
+  posts,
   appName,
+  postType,
 }: {
-  notices: Post[];
+  posts: Post[];
   appName: string;
+  postType: string;
 }) => {
+  const { user } = useUserStore((state) => state);
 
-
-  const { user } = useUserStore((state)=> state);
-
-  const isAdmin = user?.role === 'admin';
+  const isAdmin = user?.role === "admin";
 
   const [filterValue, setFilterValue] = React.useState("");
 
@@ -103,13 +113,13 @@ const NoticesTable = ({
 
   // 띄우는 모달 상태
 
-  const [currentModalData, setCurrentModalData] = useState<FocusedNoticeType>({
-    focusedNotice: null,
+  const [currentModalData, setCurrentModalData] = useState<FocusedPostType>({
+    focusedPost: null,
     modalType: "detail",
     appName: "",
   });
 
-  const [currentNotice, setCurrentNotice] = useState<Post>({
+  const [currentPost, setCurrentPost] = useState<Post>({
     id: "",
     listNumber: "",
     writer: "",
@@ -121,17 +131,17 @@ const NoticesTable = ({
   });
 
   useEffect(() => {
-    const updataNotices = from(notices)
-      .pipe(find((notice) => notice.id === currentNotice.id))
-      .subscribe((updateNotice) => {
+    const updataPosts = from(posts)
+      .pipe(find((post) => post.id === currentPost.id))
+      .subscribe((updatePost) => {
         setCurrentModalData({
-          focusedNotice: updateNotice ?? null,
+          focusedPost: updatePost ?? null,
           modalType: currentModalData.modalType,
         });
       });
 
-    return () => updataNotices.unsubscribe();
-  }, [notices, currentNotice]);
+    return () => updataPosts.unsubscribe();
+  }, [posts, currentPost]);
 
   const router = useRouter();
 
@@ -145,29 +155,39 @@ const NoticesTable = ({
 
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
 
-  const {
-    isOpen: isOneOpen,
-    onOpen: oneOnOpen,
-    onOpenChange: onOneChange,
-    onClose: oneOneClose,
-  } = useDisclosure();
-
-  const validateUserAndConfirm = (value, actionType, callback) => {
+  const validateUserAndConfirm = (
+    value,
+    actionType,
+    callback,
+    contentType = "comment"
+  ) => {
     // 객체 속성 이름 통일을 위한 정규화
     const userEmail = user?.email;
-    const commentEmail = value.commentEmail || value.email; // 두 가지 가능한 속성 이름 처리
-    
-    console.log(`${actionType} 작성자:`, value);
-    console.log(`${actionType} 이메일:`, commentEmail);
-    console.log(`${actionType} 사용자:`, userEmail);
-    
+
+    // 댓글인지 리플인지에 따라 이메일 필드 결정
+    let targetEmail;
+    if (contentType === "comment") {
+      targetEmail = value.commentEmail || value.email;
+    } else if (contentType === "reply") {
+      targetEmail = value.replyEmail || value.email;
+    } else {
+      targetEmail = value.email; // 기본값
+    }
+
+    // 콘텐츠 타입에 따른 로그 메시지 설정
+    const typeLabel = contentType === "reply" ? "답글" : "댓글";
+
+    console.log(`${typeLabel} ${actionType} 작성자:`, value);
+    console.log(`${typeLabel} ${actionType} 이메일:`, targetEmail);
+    console.log(`${typeLabel} ${actionType} 사용자:`, userEmail);
+
     // 이메일 검증
-    if (userEmail !== commentEmail) {
-      const action = actionType === 'edit' ? '수정' : '삭제';
-      notifyErrorEvent(`자신이 작성한 댓글만 ${action}할 수 있습니다.`);
+    if (userEmail !== targetEmail) {
+      const action = actionType === "edit" ? "수정" : "삭제";
+      notifyErrorEvent(`자신이 작성한 ${typeLabel}만 ${action}할 수 있습니다.`);
       return false;
     }
-    
+
     // 확인 모달 설정 및 표시
     setConfirmType(actionType);
     setConfirmAction(() => () => callback(value));
@@ -175,18 +195,21 @@ const NoticesTable = ({
     return true;
   };
 
-  const [confirmType, setConfirmType] = useState('delete');
-  
+  const [confirmType, setConfirmType] = useState("delete");
+
   const [confirmAction, setConfirmAction] = useState(null);
 
-  const { isOpen: isConfirmOpen, onOpen: onConfirmOpen, onOpenChange: onConfirmChange } = useDisclosure();
-
+  const {
+    isOpen: isConfirmOpen,
+    onOpen: onConfirmOpen,
+    onOpenChange: onConfirmChange,
+  } = useDisclosure();
 
   const notifySuccessEvent = (msg: string) => toast.success(msg);
 
   const notifyErrorEvent = (msg: string) => toast.error(msg);
 
-  const notifyUpdateEvent = (msg: string) => toast.update
+  const notifyUpdateEvent = (msg: string) => toast.update;
 
   const [windowWidth, setWindowWidth] = useState(innerWidth);
 
@@ -231,16 +254,16 @@ const NoticesTable = ({
 
   //아이템 필터-검색용도
   const filteredItems = React.useMemo(() => {
-    let filteredNotices = [...notices];
+    let filteredPosts = [...posts];
 
     if (hasSearchFilter) {
-      filteredNotices = filteredNotices.filter((notices) =>
-        notices.title.toLowerCase().includes(filterValue.toLowerCase())
+      filteredPosts = filteredPosts.filter((Posts) =>
+        Posts.title.toLowerCase().includes(filterValue.toLowerCase())
       );
     }
 
-    return filteredNotices;
-  }, [notices, filterValue]);
+    return filteredPosts;
+  }, [posts, filterValue]);
 
   //페이지 관련
   const pages = Math.ceil(filteredItems.length / rowsPerPage);
@@ -264,36 +287,36 @@ const NoticesTable = ({
   }, [sortDescriptor, items]);
 
   const renderCell = React.useCallback(
-    (notice: any, columnKey: any) => {
-      const cellValue = notice[columnKey as keyof Post];
+    (post: any, columnKey: any) => {
+      const cellValue = post[columnKey as keyof Post];
 
       switch (columnKey) {
         case "listNumber":
           return (
-            <h1 className="flex justify-center" key={notice.id}>
-              {notice.listNumber}
+            <h1 className="flex justify-center" key={post.id}>
+              {post.listNumber}
             </h1>
           );
         case "writer":
           return (
-            <h1 className="flex justify-center" key={notice.id}>
-              {notice.writer}
+            <h1 className="flex justify-center" key={post.id}>
+              {post.writer}
             </h1>
           );
         case "title":
           return (
             <h1
               className="flex justify-center cursor-pointer"
-              key={notice.id}
+              key={post.id}
               onClick={(event) => {
                 setCurrentModalData({
-                  focusedNotice: notice,
+                  focusedPost: post,
                   modalType: "detail",
                 });
                 onOpen();
               }}
             >
-              {notice.title}
+              {post.title}
             </h1>
           );
 
@@ -301,9 +324,9 @@ const NoticesTable = ({
           return (
             <h1
               className="flex w-full text-center items-center justify-center"
-              key={notice.id}
+              key={post.id}
             >
-              {notice.create_at}
+              {post.create_at}
             </h1>
           );
         case "actions":
@@ -314,12 +337,12 @@ const NoticesTable = ({
                   className="text-lg text-default-400 cursor-pointer active:opacity-50"
                   onClick={(event) => {
                     setCurrentModalData({
-                      focusedNotice: notice,
+                      focusedPost: post,
                       modalType: "detail",
                       appName: appName,
                     });
                     // 지우지 마라 이거
-                    setCurrentNotice(notice);
+                    setCurrentPost(post);
                     onOpen();
                   }}
                 >
@@ -331,7 +354,7 @@ const NoticesTable = ({
                   className="text-lg text-default-400 cursor-pointer active:opacity-50"
                   onClick={(event) => {
                     setCurrentModalData({
-                      focusedNotice: notice,
+                      focusedPost: post,
                       modalType: "editAuth",
                     });
                     onOpen();
@@ -345,7 +368,7 @@ const NoticesTable = ({
                   className="text-lg text-danger cursor-pointer active:opacity-50"
                   onClick={(event) => {
                     setCurrentModalData({
-                      focusedNotice: notice,
+                      focusedPost: post,
                       modalType: "deleteAuth",
                     });
                     onOpen();
@@ -360,7 +383,7 @@ const NoticesTable = ({
           return cellValue;
       }
     },
-    [notices]
+    [posts]
   );
 
   const onNextPage = React.useCallback(() => {
@@ -436,28 +459,46 @@ const NoticesTable = ({
               </DropdownMenu>
             </Dropdown>
 
-            {isAdmin && 
-            <Button
-              color="primary"
-              endContent={<PlusIcon />}
-              onClick={() => {
-                setCurrentModalData({
-                  focusedNotice: null,
-                  modalType: "add",
-                  appName: appName,
-                });
-                onOpen();
-              }}
-            >
-              공지 게시
-            </Button>
-            }
-            
+            {postType === "notice"
+              ? // 공지사항인 경우 - 관리자만 글쓰기 버튼 표시
+                isAdmin && (
+                  <Button
+                    color="primary"
+                    endContent={<PlusIcon />}
+                    onClick={() => {
+                      setCurrentModalData({
+                        focusedPost: null,
+                        modalType: "add",
+                        appName: appName,
+                      });
+                      onOpen();
+                    }}
+                  >
+                    공지 게시
+                  </Button>
+                )
+              : postType === "post" && (
+                  // 일반 게시판인 경우 - 모든 사용자에게 글쓰기 버튼 표시
+                  <Button
+                    color="primary"
+                    endContent={<PlusIcon />}
+                    onClick={() => {
+                      setCurrentModalData({
+                        focusedPost: null,
+                        modalType: "add",
+                        appName: appName,
+                      });
+                      onOpen();
+                    }}
+                  >
+                    글쓰기
+                  </Button>
+                )}
           </div>
         </div>
         <div className="flex justify-between items-center">
           <span className="text-default-400 text-small">
-            Total {notices.length} notices
+            Total {posts.length} Posts
           </span>
           <label className="flex items-center text-default-400 text-small">
             Rows per page:
@@ -478,7 +519,7 @@ const NoticesTable = ({
     visibleColumns,
     onSearchChange,
     onRowsPerPageChange,
-    notices.length,
+    posts.length,
     hasSearchFilter,
   ]);
 
@@ -522,19 +563,19 @@ const NoticesTable = ({
     );
   }, [selectedKeys, items.length, page, pages, hasSearchFilter]);
 
-  const addAnoticeHandler = async (
+  const addAPostHandler = async (
     title: string,
     writer: string,
     content: string
   ) => {
-    // setIsLoading(true);
+    setIsLoading(true);
 
     await new Promise((f) => setTimeout(f, 600));
 
     try {
       await addAPost({
         appName: appName,
-        postType: "notice",
+        postType: postType,
         title: title,
         writer: writer,
         email: user?.email,
@@ -555,7 +596,7 @@ const NoticesTable = ({
   };
 
   // 게시글 수정
-  const editAnoticeHandler = async (
+  const editAPostHandler = async (
     id: string,
     title: string,
     content: string
@@ -563,17 +604,15 @@ const NoticesTable = ({
     setIsLoading(true);
 
     await new Promise((f) => setTimeout(f, 600));
-  
+
     try {
+      await editAPost({ appName, postType: postType, id, title, content });
 
-      await editAPost({appName, postType: "notice", id, title, content});
+      router.refresh();
 
-    router.refresh();
+      setIsLoading(false);
 
-    setIsLoading(false);
-
-    notifySuccessEvent("공지사항 수정 완료!");
-
+      notifySuccessEvent("공지사항 수정 완료!");
     } catch (error) {
       console.error("공지사항 수정 실패:", error);
       notifyErrorEvent(`공지사항 수정 실패하였습니다.!`);
@@ -581,13 +620,13 @@ const NoticesTable = ({
   };
 
   // 게시글 삭제
-  const deleteAnoticeHandler = async (id: string) => {
+  const deleteAPostHandler = async (id: string) => {
     setIsLoading(true);
 
     try {
       await deleteAPost({
         appName: appName,
-        postType: "notice",
+        postType: postType,
         id: id,
       });
 
@@ -603,176 +642,188 @@ const NoticesTable = ({
   };
 
   const addAcommentHandler = async ({
-    noticeId,
+    postId,
     writer,
     content,
     email,
   }: {
-    noticeId: string,
-    writer: string,
-    content: string,
-    email: string
+    postId: string;
+    writer: string;
+    content: string;
+    email: string;
   }) => {
     await new Promise((f) => setTimeout(f, 600));
 
     try {
       const updatedPost = await addAComment({
-        postId: noticeId,
+        postId: postId,
         commentWriter: writer,
         commentContent: content,
         email: email,
       });
 
-      if(updatedPost) {
-        setCurrentNotice(updatedPost);
+      if (updatedPost) {
+        setCurrentPost(updatedPost);
 
         router.refresh();
 
         notifySuccessEvent(`성공적으로 작성되었습니다!`);
-  
-      console.log(`댓글 추가완료`);
 
+        console.log(`댓글 추가완료`);
       }
-  
-    }catch (error) {
-
+    } catch (error) {
       notifyErrorEvent(`댓글 작성에 실패했습니다.`);
       console.error(error);
     }
-
-   
   };
 
-  const deleteAcommentHandler = async (noticeId, commentId, commentEmail) => {
+  const deleteAcommentHandler = async (postId, commentId, commentEmail) => {
     try {
       // 현재 로그인한 사용자 이메일과 댓글 작성자 이메일 비교
       if (user?.email !== commentEmail) {
         notifyErrorEvent("자신이 작성한 댓글만 삭제할 수 있습니다.");
         return;
       }
-  
-      await new Promise(f => setTimeout(f, 600));
-  
+
+      await new Promise((f) => setTimeout(f, 600));
+
       await deleteAComment({
         appName: appName,
-        postType: "notice",
-        postId: noticeId,
+        postType: postType,
+        postId: postId,
         commentId: commentId,
       });
-  
+
       router.refresh();
       notifySuccessEvent(`댓글이 삭제되었습니다!`);
       console.log(`댓글 삭제완료`);
-  
     } catch (error) {
       notifyErrorEvent(`댓글 삭제 실패`);
       console.log(`댓글 삭제 실패`);
     }
   };
 
-  const editAcommentHandler = async (noticeId, commentId, content) => {
-
+  const editAcommentHandler = async (postId, commentId, content) => {
     try {
-      await new Promise(f => setTimeout(f, 600));
-  
+      await new Promise((f) => setTimeout(f, 600));
+
       const updatedPost = await editComment({
         appName,
-        postType: "notice",
-        postId: noticeId,
+        postType: postType,
+        postId: postId,
         commentId,
-        content
+        content,
       });
-  
-      setCurrentNotice(updatedPost);
+
+      setCurrentPost(updatedPost);
+
+      router.refresh();
       notifySuccessEvent("댓글이 수정되었습니다!");
-      console.log(`댓글 수정 완료료`);
-  
+      console.log(`댓글 수정 완료`);
     } catch (error) {
       notifyErrorEvent(`댓글 수정 실패`);
       console.log(`댓글 수정 실패`);
     }
-  }
-  
+  };
 
   const addAreplyHandler = async ({
-commendId,
-writer,
-content,
-email
+    commendId,
+    postId,
+    writer,
+    content,
+    email,
   }: {
-    commendId: string,
-    writer: string,
-    content: string,
-    email: string
-  }
-    
-  ) => {
+    commendId: string;
+    writer: string;
+    postId: string;
+    content: string;
+    email: string;
+  }) => {
     await new Promise((f) => setTimeout(f, 600));
 
     try {
-      const updatedreply = await addAComment({
-        postId: noticeId,
-        commentWriter: writer,
-        commentContent: content,
+      const updatedPost = await addAReply({
+        appName: appName,
+        postType: postType,
+        postId: postId,
+        commentId: commendId,
+        replyWriter: writer,
+        replyContent: content,
         email: email,
       });
 
-      if(updatedreply) {
-        setCurrentNotice(updatedPost);
+      if (updatedPost) {
+        setCurrentPost(updatedPost);
 
         router.refresh();
 
         notifySuccessEvent(`성공적으로 작성되었습니다!`);
-  
+
         console.log(`답글 추가완료`);
-
       }
-  
-    }catch (error) {
-
+    } catch (error) {
       notifyErrorEvent(`답글 작성에 실패했습니다.`);
       console.error(error);
     }
-  
-    router.refresh();
-
   };
 
-  const deleteReplyHandler = async (
-    noticeId: string,
-    commentId: string,
-    replyId: string
-  ) => {
-    await new Promise((f) => setTimeout(f, 600));
-    await fetch(
-      `${process.env.NEXT_PUBLIC_BASE_URL}/api/notices/comments/reply/${appName}Notice/${noticeId}/${commentId}?replyId=${replyId}`,
-      {
-        method: "delete",
-        cache: "no-store",
+  const deleteReplyHandler = async ({
+    postId,
+    replyId,
+    replyEmail,
+  }: {
+    postId: string;
+    replyId: string;
+    replyEmail: string;
+  }) => {
+    try {
+      // 현재 로그인한 사용자 이메일과 댓글 작성자 이메일 비교
+      if (user?.email !== replyEmail) {
+        notifyErrorEvent("자신이 작성한 답글만 삭제할 수 있습니다.");
+        return;
       }
-    );
 
-    router.refresh();
+      await new Promise((f) => setTimeout(f, 600));
 
-    const noticeToUpdate = notices.find((notice) => notice.id === noticeId);
+      const updatePost = await deleteAReply({
+        appName: appName,
+        postType: postType,
+        postId: postId,
+        replyId: replyId,
+      });
 
-    if (noticeToUpdate !== undefined) setCurrentNotice(noticeToUpdate);
-
-    notifySuccessEvent(`답글이 삭제되었습니다!`);
+      setCurrentPost(updatePost);
+      router.refresh();
+      notifySuccessEvent(`답글이 삭제되었습니다!`);
+      console.log(`답글 삭제완료`);
+    } catch (error) {
+      notifyErrorEvent(`답글 삭제 실패`);
+      console.log(`답글 삭제 실패`);
+    }
   };
 
-  const [passwordModalType, setPasswordModalType] = useState<number>(1);
+  const editAreplyHandler = async (PostId, replyId, content) => {
+    try {
+      await new Promise((f) => setTimeout(f, 600));
 
-  const [deletePassword, setDeletePassword] = useState("");
+      const updatedPost = await editReply({
+        appName,
+        postType: postType,
+        postId: PostId,
+        replyId: replyId,
+        content,
+      });
 
-  const [deleteNoticeId, setDeleteNoticeId] = useState("");
+      setCurrentPost(updatedPost);
+      router.refresh();
+      notifySuccessEvent("답글이 수정되었습니다!");
+      console.log(`답글 수정 완료`);
+    } catch (error) {
+      notifyErrorEvent(`답글 수정 실패`);
+      console.log(`답글 수정 실패`);
+    }
+  };
 
-  const [deleteCommentId, setDeleteCommentId] = useState("");
-
-  const [deleteReplyId, setDeleteReplyId] = useState("");
-
-
- 
   const ModalComponent = () => {
     return (
       <div>
@@ -788,86 +839,115 @@ email
         >
           <ModalContent>
             {(onClose) =>
-              currentModalData.focusedNotice ? (
-                <NoticeCustomModal
-                user={user}
-                  focusedNotice={currentModalData.focusedNotice}
+              currentModalData.focusedPost ? (
+                <PostCustomModal
+                  user={user}
+                  focusedPost={currentModalData.focusedPost}
                   modalType={currentModalData.modalType}
                   appName={currentModalData.appName}
+                  postType={postType}
                   onClose={onClose}
                   onAddComment={async (value) => {
                     await addAcommentHandler({
-                      noticeId: value.noticeId,
+                      postId: value.postId,
                       writer: value.writer,
                       content: value.content,
-                      email: value.email
+                      email: value.email,
                     });
                   }}
                   onEditComment={async (value) => {
                     validateUserAndConfirm(
-                      value, 
-                      'edit',
-                      (val) => editAcommentHandler(val.noticeId, val.commentId, val.content)
+                      value,
+                      "edit",
+                      (val) =>
+                        editAcommentHandler(
+                          val.PostId,
+                          val.commentId,
+                          val.content
+                        ),
+                      "comment"
                     );
                   }}
-                  
                   ondeleteComment={async (value) => {
                     validateUserAndConfirm(
-                      value, 
-                      'delete',
-                      (val) => deleteAcommentHandler(val.noticeId, val.commentId, val.commentEmail || val.email)
+                      value,
+                      "delete",
+                      (val) =>
+                        deleteAcommentHandler(
+                          val.PostId,
+                          val.commentId,
+                          val.commentEmail || val.email
+                        ),
+                      "comment"
                     );
                   }}
-
                   onAddReply={async (value) => {
-                    await addAreplyHandler(
-                      value.commentId,
-                      value.writer,
-                      value.content
-                    );
+                    await addAreplyHandler({
+                      commendId: value.commentId,
+                      writer: value.writer,
+                      postId: value.postId,
+                      content: value.content,
+                      email: value.email,
+                    });
                   }}
                   onDeleteReply={async (value) => {
-                    setDeleteCommentId(value.commentId);
-                    setDeletePassword(value.replyPassword);
-                    setDeleteNoticeId(value.noticeId);
-                    setDeleteReplyId(value.replyId);
-                    setPasswordModalType(2);
-                    oneOnOpen();
+                    validateUserAndConfirm(
+                      value,
+                      "delete",
+                      (val) =>
+                        deleteReplyHandler({
+                          postId: val.postId,
+                          replyId: val.replyId,
+                          replyEmail: val.replyEmail || val.email,
+                        }),
+                      "reply"
+                    );
                   }}
-                  onDeleteAuth={async (notice) => {
+                  onEditReply={async (value) => {
+                    validateUserAndConfirm(
+                      value,
+                      "edit",
+                      (val) =>
+                        editAreplyHandler(val.PostId, val.replyId, val.content),
+                      "reply"
+                    );
+                  }}
+                  onDeleteAuth={async (Post) => {
                     onClose();
                     await new Promise((f) => setTimeout(f, 600));
                     setCurrentModalData({
-                      focusedNotice: notice,
+                      focusedPost: Post,
                       modalType: "delete",
                     });
                     onOpen();
                   }}
-                  onEditAuth={async (notice) => {
+                  onEditAuth={async (Post) => {
                     onClose();
                     await new Promise((f) => setTimeout(f, 600));
                     setCurrentModalData({
-                      focusedNotice: notice,
+                      focusedPost: Post,
                       modalType: "edit",
                     });
                     onOpen();
                   }}
                   onEdit={async (id, title, content) => {
-                    await editAnoticeHandler(id, title, content);
+                    await editAPostHandler(id, title, content);
                     onClose();
                   }}
                   onDelete={async (id) => {
-                    await deleteAnoticeHandler(id);
+                    await deleteAPostHandler(id);
                     onClose();
                   }}
                 />
               ) : (
-                <NoticeCustomModal
-                user={user}
+                <PostCustomModal
+                  user={user}
+                  appName={appName}
+                  postType={postType}
                   modalType={currentModalData.modalType}
                   onClose={onClose}
                   onAdd={async (value) => {
-                    await addAnoticeHandler(
+                    await addAPostHandler(
                       value.title,
                       value.writer,
                       value.content
@@ -883,14 +963,12 @@ email
     );
   };
 
-
-
-
   const ConfirmActionModal = () => {
-    const modalTitle = confirmType === 'edit' ? '댓글 수정 확인' : '댓글 삭제 확인';
-    const actionText = confirmType === 'edit' ? '수정' : '삭제';
-    const btnColor = confirmType === 'edit' ? 'primary' : 'danger';
-    
+    const modalTitle =
+      confirmType === "edit" ? "댓글 수정 확인" : "댓글 삭제 확인";
+    const actionText = confirmType === "edit" ? "수정" : "삭제";
+    const btnColor = confirmType === "edit" ? "primary" : "danger";
+
     return (
       <Modal
         isOpen={isConfirmOpen}
@@ -901,7 +979,9 @@ email
         <ModalContent>
           {(onClose) => (
             <>
-              <ModalHeader className="flex flex-col gap-1">{modalTitle}</ModalHeader>
+              <ModalHeader className="flex flex-col gap-1">
+                {modalTitle}
+              </ModalHeader>
               <ModalBody>
                 <p>정말 이 댓글을 {actionText}하시겠습니까?</p>
               </ModalBody>
@@ -992,4 +1072,4 @@ email
   );
 };
 
-export default NoticesTable;
+export default PostTable;
