@@ -200,6 +200,18 @@ export default function NavBar() {
                 {
                   user?.role === 'admin'? 
                   
+                  <DropdownItem key="resister" textValue="resister" onClick={()=>{
+                    router.push('/admin/register');
+                  }}>
+                  <p>앱 등록</p>
+                </DropdownItem>
+                
+                  
+                  : null
+                }
+                {
+                  user?.role === 'admin'? 
+                  
                   <DropdownItem key="adminWrite" textValue="adminWrite" onClick={()=>{
                     router.push('/admin/write');
                   }}>

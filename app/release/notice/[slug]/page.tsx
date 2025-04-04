@@ -15,7 +15,7 @@ export default async function noticeBoardPage({ params }: { params: { slug: stri
 
     return (
     <>
-    <div className="container flex pl-5 py-5 flex-col items-center justify-center gap-y-3">
+    <div className="container flex w-full pl-5 py-5 flex-col items-center justify-center gap-y-3">
         <h1 className={title()}>공지사항</h1>
         <PostTable posts={fetchedNotices} appName={appName} postType="notice" />
        

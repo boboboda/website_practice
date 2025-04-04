@@ -44,7 +44,6 @@ import {
 } from "../../icons";
 import { of, from, filter, find } from "rxjs";
 import { debounce } from "lodash";
-import PasswordModal from "../postComponent-dummy/password-modal";
 import {
   addAPost,
   deleteAPost,

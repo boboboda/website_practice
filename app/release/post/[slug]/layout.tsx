@@ -5,7 +5,7 @@ export default function postBoardLayout({
 }) {
 	return (
 		
-			<div>
+		<div className="flex flex-col w-full items-center">
 				{children}
 			</div>
 		

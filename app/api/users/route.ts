@@ -30,27 +30,3 @@ export async function GET(request: NextRequest) {
         // Next.js API 라우트는 일반적으로 요청당 한 번 실행되기 때문입니다.
     }
 }
-
-// import { NextRequest, NextResponse } from "next/server";
-// import { PrismaClient } from '@prisma/client';
-
-// export async function GET(request: NextRequest) {
-//   try {
-//     console.log("API 요청 시작");
-//     const prisma = new PrismaClient();
-//     console.log("Prisma 클라이언트 생성됨");
-    
-//     // 간단한 쿼리 시도
-//     console.log("데이터베이스 연결 시도 중...");
-//     const count = await prisma.$queryRaw`SELECT 1`;
-//     console.log("데이터베이스 연결 성공:", count);
-    
-//     return NextResponse.json({ message: "성공" });
-//   } catch (error) {
-//     console.error("API 오류:", error);
-//     return NextResponse.json({ 
-//       message: "오류 발생", 
-//       error: error instanceof Error ? error.message : String(error) 
-//     }, { status: 500 });
-//   }
-// }

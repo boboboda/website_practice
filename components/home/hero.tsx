@@ -77,13 +77,13 @@ export default function Hero() {
         {/* 상단 섹션: 애니메이션(왼쪽)과 프로필 텍스트(오른쪽) */}
         <div className="flex flex-row w-full max-w-[1400px] lg:h-[700px] justify-center items-center px-4 lg:px-0">
           {/* 애니메이션 섹션 - 항상 왼쪽에 배치 */}
-          <div className="w-1/2 flex justify-center items-center py-4 lg:py-0 scale-75 sm:scale-90 lg:scale-100">
+          <div className="w-1/2 h-full flex  py-4 items-start lg:py-0 scale-75 sm:scale-90 lg:scale-100">
             <Animation />
           </div>
 
           {/* 프로필 텍스트 섹션 - 항상 오른쪽에 배치 */}
-          <div className="w-1/2 flex flex-col items-start justify-start pt-[50px] lg:pt-[150px] pr-[10px] lg:pr-[150px] scale-75 sm:scale-90 lg:scale-100">
-            <TypedComponent text="프로필" showEndCursor="none" start={startFirst} className={title({ size: "smd", color: "black" })} />
+          <div className="w-1/2 h-full flex flex-col items-start justify-start pt-[50px] lg:pt-[100px] pr-[10px] lg:pr-[150px] scale-75 sm:scale-90 lg:scale-100">
+            <TypedComponent text="프로필" showEndCursor="none" start={startFirst} className={`${title({ size: "smd", color: "black" })} lg:text-[3rem] lg: font-bold`} />
             <br />
             <TypedComponent text="이름: 부영실" showEndCursor="none" start={startSecond} className={title({ size: "sm", color: "black" })} />
             <br />
